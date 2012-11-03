@@ -12,13 +12,15 @@ public class CourseTable extends JPanel {
 	private JTable table;
 
 	public CourseTable() {
+		setLayout(new BorderLayout());
+		
 		String[] columnNames = { "Év", "Név" };
 		Object[][] data = { { "1999", "kurzus1" }, { "2005", "kurzus2", }, { "2012", "kurzus3", }, };
 		table = new JTable(data, columnNames);
 		table.setFillsViewportHeight(true);
 		
 		JScrollPane scrollPane = new JScrollPane(table);
-		add(scrollPane);
+		add(scrollPane, BorderLayout.CENTER);
 	}
 
 }

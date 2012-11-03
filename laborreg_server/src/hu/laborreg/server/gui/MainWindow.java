@@ -42,7 +42,7 @@ public class MainWindow {
 	}
 
 	private void initialize() {
-		frame = new JFrame();
+		frame = new JFrame("Jelenlét regisztráló rendszer");
 		frame.setBounds(100, 100, 450, 300);
 		frame.setMinimumSize(new Dimension(450, 300));
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -64,7 +64,7 @@ public class MainWindow {
 	private void createToolbarButtons() {
 		createButton("Hozzáad", "Új hozzáadása", "plus-circle");
 		createButton("Töröl", "Kijelölt törlése", "minus-circle");
-		createButton("Szerkeszt", "Kijelölt szerkesztése", "arrow-circle-double-135");
+		createButton("Szerkeszt", "Kijelölt szerkesztése", "keyboard-command");
 		createButton("Frissít", "Frissítés", "arrow-circle-double-135");
 	}
 
