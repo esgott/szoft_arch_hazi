@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 import hu.laborreg.server.db.DBConnectionHandler;
+import hu.laborreg.server.gui.MainWindow;
 
 public class Main {
 
@@ -22,6 +23,7 @@ public class Main {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		MainWindow.display();
 	}
 
 }
