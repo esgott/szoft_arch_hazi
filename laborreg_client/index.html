@@ -1,0 +1,23 @@
+<head>
+	<title>Jelenlét regisztráló rendszer</title>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+</head>
+
+<body>
+
+	<form name="signInForm">
+		NEPTUN kód: <input type="text" name="neptun"><br>
+		<button onclick="signIn()">Jelentkezés</button>
+	</form>
+	
+
+<script type="text/javascript">
+
+function signIn() {
+	confirm(document.forms["signInForm"]["neptun"].value);
+	//confirm("A NEPTUN kód nem található a regisztrált hallgatók között. Biztosan ezzel a kóddal szeretnél jelentkezni?");
+}
+
+</script>
+
+</body>
