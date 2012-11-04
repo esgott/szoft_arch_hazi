@@ -50,7 +50,7 @@ public class MainWindow {
 		frame.setMinimumSize(new Dimension(450, 300));
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		dataManipulatorDialog = new DataManipulatorDialog();
+		dataManipulatorDialog = new DataManipulatorDialog(300, 100, new CourseManipulatorPanel());
 
 		toolBar = new JToolBar();
 		toolBar.setRollover(true);

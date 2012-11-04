@@ -18,20 +18,24 @@ public class DataManipulatorDialog extends JDialog {
 
 	private JPanel contentPanel = new JPanel();
 	private JPanel buttonPane = new JPanel();;
+	private ManipulatorPanel manipulatorPanel;
 
-	public DataManipulatorDialog() {
-		setBounds(100, 100, 450, 300);
+	public DataManipulatorDialog(int width, int height, ManipulatorPanel manipulatorPanel) {
+		setBounds(100, 100, width, height);
 		getContentPane().setLayout(new BorderLayout());
 		contentPanel.setLayout(new FlowLayout());
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		getContentPane().add(contentPanel, BorderLayout.CENTER);
+		
+		this.manipulatorPanel = manipulatorPanel;
+		contentPanel.add(manipulatorPanel);
 
-		buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
+		buttonPane.setLayout(new FlowLayout(FlowLayout.CENTER));
 		getContentPane().add(buttonPane, BorderLayout.SOUTH);
 
 		addOkButton();
 		addCancelButton();
-		
+
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
@@ -52,9 +56,9 @@ public class DataManipulatorDialog extends JDialog {
 			}
 		});
 	}
-	
+
 	private void addCancelButton() {
-		JButton cancelButton = new JButton("Cancel");
+		JButton cancelButton = new JButton("Mégse");
 		cancelButton.setActionCommand("Cancel");
 		buttonPane.add(cancelButton);
 		cancelButton.addActionListener(new ActionListener() {
@@ -64,18 +68,19 @@ public class DataManipulatorDialog extends JDialog {
 			}
 		});
 	}
-	
+
 	public void display(String title) {
 		setTitle(title);
 		setVisible(true);
 	}
-	
+
 	public void clearAndHide() {
 		setVisible(false);
 		clear();
 	}
-	
+
 	private void clear() {
+		manipulatorPanel.clear();
 	}
 
 }
