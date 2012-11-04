@@ -10,6 +10,7 @@ import java.lang.reflect.InvocationTargetException;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
@@ -17,7 +18,7 @@ import javax.swing.SwingUtilities;
 
 public class MainWindow {
 
-	private static final int MINIMUM_WIDTH = 550;
+	private static final int MINIMUM_WIDTH = 600;
 	private static final int MINIMUM_HEIGHT = 200;
 
 	private JFrame frame;
@@ -76,10 +77,22 @@ public class MainWindow {
 				dataManipulatorDialog.display("Kurzus hozzáadása");
 			}
 		});
+
 		createButton("Töröl", "Kijelölt törlése", "minus-circle");
+
 		createButton("Szerkeszt", "Kijelölt szerkesztése", "keyboard-command");
-		createButton("Részletek", "Részletes információ megjelenítése", "eye");
+
+		createButton("Részletek", "Részletes információ megjelenítése", "eye", new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String message = "Kurzus neve: kurzus1\nÉv: 1999\nLaboresemények: labor1, labor2\nRegisztrált hallgatók: ABC123, DEF456";
+				JOptionPane.showMessageDialog(frame, message, "Részletek", JOptionPane.PLAIN_MESSAGE);
+			}
+		});
+
 		createButton("Frissít", "Frissítés", "arrow-circle-double-135");
+
+		createButton("Exportál", "Adatok exportálása CSV formátumba", "arrow-curve");
 	}
 
 	private void createButton(String buttonText, String tooltipText, String iconName, ActionListener listener) {
@@ -88,7 +101,7 @@ public class MainWindow {
 		button.setToolTipText(tooltipText);
 		button.setHorizontalTextPosition(JButton.CENTER);
 		button.setVerticalTextPosition(JButton.BOTTOM);
-		button.setPreferredSize(new Dimension(100, 53));
+		button.setPreferredSize(new Dimension(93, 53));
 		if (listener != null) {
 			button.addActionListener(listener);
 		}
