@@ -6,6 +6,7 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -102,8 +103,10 @@ public class MainWindow {
 	}
 
 	private void createButton(String buttonText, String tooltipText, String iconName, ActionListener listener) {
-		String imagePath = "res/icons/" + iconName + ".png";
-		JButton button = new JButton(buttonText, new ImageIcon(imagePath));
+		String imagePath = "/icons/" + iconName + ".png";
+		URL imageURL = getClass().getResource(imagePath);
+		ImageIcon image = new ImageIcon(imageURL);
+		JButton button = new JButton(buttonText, image);
 		button.setToolTipText(tooltipText);
 		button.setHorizontalTextPosition(JButton.CENTER);
 		button.setVerticalTextPosition(JButton.BOTTOM);
