@@ -1,0 +1,2 @@
+If you would like to see the UML diagrams in the original format (in ArgoUML), you should download the binary file of ArgoUML from here (diagrams were made with ArgoUML 0.34):
+http://argouml.tigris.org/
