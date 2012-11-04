@@ -9,21 +9,24 @@ import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 
 public class MainWindow {
 
 	private static final int MINIMUM_WIDTH = 600;
 	private static final int MINIMUM_HEIGHT = 200;
 
-	private JFrame frame;
-	private JTabbedPane tabbedPane;
-	private JToolBar toolBar;
+	private JFrame frame = new JFrame("Jelenlét regisztráló rendszer");;
+	private JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);;
+	private JToolBar toolBar = new JToolBar();;
+	private JFileChooser fileChooser;
 	private DataManipulatorDialog dataManipulatorDialog;
 
 	public static void display() {
@@ -49,25 +52,23 @@ public class MainWindow {
 	}
 
 	private void initialize() {
-		frame = new JFrame("Jelenlét regisztráló rendszer");
 		frame.setBounds(100, 100, MINIMUM_WIDTH, MINIMUM_HEIGHT + 200);
 		frame.setMinimumSize(new Dimension(MINIMUM_WIDTH, MINIMUM_HEIGHT));
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+		translateJFileChooser();
+		fileChooser = new JFileChooser();
 
 		dataManipulatorDialog = new DataManipulatorDialog(300, 100, new CourseManipulatorPanel());
 
-		toolBar = new JToolBar();
 		toolBar.setRollover(true);
 		toolBar.setFloatable(false);
 		toolBar.setLayout(new FlowLayout(FlowLayout.LEFT));
+		createToolbarButtons();
 		frame.getContentPane().add(toolBar, BorderLayout.NORTH);
 
-		createToolbarButtons();
-
-		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
-		frame.getContentPane().add(tabbedPane, BorderLayout.CENTER);
-
 		createTabs();
+		frame.getContentPane().add(tabbedPane, BorderLayout.CENTER);
 	}
 
 	private void createToolbarButtons() {
@@ -92,7 +93,12 @@ public class MainWindow {
 
 		createButton("Frissít", "Frissítés", "arrow-circle-double-135");
 
-		createButton("Exportál", "Adatok exportálása CSV formátumba", "arrow-curve");
+		createButton("Exportál", "Adatok exportálása CSV formátumba", "arrow-curve", new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				fileChooser.showDialog(frame, "Exportálás");
+			}
+		});
 	}
 
 	private void createButton(String buttonText, String tooltipText, String iconName, ActionListener listener) {
@@ -117,4 +123,30 @@ public class MainWindow {
 		tabbedPane.addTab("Laboresemények", new JPanel());
 	}
 
+
+	private void translateJFileChooser() {
+		UIManager.put("FileChooser.acceptAllFileFilterText", "Összes fájl");
+		UIManager.put("FileChooser.lookInLabelText", "Hely");
+		UIManager.put("FileChooser.cancelButtonText", "Mégse");
+		UIManager.put("FileChooser.cancelButtonToolTipText", "Mégse");
+		UIManager.put("FileChooser.openButtonText", "Megnyitás");
+		UIManager.put("FileChooser.openButtonToolTipText", "Fájl megnyitása");
+		UIManager.put("FileChooser.filesOfTypeLabelText", "Típus");
+		UIManager.put("FileChooser.fileNameLabelText", "Fájlnév");
+		UIManager.put("FileChooser.listViewButtonToolTipText", "Lista"); 
+		UIManager.put("FileChooser.listViewButtonAccessibleName", "Lista"); 
+		UIManager.put("FileChooser.detailsViewButtonToolTipText", "Részletek");
+		UIManager.put("FileChooser.detailsViewButtonAccessibleName", "Részletek");
+		UIManager.put("FileChooser.upFolderToolTipText", "Egy szinttel feljebb"); 
+		UIManager.put("FileChooser.upFolderAccessibleName", "Egy szinttel feljebb"); 
+		UIManager.put("FileChooser.homeFolderToolTipText", "Saját mappa"); 
+		UIManager.put("FileChooser.homeFolderAccessibleName", "Saját mappa");
+		UIManager.put("FileChooser.fileNameHeaderText", "Név"); 
+		UIManager.put("FileChooser.fileSizeHeaderText", "Méret"); 
+		UIManager.put("FileChooser.fileTypeHeaderText", "Típus"); 
+		UIManager.put("FileChooser.fileDateHeaderText", "Módosítva"); 
+		UIManager.put("FileChooser.fileAttrHeaderText", "Attribútumok"); 
+		UIManager.put("FileChooser.openDialogTitleText","Megnyitás");
+		UIManager.put("FileChooser.readOnly", Boolean.TRUE);
+	}
 }
