@@ -3,6 +3,8 @@ package hu.laborreg.server.gui;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.ImageIcon;
@@ -18,6 +20,7 @@ public class MainWindow {
 	private JFrame frame;
 	private JTabbedPane tabbedPane;
 	private JToolBar toolBar;
+	private DataManipulatorDialog dataManipulatorDialog;
 
 	public static void display() {
 		try {
@@ -46,6 +49,8 @@ public class MainWindow {
 		frame.setBounds(100, 100, 450, 300);
 		frame.setMinimumSize(new Dimension(450, 300));
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+		dataManipulatorDialog = new DataManipulatorDialog();
 
 		toolBar = new JToolBar();
 		toolBar.setRollover(true);
@@ -62,20 +67,32 @@ public class MainWindow {
 	}
 
 	private void createToolbarButtons() {
-		createButton("Hozzáad", "Új hozzáadása", "plus-circle");
+		createButton("Hozzáad", "Új hozzáadása", "plus-circle", new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				dataManipulatorDialog.display("Kurzus hozzáadása");
+			}
+		});
 		createButton("Töröl", "Kijelölt törlése", "minus-circle");
 		createButton("Szerkeszt", "Kijelölt szerkesztése", "keyboard-command");
 		createButton("Frissít", "Frissítés", "arrow-circle-double-135");
 	}
 
-	private void createButton(String buttonText, String tooltipText, String iconName) {
+	private void createButton(String buttonText, String tooltipText, String iconName, ActionListener listener) {
 		String imagePath = "res/icons/" + iconName + ".png";
 		JButton button = new JButton(buttonText, new ImageIcon(imagePath));
 		button.setToolTipText(tooltipText);
 		button.setHorizontalTextPosition(JButton.CENTER);
 		button.setVerticalTextPosition(JButton.BOTTOM);
 		button.setPreferredSize(new Dimension(100, 53));
+		if (listener != null) {
+			button.addActionListener(listener);
+		}
 		toolBar.add(button);
+	}
+	
+	private void createButton(String buttonText, String tooltipText, String iconName) {
+		createButton(buttonText, tooltipText, iconName, null);
 	}
 
 	private void createTabs() {
