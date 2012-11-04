@@ -17,6 +17,9 @@ import javax.swing.SwingUtilities;
 
 public class MainWindow {
 
+	private static final int MINIMUM_WIDTH = 550;
+	private static final int MINIMUM_HEIGHT = 200;
+
 	private JFrame frame;
 	private JTabbedPane tabbedPane;
 	private JToolBar toolBar;
@@ -46,10 +49,10 @@ public class MainWindow {
 
 	private void initialize() {
 		frame = new JFrame("Jelenlét regisztráló rendszer");
-		frame.setBounds(100, 100, 450, 300);
-		frame.setMinimumSize(new Dimension(450, 300));
+		frame.setBounds(100, 100, MINIMUM_WIDTH, MINIMUM_HEIGHT + 200);
+		frame.setMinimumSize(new Dimension(MINIMUM_WIDTH, MINIMUM_HEIGHT));
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
+
 		dataManipulatorDialog = new DataManipulatorDialog(300, 100, new CourseManipulatorPanel());
 
 		toolBar = new JToolBar();
@@ -75,6 +78,7 @@ public class MainWindow {
 		});
 		createButton("Töröl", "Kijelölt törlése", "minus-circle");
 		createButton("Szerkeszt", "Kijelölt szerkesztése", "keyboard-command");
+		createButton("Részletek", "Részletes információ megjelenítése", "eye");
 		createButton("Frissít", "Frissítés", "arrow-circle-double-135");
 	}
 
@@ -90,7 +94,7 @@ public class MainWindow {
 		}
 		toolBar.add(button);
 	}
-	
+
 	private void createButton(String buttonText, String tooltipText, String iconName) {
 		createButton(buttonText, tooltipText, iconName, null);
 	}
