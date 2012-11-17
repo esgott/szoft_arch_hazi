@@ -4,14 +4,20 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.nio.charset.Charset;
+import java.util.List;
 import java.util.Locale;
 import java.util.logging.Logger;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.MethodNotSupportedException;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.FileEntity;
 import org.apache.http.entity.StringEntity;
@@ -32,7 +38,11 @@ public class HttpFileHandler implements HttpRequestHandler {
 			throws HttpException, IOException {
 		checkMethod(request);
 
-		File file = getRequestedFile(request);
+		String target = request.getRequestLine().getUri();
+		String[] parts = target.split("\\?");
+		List<NameValuePair> parameters = URLEncodedUtils.parse(parts[1], Charset.forName("UTF-8"));
+
+		File file = getRequestedFile(parts[0]);
 		if (!file.exists()) {
 			replyFileNotFound(response, file);
 		} else if (!file.canRead() || file.isDirectory()) {
@@ -51,8 +61,7 @@ public class HttpFileHandler implements HttpRequestHandler {
 		}
 	}
 
-	private File getRequestedFile(final HttpRequest request) throws UnsupportedEncodingException {
-		String target = request.getRequestLine().getUri();
+	private File getRequestedFile(final String target) throws UnsupportedEncodingException {
 		File file = new File(docRoot, URLDecoder.decode(target, "UTF-8"));
 		if (file.isDirectory()) {
 			file = new File(file, "index.html");
