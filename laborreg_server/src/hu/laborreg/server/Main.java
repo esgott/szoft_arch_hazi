@@ -8,8 +8,10 @@ import hu.laborreg.server.db.DBConnectionHandler;
 import hu.laborreg.server.gui.MainWindow;
 
 public class Main {
+	private static DBConnectionHandler dbConnHandler;
+	private static Connection connection;
 	
-	private DataExporter dataExporter = new DataExporter();
+	private DataExporter dataExporter = new DataExporter(dbConnHandler);
 	private ClientConnectionHandler clientConnectionHandler = new ClientConnectionHandler();
 	private CourseContainer courseContainer = new CourseContainer();
 	private LabEventContainer labEventContainer = new LabEventContainer();
@@ -18,11 +20,10 @@ public class Main {
 	
 	public static void main(String[] args) {
 		Configuration configuration = new Configuration();
-		Connection connection;
 		try {
 			Class.forName("org.sqlite.JDBC");
 			connection = DriverManager.getConnection("jdbc:sqlite:" + configuration.getProperty(Configuration.dbFile));
-			DBConnectionHandler dbConnHandler = new DBConnectionHandler(connection);
+			dbConnHandler = new DBConnectionHandler(connection);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -31,8 +32,6 @@ public class Main {
 			e.printStackTrace();
 		}
 		MainWindow.display();
-		
-		
 	}
 
 }

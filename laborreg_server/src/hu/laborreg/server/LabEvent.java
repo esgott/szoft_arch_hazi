@@ -1,5 +1,5 @@
 package hu.laborreg.server;
 
-public class LabEventContainer {
+public class LabEvent {
 	//TODO
 }
