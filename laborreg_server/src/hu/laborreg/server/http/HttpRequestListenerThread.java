@@ -6,45 +6,28 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.logging.Logger;
 
-import org.apache.http.ConnectionReuseStrategy;
-import org.apache.http.HttpResponseFactory;
-import org.apache.http.HttpResponseInterceptor;
-import org.apache.http.impl.DefaultConnectionReuseStrategy;
-import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.impl.DefaultHttpServerConnection;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.SyncBasicHttpParams;
-import org.apache.http.protocol.HttpProcessor;
-import org.apache.http.protocol.HttpRequestHandlerRegistry;
 import org.apache.http.protocol.HttpService;
-import org.apache.http.protocol.ImmutableHttpProcessor;
-import org.apache.http.protocol.ResponseConnControl;
-import org.apache.http.protocol.ResponseContent;
-import org.apache.http.protocol.ResponseDate;
-import org.apache.http.protocol.ResponseServer;
 
 public class HttpRequestListenerThread implements Runnable {
 
 	private final ServerSocket serverSocket;
 	private final HttpParams params = new SyncBasicHttpParams();;
 	private final HttpService httpService;
+	private final HttpFactory factory;
 	private final Logger logger = Logger.getLogger(this.getClass().getName());
 
-	public HttpRequestListenerThread(int port, final String docRoot) throws IOException {
-		serverSocket = new ServerSocket(port);
+	public HttpRequestListenerThread(int port, final String docRoot, final HttpFactory httpFactory) throws IOException {
+		factory = httpFactory;
+		serverSocket = factory.createServerSocket(port);
 
 		setParameters();
 
-		HttpResponseInterceptor[] interceptors = { new ResponseDate(), new ResponseServer(), new ResponseContent(),
-				new ResponseConnControl() };
-		HttpProcessor httpProcessor = new ImmutableHttpProcessor(interceptors);
-		HttpRequestHandlerRegistry registry = new HttpRequestHandlerRegistry();
-		registry.register("*", new HttpFileHandler(docRoot));
-		ConnectionReuseStrategy requestStrategy = new DefaultConnectionReuseStrategy();
-		HttpResponseFactory responseFactory = new DefaultHttpResponseFactory();
-		httpService = new HttpService(httpProcessor, requestStrategy, responseFactory, registry, params);
+		httpService = factory.createHttpService(docRoot, params);
 	}
 
 	private void setParameters() {
@@ -61,13 +44,11 @@ public class HttpRequestListenerThread implements Runnable {
 		while (!Thread.interrupted()) {
 			try {
 				Socket socket = serverSocket.accept();
-				DefaultHttpServerConnection connection = new DefaultHttpServerConnection();
+				DefaultHttpServerConnection connection = factory.createHttpServerConnection();
 				logger.info("Incomming connection from " + socket.getInetAddress());
 				connection.bind(socket, params);
 
-				HttpWorkerThread workerThread = new HttpWorkerThread(httpService, connection);
-				Thread thread = new Thread(workerThread);
-				thread.setDaemon(true);
+				Thread thread = factory.createThread(httpService, connection);
 				thread.start();
 			} catch (InterruptedIOException e) {
 				logger.fine("InterruptedIOException happened: " + e.getMessage());

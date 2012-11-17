@@ -2,6 +2,7 @@ package hu.laborreg.server;
 
 import hu.laborreg.server.db.DBConnectionHandler;
 import hu.laborreg.server.gui.MainWindow;
+import hu.laborreg.server.http.HttpFactory;
 import hu.laborreg.server.http.HttpRequestListenerThread;
 
 import java.io.IOException;
@@ -45,7 +46,7 @@ public class Main {
 		try {
 			int port = Integer.parseInt(configuration.getProperty(Configuration.httpServerPort));
 			String docRoot = configuration.getProperty(Configuration.htmlRoot);
-			HttpRequestListenerThread httpServer = new HttpRequestListenerThread(port, docRoot);
+			HttpRequestListenerThread httpServer = new HttpRequestListenerThread(port, docRoot, new HttpFactory());
 			Thread thread = new Thread(httpServer);
 			thread.setDaemon(true);
 			thread.start();

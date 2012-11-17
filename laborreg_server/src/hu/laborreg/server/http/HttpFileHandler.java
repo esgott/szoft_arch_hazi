@@ -1,5 +1,7 @@
 package hu.laborreg.server.http;
 
+import hu.laborreg.server.file.FileProvider;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -25,10 +27,12 @@ import org.apache.http.protocol.HttpRequestHandler;
 public class HttpFileHandler implements HttpRequestHandler {
 
 	private final String docRoot;
+	private final FileProvider fileProvider;
 	private final Logger logger = Logger.getLogger(this.getClass().getName());
 
-	public HttpFileHandler(final String documentsRoot) {
+	public HttpFileHandler(final String documentsRoot, final FileProvider provider) {
 		docRoot = documentsRoot;
+		fileProvider = provider;
 	}
 
 	@Override
@@ -60,9 +64,9 @@ public class HttpFileHandler implements HttpRequestHandler {
 	}
 
 	private File getRequestedFile(final String target) throws UnsupportedEncodingException {
-		File file = new File(docRoot, URLDecoder.decode(target, "UTF-8"));
+		File file = fileProvider.requestFile(docRoot, URLDecoder.decode(target, "UTF-8"));
 		if (file.isDirectory()) {
-			file = new File(file, "index.html");
+			file = fileProvider.requestFile(file, "index.html");
 		}
 		return file;
 	}
