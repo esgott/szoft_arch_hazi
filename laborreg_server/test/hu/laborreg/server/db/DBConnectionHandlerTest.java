@@ -1,6 +1,5 @@
 package hu.laborreg.server.db;
 
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 
 import java.sql.Connection;
@@ -37,7 +36,7 @@ public class DBConnectionHandlerTest {
 		when(mockConnection.createStatement()).thenReturn(mockStatement);
 
 		/* DBConnectionHandler dbConnHandler = */new DBConnectionHandler(mockConnection);
-		fail("Not yet implemented");
+		//TODO create tests
 	}
 
 }
