@@ -7,5 +7,6 @@
 	<classpathentry kind="lib" path="../lib/sqlite-jdbc-3.7.2.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="../lib/mockito-all-1.9.5.jar"/>
+	<classpathentry kind="lib" path="../lib/httpcore-4.2.2.jar" sourcepath="../lib/src/httpcore"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
