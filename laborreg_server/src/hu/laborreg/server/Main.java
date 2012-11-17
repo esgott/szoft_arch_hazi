@@ -2,11 +2,9 @@ package hu.laborreg.server;
 
 import hu.laborreg.server.db.DBConnectionHandler;
 import hu.laborreg.server.gui.MainWindow;
-import hu.laborreg.server.http.HttpServer;
+import hu.laborreg.server.http.HttpRequestListenerThread;
 
 import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -36,28 +34,23 @@ public class Main {
 			connection = DriverManager.getConnection("jdbc:sqlite:" + configuration.getProperty(Configuration.dbFile));
 			dbConnHandler = new DBConnectionHandler(connection);
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
+			logger.severe("SQLError: " + e.getMessage());
 			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
+			logger.severe("Failed to load database driver: " + e.getMessage());
 			e.printStackTrace();
 		}
 		MainWindow.display();
 
 		try {
 			int port = Integer.parseInt(configuration.getProperty(Configuration.httpServerPort));
-			ServerSocket server = new ServerSocket(port, 10);
-			logger.info("HTTP server started on port " + Integer.toString(port));
-			for (;;) {
-				Socket connected = server.accept();
-				String clientHtml = configuration.getProperty(Configuration.clientHtmlPage);
-				String errorHtml = configuration.getProperty(Configuration.errorHtmlPage);
-				HttpServer httpServer = new HttpServer(connected, clientHtml, errorHtml);
-				Thread thread = new Thread(httpServer);
-				thread.start();
-			}
+			String docRoot = configuration.getProperty(Configuration.htmlRoot);
+			HttpRequestListenerThread httpServer = new HttpRequestListenerThread(port, docRoot);
+			Thread thread = new Thread(httpServer);
+			thread.setDaemon(true);
+			thread.start();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			logger.severe("Failed to initilaize HTTP server:" + e.getMessage());
 			e.printStackTrace();
 		}
 	}
