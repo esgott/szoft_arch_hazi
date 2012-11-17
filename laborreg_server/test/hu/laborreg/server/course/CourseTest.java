@@ -26,8 +26,8 @@ public class CourseTest {
 		cont = new CourseContainer();
 		c1 = new Course("aaa",111);
 		c2 = new Course("bbb",222);
-		ev1 = new LabEvent();
-		ev2 = new LabEvent();
+		ev1 = new LabEvent("lab_1",c1.getName(),"11:00","12:00");
+		ev2 = new LabEvent("lab_2",c2.getName(),"12:00","13:00");
 		st1 = new Student("xxx","Bela");
 		st2 = new Student("yyy","Geza");
 		st3 = new Student("zzz", "Sanyi");
@@ -55,11 +55,10 @@ public class CourseTest {
 		c1.addLabEvent(ev1);
 		c1.addLabEvent(ev2);
 		c1.removeLabEvent(ev2);
-		c1.addLabEvent(ev2);
 		
-		assertEquals(2, c1.getLabEvents().size());
-		c1.addLabEvent(ev1);
-		assertEquals(2, c1.getLabEvents().size());
+		assertEquals(1, c1.getLabEvents().size());
+		c1.addLabEvent(ev2);
+		assertEquals(1, c1.getLabEvents().size());
 		
 		c1.registerStudent(st1);
 		c1.registerStudent(st2);
@@ -98,7 +97,6 @@ public class CourseTest {
 			
 			cont.addCourse(c1);
 			c1.addLabEvent(ev1);
-			c1.addLabEvent(ev2);
 			c1.registerStudent(st1);
 			c1.registerStudent(st2);
 			c1.registerStudent(st3);
@@ -109,7 +107,7 @@ public class CourseTest {
 			c2.registerStudent(st3);
 
 			
-			assertEquals(2,cont.getCourse(c1.getName(), c1.getYear()).getLabEvents().size());
+			assertEquals(1,cont.getCourse(c1.getName(), c1.getYear()).getLabEvents().size());
 			assertEquals(1,cont.getCourse(c2.getName(), c2.getYear()).getLabEvents().size());
 			
 			assertEquals(3,cont.getCourse(c1.getName(), c1.getYear()).getRegisteredStudents().size());
