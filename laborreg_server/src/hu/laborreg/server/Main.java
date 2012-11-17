@@ -8,7 +8,14 @@ import hu.laborreg.server.db.DBConnectionHandler;
 import hu.laborreg.server.gui.MainWindow;
 
 public class Main {
-
+	
+	private DataExporter dataExporter = new DataExporter();
+	private ClientConnectionHandler clientConnectionHandler = new ClientConnectionHandler();
+	private CourseContainer courseContainer = new CourseContainer();
+	private LabEventContainer labEventContainer = new LabEventContainer();
+	private ComputerContainer computercontainer = new ComputerContainer();
+	private StudentContainer studentContainer = new StudentContainer();
+	
 	public static void main(String[] args) {
 		Configuration configuration = new Configuration();
 		Connection connection;
@@ -24,6 +31,8 @@ public class Main {
 			e.printStackTrace();
 		}
 		MainWindow.display();
+		
+		
 	}
 
 }
