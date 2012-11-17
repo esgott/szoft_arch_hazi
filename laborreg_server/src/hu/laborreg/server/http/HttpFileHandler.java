@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.logging.Logger;
 
-import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -37,12 +36,15 @@ public class HttpFileHandler implements HttpRequestHandler {
 
 	@Override
 	public void handle(final HttpRequest request, final HttpResponse response, final HttpContext context)
-			throws HttpException, IOException {
+			throws MethodNotSupportedException, IOException {
 		checkMethod(request);
 
 		String target = request.getRequestLine().getUri();
 		String[] parts = target.split("\\?");
-		List<NameValuePair> parameters = URLEncodedUtils.parse(parts[1], Charset.forName("UTF-8"));
+		if (parts.length > 1) {
+			List<NameValuePair> parameters = URLEncodedUtils.parse(parts[1], Charset.forName("UTF-8"));
+			// TODO Handle parameters and test them
+		}
 
 		File file = getRequestedFile(parts[0]);
 		if (!file.exists()) {
@@ -90,7 +92,7 @@ public class HttpFileHandler implements HttpRequestHandler {
 
 	private void replyOk(final HttpResponse response, final File file) {
 		response.setStatusCode(HttpStatus.SC_OK);
-		FileEntity body = new FileEntity(file, ContentType.create("text/html"));
+		FileEntity body = fileProvider.createFileEntity(file);
 		response.setEntity(body);
 		logger.fine("Serving file " + file.getPath());
 	}
