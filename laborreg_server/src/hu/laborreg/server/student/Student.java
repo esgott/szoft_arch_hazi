@@ -1,4 +1,4 @@
-package hu.laborreg.server;
+package hu.laborreg.server.student;
 
 public class Student {
 	

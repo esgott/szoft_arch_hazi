@@ -1,5 +1,9 @@
-package hu.laborreg.server;
+package hu.laborreg.server.course;
 
+import hu.laborreg.server.labEvent.LabEvent;
+import hu.laborreg.server.student.Student;
+
+import java.util.HashSet;
 import java.util.Set;
 
 public class Course {
@@ -19,6 +23,9 @@ public class Course {
 	{
 		this.name = name;
 		this.year = year;
+		
+		registeredStudents = new HashSet<Student>();
+		labEvents = new HashSet<LabEvent>();
 	}
 	
 	/**

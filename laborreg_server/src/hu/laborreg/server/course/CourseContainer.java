@@ -1,5 +1,7 @@
-package hu.laborreg.server;
+package hu.laborreg.server.course;
 
+
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -12,6 +14,7 @@ public class CourseContainer {
 	 */
 	public CourseContainer()
 	{
+		courses = new HashSet<Course>();
 		//TODO read the existing courses from the DB.
 	}
 	

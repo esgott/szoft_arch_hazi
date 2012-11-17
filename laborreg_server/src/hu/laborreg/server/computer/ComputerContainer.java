@@ -1,5 +1,6 @@
-package hu.laborreg.server;
+package hu.laborreg.server.computer;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -12,6 +13,7 @@ public class ComputerContainer {
 	 */
 	public ComputerContainer()
 	{
+		computers = new HashSet<Computer>();
 		//TODO read the existing computers from the DB.
 	}
 	

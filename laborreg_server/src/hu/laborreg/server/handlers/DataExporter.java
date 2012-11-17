@@ -1,6 +1,7 @@
-package hu.laborreg.server;
+package hu.laborreg.server.handlers;
 
 import hu.laborreg.server.db.DBConnectionHandler;
+import hu.laborreg.server.labEvent.LabEvent;
 
 public class DataExporter {
 	

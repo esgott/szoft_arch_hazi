@@ -1,5 +1,6 @@
-package hu.laborreg.server;
+package hu.laborreg.server.student;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -12,6 +13,7 @@ public class StudentContainer {
 	 */
 	public StudentContainer()
 	{
+		students = new HashSet<Student>();
 		//TODO read the existing students from the DB.
 	}
 	

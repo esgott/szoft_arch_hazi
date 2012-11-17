@@ -1,4 +1,4 @@
-package hu.laborreg.server;
+package hu.laborreg.server.computer;
 
 public class Computer {
 	
