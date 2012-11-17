@@ -58,7 +58,8 @@ public class CourseTest {
 		
 		assertEquals(1, c1.getLabEvents().size());
 		c1.addLabEvent(ev2);
-		assertEquals(1, c1.getLabEvents().size());
+		assertEquals(2, c1.getLabEvents().size());
+		c1.removeLabEvent(ev2);
 		
 		c1.registerStudent(st1);
 		c1.registerStudent(st2);

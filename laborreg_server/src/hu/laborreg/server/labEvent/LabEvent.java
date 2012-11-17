@@ -1,5 +1,6 @@
 package hu.laborreg.server.labEvent;
 
+import hu.laborreg.server.Constants;
 import hu.laborreg.server.computer.Computer;
 import hu.laborreg.server.student.Student;
 
@@ -12,11 +13,6 @@ import java.text.ParseException;
 
 
 public class LabEvent {
-	
-	public final int TIME_IS_OK = 0;
-	public final int STARTTIME_IS_LATER_THAN_STOPTIME = 1;
-	public final int LABEVENT_IS_ONGOING = 2;
-	public final int LABEVENT_FINISHED = 3;
 	
 	private String name;
 	private String courseName;
@@ -105,14 +101,16 @@ public class LabEvent {
 	/**
 	 * Allow multiple registration to the specified Computer. After this more than one Students can sign in from this computer.
 	 * @param computer The needed Computer.
+	 * @return If computer added to the list: COMPUTER_ADDED(0)
+	 * 			if computer already added to the list: COMPUTER_ALREADY_ADDED(1)
 	 */
-	public void allowMultipleRegistration(Computer computer)
+	public int allowMultipleRegistration(Computer computer)
 	{
 		try
 		{
 			if(this.registeredComputers.add(computer) == false)
 			{
-				//TODO  registeredComputers already contain this computer. Display error in error window?
+				return Constants.COMPUTER_ALREADY_ADDED;
 			}
 		}
 		catch(UnsupportedOperationException e)
@@ -131,6 +129,8 @@ public class LabEvent {
 		{
 			e.printStackTrace();
 		}
+		
+		return Constants.COMPUTER_ADDED;
 	}
 	
 	/**
@@ -163,7 +163,7 @@ public class LabEvent {
 	 *			If LabEvent is currently ongoing: LABEVENT_IS_ONGOING(2)
 	 *			If LabEvent is already finished: LABEVENT_FINISHED(3)
 	 */
-	public int checkTime(String startTime, String stopTime)
+	private int checkTime(String startTime, String stopTime)
 	{
 		DateFormat df = new SimpleDateFormat("HH:mm");
 
@@ -189,24 +189,24 @@ public class LabEvent {
 		{
 			if(givenStartTime.get(Calendar.MINUTE) >= givenStopTime.get(Calendar.MINUTE))
 			{
-				return STARTTIME_IS_LATER_THAN_STOPTIME;
+				return Constants.STARTTIME_IS_LATER_THAN_STOPTIME;
 			}
 		}
 		if(currentTime.get(Calendar.HOUR_OF_DAY) >= storedStartTime.get(Calendar.HOUR_OF_DAY))
 		{
 			if(currentTime.get(Calendar.MINUTE) >= storedStartTime.get(Calendar.MINUTE))
 			{
-				return LABEVENT_IS_ONGOING;
+				return Constants.LABEVENT_IS_ONGOING;
 			}
 		}
 		if(currentTime.get(Calendar.HOUR_OF_DAY) >= storedStopTime.get(Calendar.HOUR_OF_DAY))
 		{
 			if(currentTime.get(Calendar.MINUTE) >= storedStopTime.get(Calendar.MINUTE))
 			{
-				return LABEVENT_FINISHED;
+				return Constants.LABEVENT_FINISHED;
 			}
 		}
 		
-		return TIME_IS_OK;
+		return Constants.TIME_IS_OK;
 	}
 }

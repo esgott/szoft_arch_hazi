@@ -1,6 +1,8 @@
 package hu.laborreg.server.labEvent;
 
 
+import hu.laborreg.server.Constants;
+
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -21,15 +23,16 @@ public class LabEventContainer {
 	/**
 	 * Add labEvent to the labEvents list.
 	 * @param labEvent The needed labEvent
+	 * @return If the container does not contain this LabEvent yet: CONTAINER_OK(0)
+	 * 			If the container already consists this LabEvent: CONTAINER_ALREADY_CONSISTS_THIS_ELEMENT(1)
 	 */
-	public void addLabEvent(LabEvent labEvent)
+	public int addLabEvent(LabEvent labEvent)
 	{
-		
 		try
 		{
 			if(this.labEvents.add(labEvent) == false)
 			{
-				//TODO labEvents already contain this labEvent. Display error in error window?
+				return Constants.CONTAINER_ALREADY_CONSISTS_THIS_ELEMENT;
 			}
 		}
 		catch(UnsupportedOperationException e)
@@ -48,20 +51,24 @@ public class LabEventContainer {
 		{
 			e.printStackTrace();
 		}
+		
+		return Constants.CONTAINER_OK;
 	}
 	
 	/**
 	 * Remove labEvent to the labEvents list.
 	 * @param labEvent The needed labEvent
+	 * @return If the remove was successful: CONAINER_OK(0)
+	 * 			If the container does not contain this LabEvent: CONTAINER_ALREADY_CONSISTS_THIS_ELEMENT(1)
 	 */
-	public void removeLabEvent(LabEvent labEvent)
+	public int removeLabEvent(LabEvent labEvent)
 	{
 		
 		try
 		{
 			if(this.labEvents.remove(labEvent) == false)
 			{
-				//TODO labEvents doesn't contain this labEvent.  Display error in error window?
+				return Constants.CONTAINER_DOES_NOT_CONTAIN_THIS_ELEMENT;
 			}
 		}
 		catch(UnsupportedOperationException e)
@@ -76,6 +83,8 @@ public class LabEventContainer {
 		{
 			e.printStackTrace();
 		}
+		
+		return Constants.CONTAINER_OK;
 	}
 	
 	/**
