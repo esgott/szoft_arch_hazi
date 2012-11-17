@@ -17,7 +17,7 @@ public class CourseContainer {
 	
 	/**
 	 * Add course to the courses list.
-	 * @param course
+	 * @param course The needed course
 	 */
 	public void addCourse(Course course)
 	{
@@ -49,7 +49,7 @@ public class CourseContainer {
 	
 	/**
 	 * Remove course to the courses list.
-	 * @param course
+	 * @param course The needed course
 	 */
 	public void removeCourse(Course course)
 	{
