@@ -1,5 +1,6 @@
 package hu.laborreg.server.course;
 
+import hu.laborreg.server.Constants;
 import hu.laborreg.server.labEvent.LabEvent;
 import hu.laborreg.server.student.Student;
 
@@ -67,14 +68,16 @@ public class Course {
 	/**
 	 * Register Student to this Course.
 	 * @param student The Student who wants to be registered to this Course. 
+	 * @return If the Student registered to the Course: STUDENT_REGISTERED(0)
+	 * 			If the Student already registered to the Course: STUDENT_ALREADY_REGISTERED(1)
 	 */
-	public void registerStudent(Student student)
+	public int registerStudent(Student student)
 	{
 		try
 		{
 			if(registeredStudents.add(student) == false)
 			{
-				//TODO Student is already member of this course.  Display error in error window?
+				return Constants.STUDENT_ALREADY_REGISTERED;
 			}
 		}
 		catch(UnsupportedOperationException e)
@@ -93,19 +96,23 @@ public class Course {
 		{
 			e.printStackTrace();
 		}
+		
+		return Constants.STUDENT_REGISTERED;
 	}
 	
 	/**
 	 * Delete Student from this Course.
 	 * @param student The Student who wants to be deleted from this Course.
+	 * @return If the Student removed successfully from the Course: STUDENT_UNREGISTERED(0)
+	 * 			If the Student doesn't found in the Student list of the Course: STUDENT_NOT_FOUND_IN_THE_REGISTERED_STUDENTS_LIST(1)
 	 */
-	public void unregisterStudent(Student student)
+	public int unregisterStudent(Student student)
 	{
 		try
 		{
 			if(registeredStudents.remove(student) == false)
 			{
-				//TODO Student doesn't registered to this course. Display error in error window?
+				return Constants.STUDENT_NOT_FOUND_IN_THE_REGISTERED_STUDENTS_LIST;
 			}
 		}
 		catch(UnsupportedOperationException e)
@@ -120,19 +127,23 @@ public class Course {
 		{
 			e.printStackTrace();
 		}
+		
+		return Constants.STUDENT_UNREGISTERED;
 	}
 	
 	/**
 	 * Add lab event to this course.
 	 * @param labEvent The lab event which want to be added to this Course.
+	 * @return If the LabEvent added to the Course: LAB_EVENT_ADDED(0)
+	 * 			If the LabEvent already added to the Course: LAB_EVENT_ADDED(1)
 	 */
-	public void addLabEvent(LabEvent labEvent)
+	public int addLabEvent(LabEvent labEvent)
 	{
 		try
 		{
 			if(labEvents.add(labEvent) == false)
 			{
-				//TODO LabEvent is already member of this course. Display error in error window?
+				return Constants.LAB_EVENT_ALREADY_ADDED;
 			}
 		}
 		catch(UnsupportedOperationException e)
@@ -151,19 +162,23 @@ public class Course {
 		{
 			e.printStackTrace();
 		}
+		
+		return Constants.LAB_EVENT_ADDED;
 	}
 	
 	/**
 	 * Remove lab event from this Course.
 	 * @param labEvent The lab event which want to be removed from this Course.
+	 * @return If the LabEvent removed successfully from the Course: LAB_EVENT_REMOVED(0)
+	 * 			If the LabEvent doesn't found in the LabEvent list of the Course: LAB_EVENT_NOT_FOUND_IN_THE_LAB_EVENTS_LIST(1)
 	 */
-	public void removeLabEvent(LabEvent labEvent)
+	public int removeLabEvent(LabEvent labEvent)
 	{
 		try
 		{
 			if(labEvents.remove(labEvent) == false)
 			{
-				//TODO LabEvent doesn't member of this course. Display error in error window?
+				return Constants.LAB_EVENT_NOT_FOUND_IN_THE_LAB_EVENTS_LIST;
 			}
 		}
 		catch(UnsupportedOperationException e)
@@ -178,5 +193,7 @@ public class Course {
 		{
 			e.printStackTrace();
 		}
+		
+		return Constants.LAB_EVENT_REMOVED;
 	}
 }

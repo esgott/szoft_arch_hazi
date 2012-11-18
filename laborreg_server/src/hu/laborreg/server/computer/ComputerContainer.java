@@ -1,5 +1,7 @@
 package hu.laborreg.server.computer;
 
+import hu.laborreg.server.Constants;
+
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -19,16 +21,18 @@ public class ComputerContainer {
 	
 	/**
 	 * Add computer to the computers list.
-	 * @param computer The needed computer
+	 * @param computer The needed computer.
+	 * @return If the container does not contain this Computer yet: CONTAINER_OK(0)
+	 * 			If the container already contains this Computer: CONTAINER_ALREADY_CONTAINS_THIS_ELEMENT(1)
 	 */
-	public void addComputer(Computer computer)
+	public int addComputer(Computer computer)
 	{
 		
 		try
 		{
 			if(this.computers.add(computer) == false)
 			{
-				//TODO computers already contain this computer. Display error in error window?
+				return Constants.CONTAINER_ALREADY_CONTAINS_THIS_ELEMENT;
 			}
 		}
 		catch(UnsupportedOperationException e)
@@ -47,20 +51,24 @@ public class ComputerContainer {
 		{
 			e.printStackTrace();
 		}
+		
+		return Constants.CONTAINER_OK;
 	}
 	
 	/**
 	 * Remove computer to the computers list.
-	 * @param computer The needed computer
+	 * @param computer The needed computer.
+	 * @return If the remove was successful: CONAINER_OK(0)
+	 * 			If the container does not contain this Computer: CONTAINER_DOES_NOT_CONTAIN_THIS_ELEMENT(1)
 	 */
-	public void removeComputer(Computer computer)
+	public int removeComputer(Computer computer)
 	{
 		
 		try
 		{
 			if(this.computers.remove(computer) == false)
 			{
-				//TODO computers doesn't contain this computer.  Display error in error window?
+				return Constants.CONTAINER_DOES_NOT_CONTAIN_THIS_ELEMENT;
 			}
 		}
 		catch(UnsupportedOperationException e)
@@ -75,6 +83,8 @@ public class ComputerContainer {
 		{
 			e.printStackTrace();
 		}
+		
+		return Constants.CONTAINER_OK;
 	}
 	
 	/**

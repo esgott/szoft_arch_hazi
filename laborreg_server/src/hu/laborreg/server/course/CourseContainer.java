@@ -1,6 +1,8 @@
 package hu.laborreg.server.course;
 
 
+import hu.laborreg.server.Constants;
+
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -19,17 +21,19 @@ public class CourseContainer {
 	}
 	
 	/**
-	 * Add course to the courses list.
+	 * Add Course to the courses list.
 	 * @param course The needed course
+	 * @return If the container does not contain this Course yet: CONTAINER_OK(0)
+	 * 			If the container already contains this Course: CONTAINER_ALREADY_CONTAINS_THIS_ELEMENT(1)
 	 */
-	public void addCourse(Course course)
+	public int addCourse(Course course)
 	{
 		
 		try
 		{
 			if(this.courses.add(course) == false)
 			{
-				//TODO courses already contain this course. Display error in error window?
+				return Constants.CONTAINER_ALREADY_CONTAINS_THIS_ELEMENT;
 			}
 		}
 		catch(UnsupportedOperationException e)
@@ -48,20 +52,24 @@ public class CourseContainer {
 		{
 			e.printStackTrace();
 		}
+		
+		return Constants.CONTAINER_OK;
 	}
 	
 	/**
 	 * Remove course to the courses list.
 	 * @param course The needed course
+	 * @return If the remove was successful: CONAINER_OK(0)
+	 * 			If the container does not contain this Course: CONTAINER_DOES_NOT_CONTAIN_THIS_ELEMENT(1)
 	 */
-	public void removeCourse(Course course)
+	public int removeCourse(Course course)
 	{
 		
 		try
 		{
 			if(this.courses.remove(course) == false)
 			{
-				//TODO courses doesn't contain this course.  Display error in error window?
+				return Constants.CONTAINER_DOES_NOT_CONTAIN_THIS_ELEMENT;
 			}
 		}
 		catch(UnsupportedOperationException e)
@@ -76,6 +84,8 @@ public class CourseContainer {
 		{
 			e.printStackTrace();
 		}
+		
+		return Constants.CONTAINER_OK;
 	}
 	
 	/**

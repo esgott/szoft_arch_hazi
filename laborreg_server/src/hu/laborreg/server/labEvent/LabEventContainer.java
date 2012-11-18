@@ -24,7 +24,7 @@ public class LabEventContainer {
 	 * Add labEvent to the labEvents list.
 	 * @param labEvent The needed labEvent
 	 * @return If the container does not contain this LabEvent yet: CONTAINER_OK(0)
-	 * 			If the container already consists this LabEvent: CONTAINER_ALREADY_CONSISTS_THIS_ELEMENT(1)
+	 * 			If the container already contains this LabEvent: CONTAINER_ALREADY_CONSISTS_THIS_ELEMENT(1)
 	 */
 	public int addLabEvent(LabEvent labEvent)
 	{
@@ -32,7 +32,7 @@ public class LabEventContainer {
 		{
 			if(this.labEvents.add(labEvent) == false)
 			{
-				return Constants.CONTAINER_ALREADY_CONSISTS_THIS_ELEMENT;
+				return Constants.CONTAINER_ALREADY_CONTAINS_THIS_ELEMENT;
 			}
 		}
 		catch(UnsupportedOperationException e)
@@ -59,7 +59,7 @@ public class LabEventContainer {
 	 * Remove labEvent to the labEvents list.
 	 * @param labEvent The needed labEvent
 	 * @return If the remove was successful: CONAINER_OK(0)
-	 * 			If the container does not contain this LabEvent: CONTAINER_ALREADY_CONSISTS_THIS_ELEMENT(1)
+	 * 			If the container does not contain this LabEvent: CONTAINER_DOES_NOT_CONTAIN_THIS_ELEMENT(1)
 	 */
 	public int removeLabEvent(LabEvent labEvent)
 	{
@@ -93,14 +93,14 @@ public class LabEventContainer {
 	 * @param year The year of the labEvent.
 	 * @return The needed labEvent
 	 */
-	public LabEvent getLabEvent(String name, int year)
+	public LabEvent getLabEvent(String name, String courseName, int courseYear)
 	{
 		Iterator<LabEvent> it = labEvents.iterator();
 		
 		while(it.hasNext())
 		{
 			LabEvent retVal = it.next();
-			if(retVal.getName().equals(name) && retVal.getCourseName().equals(name))
+			if(retVal.getName().equals(name) && retVal.getCourseName().equals(courseName) && retVal.getCourseYear() == courseYear)
 			{
 				return retVal;
 			}

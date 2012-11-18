@@ -12,20 +12,30 @@ public abstract class Constants {
 	public static final int COMPUTER_ADDED = 0;
 	public static final int COMPUTER_ALREADY_ADDED = 1;
 
+	//TODO Course.registerStudent()
+	//TODO Course.unregisterStudent()
+	public static final int STUDENT_REGISTERED = 0;
+	public static final int STUDENT_ALREADY_REGISTERED = 1;
+	public static final int STUDENT_UNREGISTERED = 0;
+	public static final int STUDENT_NOT_FOUND_IN_THE_REGISTERED_STUDENTS_LIST = 1;
+	
+	//TODO Course.addLabEvent()
+	//TODO Course.removeLabEvent()
+	public static final int LAB_EVENT_ADDED = 0;
+	public static final int LAB_EVENT_ALREADY_ADDED = 1;
+	public static final int LAB_EVENT_REMOVED = 0;
+	public static final int LAB_EVENT_NOT_FOUND_IN_THE_LAB_EVENTS_LIST = 1;
+	
 	
 	//LabEventContainer.addLabEvent()
 	//LabEventConatiner.removeLabEvent()
-	//TODO CourseContainer.addCourse()
-	//TODO CourseContainer.removeCourse()
-	//TODO StudentContainer.addStudent()
-	//TODO StudentContainer.removeStudent()
-	//TODO ComputerContainer.addComputer()
-	//TODO Computercontainer.removeComputer()
-	//TODO Course.registerStudent()
-	//TODO Course.unregisterStudent()
-	//TODO Course.addLabEvent()
-	//TODO Course.removeLabEvent()
+	//CourseContainer.addCourse()
+	//CourseContainer.removeCourse()
+	//StudentContainer.addStudent()
+	//StudentContainer.removeStudent()
+	//ComputerContainer.addComputer()
+	//Computercontainer.removeComputer()
 	public static final int CONTAINER_OK = 0;
-	public static final int CONTAINER_ALREADY_CONSISTS_THIS_ELEMENT = 1;
+	public static final int CONTAINER_ALREADY_CONTAINS_THIS_ELEMENT = 1;
 	public static final int CONTAINER_DOES_NOT_CONTAIN_THIS_ELEMENT = 2;
 }

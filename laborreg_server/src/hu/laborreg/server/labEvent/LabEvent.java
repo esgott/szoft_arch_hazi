@@ -16,6 +16,7 @@ public class LabEvent {
 	
 	private String name;
 	private String courseName;
+	private int courseYear;
 	private String startTime;
 	private String stopTime;
 	private boolean isActive; //TODO Do we need this?
@@ -60,6 +61,15 @@ public class LabEvent {
 	public String getCourseName()
 	{
 		return this.courseName;
+	}
+	
+	/**
+	 * Return the year of Course which this LabEvent is allocated to.
+	 * @return The year of the Course which this LabEvent is allocated to.
+	 */
+	public int getCourseYear()
+	{
+		return this.courseYear;
 	}
 	
 	/**
