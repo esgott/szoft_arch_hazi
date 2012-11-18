@@ -52,7 +52,10 @@ public class Main {
 		try {
 			int port = Integer.parseInt(configuration.getProperty(Configuration.httpServerPort));
 			String docRoot = configuration.getProperty(Configuration.htmlRoot);
-			HttpRequestListenerThread httpServer = new HttpRequestListenerThread(port, docRoot, new HttpFactory());
+			HttpFactory httpFactory = new HttpFactory();
+			ClientConnectionHandler clientConnHandler = new ClientConnectionHandler();
+			HttpRequestListenerThread httpServer = new HttpRequestListenerThread(port, docRoot, httpFactory,
+					clientConnHandler);
 			Thread thread = new Thread(httpServer);
 			thread.setDaemon(true);
 			thread.start();

@@ -1,6 +1,7 @@
 package hu.laborreg.server.http;
 
 import hu.laborreg.server.file.FileProvider;
+import hu.laborreg.server.handlers.ClientConnectionHandler;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -28,12 +29,13 @@ public class HttpFactory {
 		return new ServerSocket(port);
 	}
 
-	public HttpService createHttpService(final String docRoot, final HttpParams params) {
+	public HttpService createHttpService(final String docRoot, final HttpParams params,
+			final ClientConnectionHandler clientConnHandler) {
 		HttpResponseInterceptor[] interceptors = { new ResponseDate(), new ResponseServer(), new ResponseContent(),
 				new ResponseConnControl() };
 		HttpProcessor httpProcessor = new ImmutableHttpProcessor(interceptors);
 		HttpRequestHandlerRegistry registry = new HttpRequestHandlerRegistry();
-		registry.register("*", new HttpFileHandler(docRoot, new FileProvider()));
+		registry.register("*", new HttpFileHandler(docRoot, new FileProvider(), clientConnHandler));
 		ConnectionReuseStrategy requestStrategy = new DefaultConnectionReuseStrategy();
 		HttpResponseFactory responseFactory = new DefaultHttpResponseFactory();
 		return new HttpService(httpProcessor, requestStrategy, responseFactory, registry, params);

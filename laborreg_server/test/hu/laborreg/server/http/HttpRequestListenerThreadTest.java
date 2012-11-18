@@ -5,6 +5,8 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import hu.laborreg.server.handlers.ClientConnectionHandler;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -21,6 +23,8 @@ public class HttpRequestListenerThreadTest {
 
 	@Mock
 	private HttpFactory mockHttpFactory;
+	@Mock
+	ClientConnectionHandler mockClientConnHandler;
 	@Mock
 	private ServerSocket mockServerSocket;
 	@Mock
@@ -41,9 +45,10 @@ public class HttpRequestListenerThreadTest {
 		MockitoAnnotations.initMocks(this);
 
 		when(mockHttpFactory.createServerSocket(port)).thenReturn(mockServerSocket);
-		when(mockHttpFactory.createHttpService(eq(docRoot), any(HttpParams.class))).thenReturn(mockHttpService);
+		when(mockHttpFactory.createHttpService(eq(docRoot), any(HttpParams.class), eq(mockClientConnHandler)))
+				.thenReturn(mockHttpService);
 
-		listenerThread = new HttpRequestListenerThread(port, docRoot, mockHttpFactory);
+		listenerThread = new HttpRequestListenerThread(port, docRoot, mockHttpFactory, mockClientConnHandler);
 	}
 
 	@Test

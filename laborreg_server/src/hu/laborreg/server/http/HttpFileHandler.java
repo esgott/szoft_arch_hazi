@@ -1,6 +1,7 @@
 package hu.laborreg.server.http;
 
 import hu.laborreg.server.file.FileProvider;
+import hu.laborreg.server.handlers.ClientConnectionHandler;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,32 +28,40 @@ public class HttpFileHandler implements HttpRequestHandler {
 
 	private final String docRoot;
 	private final FileProvider fileProvider;
+	private final ClientConnectionHandler clientConnHandler;
+	private final ResponseProcessor responseProcessor = new ResponseProcessor();
+	private HttpResponse response;
 	private final Logger logger = Logger.getLogger(this.getClass().getName());
 
-	public HttpFileHandler(final String documentsRoot, final FileProvider provider) {
+	public HttpFileHandler(final String documentsRoot, final FileProvider provider,
+			final ClientConnectionHandler connHandler) {
 		docRoot = documentsRoot;
 		fileProvider = provider;
+		clientConnHandler = connHandler;
 	}
 
 	@Override
 	public void handle(final HttpRequest request, final HttpResponse response, final HttpContext context)
 			throws MethodNotSupportedException, IOException {
+		this.response = response;
 		checkMethod(request);
 
 		String target = request.getRequestLine().getUri();
 		String[] parts = target.split("\\?");
+		String targetFile = parts[0];
 		if (parts.length > 1) {
-			List<NameValuePair> parameters = URLEncodedUtils.parse(parts[1], Charset.forName("UTF-8"));
-			// TODO Handle parameters and test them
-		}
-
-		File file = getRequestedFile(parts[0]);
-		if (!file.exists()) {
-			replyFileNotFound(response, file);
-		} else if (!file.canRead() || file.isDirectory()) {
-			replyAccessDenied(response, file);
+			Charset charset = Charset.forName("UTF-8");
+			List<NameValuePair> parameters = URLEncodedUtils.parse(parts[1], charset);
+			respondToParameters(targetFile, parameters);
 		} else {
-			replyOk(response, file);
+			File file = getRequestedFile(targetFile);
+			if (!file.exists()) {
+				replyFileNotFound(file);
+			} else if (!file.canRead() || file.isDirectory()) {
+				replyAccessDenied(file);
+			} else {
+				replyOk(file);
+			}
 		}
 	}
 
@@ -65,6 +74,23 @@ public class HttpFileHandler implements HttpRequestHandler {
 		}
 	}
 
+	private void respondToParameters(final String fileName, final List<NameValuePair> parameters) {
+		String properFileName = "index.html";
+		File file = fileProvider.requestFile(docRoot, fileName);
+		if ((!fileName.contentEquals(properFileName) && !fileName.contentEquals("/")) || parameters.size() != 1) {
+			replyFileNotFound(file);
+			return;
+		}
+		NameValuePair firstParameter = parameters.get(0);
+		if (!firstParameter.getName().equals("neptun")) {
+			replyAccessDenied(file);
+			return;
+		}
+		String message = clientConnHandler.signInForLabEvent(firstParameter.getValue());
+		replyWithMessage(message, HttpStatus.SC_OK);
+		logger.info("Message for sign in sent back");
+	}
+
 	private File getRequestedFile(final String target) throws UnsupportedEncodingException {
 		File file = fileProvider.requestFile(docRoot, URLDecoder.decode(target, "UTF-8"));
 		if (file.isDirectory()) {
@@ -73,24 +99,27 @@ public class HttpFileHandler implements HttpRequestHandler {
 		return file;
 	}
 
-	private void replyFileNotFound(final HttpResponse response, final File file) {
-		ContentType utf8ContentType = ContentType.create("text/html", "UTF-8");
-		response.setStatusCode(HttpStatus.SC_NOT_FOUND);
-		String answer = "<html><body><h1>File" + file.getPath() + " not found</h1></body></html>";
-		StringEntity entity = new StringEntity(answer, utf8ContentType);
-		response.setEntity(entity);
+	private void replyFileNotFound(final File file) {
+		String message = "File" + file.getPath() + " not found";
+		replyWithMessage(message, HttpStatus.SC_NOT_FOUND);
 		logger.info("File " + file.getPath() + " not found");
 	}
 
-	private void replyAccessDenied(final HttpResponse response, final File file) {
-		ContentType utf8ContentType = ContentType.create("text/html", "UTF-8");
-		response.setStatusCode(HttpStatus.SC_FORBIDDEN);
-		StringEntity entity = new StringEntity("<html><body><h1>Access denied</h1></body></html>", utf8ContentType);
-		response.setEntity(entity);
+	private void replyAccessDenied(final File file) {
+		String message = "Access denied";
+		replyWithMessage(message, HttpStatus.SC_FORBIDDEN);
 		logger.info("Cannot read file " + file.getPath());
 	}
 
-	private void replyOk(final HttpResponse response, final File file) {
+	private void replyWithMessage(String message, int statusCode) {
+		response.setStatusCode(statusCode);
+		ContentType utf8ContentType = ContentType.create("text/html", "UTF-8");
+		String page = responseProcessor.processHtmlResponse(message);
+		StringEntity entity = new StringEntity(page, utf8ContentType);
+		response.setEntity(entity);
+	}
+
+	private void replyOk(final File file) {
 		response.setStatusCode(HttpStatus.SC_OK);
 		FileEntity body = fileProvider.createFileEntity(file);
 		response.setEntity(body);

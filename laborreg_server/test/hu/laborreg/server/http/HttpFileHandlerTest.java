@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import hu.laborreg.server.file.FileProvider;
+import hu.laborreg.server.handlers.ClientConnectionHandler;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,6 +33,8 @@ public class HttpFileHandlerTest {
 	@Mock
 	FileProvider mockFileProvider;
 	@Mock
+	ClientConnectionHandler mockClientConnHandler;
+	@Mock
 	HttpRequest mockHttpRequest;
 	@Mock
 	HttpResponse mockHttpResponse;
@@ -48,7 +51,7 @@ public class HttpFileHandlerTest {
 	public void init() {
 		MockitoAnnotations.initMocks(this);
 
-		httpFileHandler = new HttpFileHandler(documentsRoot, mockFileProvider);
+		httpFileHandler = new HttpFileHandler(documentsRoot, mockFileProvider, mockClientConnHandler);
 	}
 
 	@Test
@@ -69,6 +72,93 @@ public class HttpFileHandlerTest {
 
 		verify(mockHttpResponse).setStatusCode(HttpStatus.SC_OK);
 		verify(mockHttpResponse).setEntity(mockFileEntity);
+	}
+	
+	@Test
+	public void properResponseGivenForNeptunParameter() throws HttpException, IOException {
+		String fileName = "index.html";
+		String neptun = "jqumgw";
+		String requestLine = fileName + "?neptun=" + neptun;
+		String message = "abcde";
+
+		when(mockHttpRequest.getRequestLine()).thenReturn(mockRequestLine);
+		when(mockRequestLine.getUri()).thenReturn(requestLine);
+		when(mockRequestLine.getMethod()).thenReturn("GET");
+		when(mockFileProvider.requestFile(documentsRoot, fileName)).thenReturn(mockFile);
+		when(mockClientConnHandler.signInForLabEvent(neptun)).thenReturn(message);
+
+		httpFileHandler.handle(mockHttpRequest, mockHttpResponse, mockHttpContext);
+
+		verify(mockHttpResponse).setStatusCode(HttpStatus.SC_OK);
+		verify(mockHttpResponse).setEntity(any(StringEntity.class));
+	}
+	
+	@Test
+	public void fileNotFoundRepliedForWrongFilenameAndOneParameter() throws HttpException, IOException {
+		String fileName = "wrong.html";
+		String requestLine = fileName + "?neptun=jqumgw";
+
+		when(mockHttpRequest.getRequestLine()).thenReturn(mockRequestLine);
+		when(mockRequestLine.getUri()).thenReturn(requestLine);
+		when(mockRequestLine.getMethod()).thenReturn("GET");
+		when(mockFileProvider.requestFile(documentsRoot, fileName)).thenReturn(mockFile);
+		when(mockFile.getPath()).thenReturn(fileName);
+
+		httpFileHandler.handle(mockHttpRequest, mockHttpResponse, mockHttpContext);
+
+		verify(mockHttpResponse).setStatusCode(HttpStatus.SC_NOT_FOUND);
+		verify(mockHttpResponse).setEntity(any(StringEntity.class));
+	}
+	
+	@Test
+	public void fileNotFoundRepliedForWrongFilenameAndMultipleParameters() throws HttpException, IOException {
+		String fileName = "wrong.html";
+		String requestLine = fileName + "?neptun=jqumgw&abc=def&jkl=hjk";
+
+		when(mockHttpRequest.getRequestLine()).thenReturn(mockRequestLine);
+		when(mockRequestLine.getUri()).thenReturn(requestLine);
+		when(mockRequestLine.getMethod()).thenReturn("GET");
+		when(mockFileProvider.requestFile(documentsRoot, fileName)).thenReturn(mockFile);
+		when(mockFile.getPath()).thenReturn(fileName);
+
+		httpFileHandler.handle(mockHttpRequest, mockHttpResponse, mockHttpContext);
+
+		verify(mockHttpResponse).setStatusCode(HttpStatus.SC_NOT_FOUND);
+		verify(mockHttpResponse).setEntity(any(StringEntity.class));
+	}
+	
+	@Test
+	public void fileNotFoundRepliedForGoodFilenameAndMultipleParameters() throws HttpException, IOException {
+		String fileName = "index.html";
+		String requestLine = fileName + "?neptun=jqumgw&abc=def&jkl=hjk";
+
+		when(mockHttpRequest.getRequestLine()).thenReturn(mockRequestLine);
+		when(mockRequestLine.getUri()).thenReturn(requestLine);
+		when(mockRequestLine.getMethod()).thenReturn("GET");
+		when(mockFileProvider.requestFile(documentsRoot, fileName)).thenReturn(mockFile);
+		when(mockFile.getPath()).thenReturn(fileName);
+
+		httpFileHandler.handle(mockHttpRequest, mockHttpResponse, mockHttpContext);
+
+		verify(mockHttpResponse).setStatusCode(HttpStatus.SC_NOT_FOUND);
+		verify(mockHttpResponse).setEntity(any(StringEntity.class));
+	}
+	
+	@Test
+	public void accessDeniedRepliedForGoodFilenameAndWrongParameter() throws HttpException, IOException {
+		String fileName = "index.html";
+		String requestLine = fileName + "?abcd=jqumgw";
+
+		when(mockHttpRequest.getRequestLine()).thenReturn(mockRequestLine);
+		when(mockRequestLine.getUri()).thenReturn(requestLine);
+		when(mockRequestLine.getMethod()).thenReturn("GET");
+		when(mockFileProvider.requestFile(documentsRoot, fileName)).thenReturn(mockFile);
+		when(mockFile.getPath()).thenReturn(fileName);
+
+		httpFileHandler.handle(mockHttpRequest, mockHttpResponse, mockHttpContext);
+
+		verify(mockHttpResponse).setStatusCode(HttpStatus.SC_FORBIDDEN);
+		verify(mockHttpResponse).setEntity(any(StringEntity.class));
 	}
 
 	@Test

@@ -1,5 +1,7 @@
 package hu.laborreg.server.http;
 
+import hu.laborreg.server.handlers.ClientConnectionHandler;
+
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.net.ServerSocket;
@@ -21,13 +23,14 @@ public class HttpRequestListenerThread implements Runnable {
 	private final HttpFactory factory;
 	private final Logger logger = Logger.getLogger(this.getClass().getName());
 
-	public HttpRequestListenerThread(int port, final String docRoot, final HttpFactory httpFactory) throws IOException {
+	public HttpRequestListenerThread(int port, final String docRoot, final HttpFactory httpFactory,
+			final ClientConnectionHandler clientConnHandler) throws IOException {
 		factory = httpFactory;
 		serverSocket = factory.createServerSocket(port);
 
 		setParameters();
 
-		httpService = factory.createHttpService(docRoot, params);
+		httpService = factory.createHttpService(docRoot, params, clientConnHandler);
 	}
 
 	private void setParameters() {
