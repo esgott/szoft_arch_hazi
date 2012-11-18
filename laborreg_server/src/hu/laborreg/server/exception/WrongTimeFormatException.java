@@ -1,4 +1,4 @@
-package exceptions;
+package hu.laborreg.server.exception;
 
 public class WrongTimeFormatException extends Exception{
 	

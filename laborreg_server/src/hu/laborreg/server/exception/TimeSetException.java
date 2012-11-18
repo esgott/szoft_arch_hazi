@@ -1,4 +1,4 @@
-package exceptions;
+package hu.laborreg.server.exception;
 
 public class TimeSetException extends Exception{
 	
