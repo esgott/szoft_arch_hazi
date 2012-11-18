@@ -10,5 +10,5 @@ public abstract class Constants
 	        "([01]?\\d\\d?|2[0-4]\\d|25[0-5])$";
 	
 	public static String SMALLEST_VALID_IP_ADDRESS = "100.101.102.103";
-	public static String BIGEST_VALID_IP_ADDRESS = "200.201.202.203";
+	public static String BIGGEST_VALID_IP_ADDRESS = "200.201.202.203";
 }

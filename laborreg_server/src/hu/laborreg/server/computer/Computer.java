@@ -56,6 +56,7 @@ public class Computer {
 	 * Validates the given IP address (it should be in [0-255].[0-255].[0-255].[0-255] format,
 	 * and should be in the valid IP address range (which is valid for Lab computers).
 	 * @param IpAddress The IP address which should be validated. 
+	 * @return true if IpAddress is valid, false if IpAddress is invalid. 	
 	 */
 	private boolean validateIpAddress(final String IpAddress) throws WrongIpAddressException
 	{          
@@ -72,7 +73,7 @@ public class Computer {
 			
 		String[] currentIpAddressOctets = IpAddress.split(Constants.IP_ADDRESS_DELIMITER);
 		String[] smallestIpAddressOctets = Constants.SMALLEST_VALID_IP_ADDRESS.split(Constants.IP_ADDRESS_DELIMITER);
-		String[] biggestIpAddressOctets = Constants.BIGEST_VALID_IP_ADDRESS.split(Constants.IP_ADDRESS_DELIMITER);
+		String[] biggestIpAddressOctets = Constants.BIGGEST_VALID_IP_ADDRESS.split(Constants.IP_ADDRESS_DELIMITER);
 		
 		for(int i=0; i<currentIpAddressOctets.length; i++)
 		{
@@ -84,7 +85,7 @@ public class Computer {
 			{
 				retVal=false;
 				throw new WrongIpAddressException("Ip address " + IpAddress + " invalid. It should be between " + Constants.SMALLEST_VALID_IP_ADDRESS +
-													" and " + Constants.BIGEST_VALID_IP_ADDRESS);
+													" and " + Constants.BIGGEST_VALID_IP_ADDRESS);
 			}
 		}
 		return retVal;
