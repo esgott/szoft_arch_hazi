@@ -10,6 +10,7 @@ import hu.laborreg.server.handlers.ClientConnectionHandler;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
 
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
@@ -19,6 +20,7 @@ import org.apache.http.MethodNotSupportedException;
 import org.apache.http.RequestLine;
 import org.apache.http.entity.FileEntity;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.DefaultHttpServerConnection;
 import org.apache.http.protocol.HttpContext;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,6 +42,10 @@ public class HttpFileHandlerTest {
 	HttpResponse mockHttpResponse;
 	@Mock
 	HttpContext mockHttpContext;
+	@Mock
+	DefaultHttpServerConnection mockHttpServerConnection;
+	@Mock
+	InetAddress mockInetAddress;
 	@Mock
 	RequestLine mockRequestLine;
 	@Mock
@@ -80,15 +86,20 @@ public class HttpFileHandlerTest {
 		String neptun = "jqumgw";
 		String requestLine = fileName + "?neptun=" + neptun;
 		String message = "abcde";
+		String ipAddress = "192.168.0.1";
 
 		when(mockHttpRequest.getRequestLine()).thenReturn(mockRequestLine);
 		when(mockRequestLine.getUri()).thenReturn(requestLine);
 		when(mockRequestLine.getMethod()).thenReturn("GET");
 		when(mockFileProvider.requestFile(documentsRoot, fileName)).thenReturn(mockFile);
-		when(mockClientConnHandler.signInForLabEvent(neptun)).thenReturn(message);
+		when(mockHttpContext.getAttribute("http.connection")).thenReturn(mockHttpServerConnection);
+		when(mockHttpServerConnection.getRemoteAddress()).thenReturn(mockInetAddress);
+		when(mockInetAddress.getHostAddress()).thenReturn(ipAddress);
+		when(mockClientConnHandler.signInForLabEvent(neptun, ipAddress)).thenReturn(message);
 
 		httpFileHandler.handle(mockHttpRequest, mockHttpResponse, mockHttpContext);
 
+		verify(mockClientConnHandler).signInForLabEvent(neptun, ipAddress);
 		verify(mockHttpResponse).setStatusCode(HttpStatus.SC_OK);
 		verify(mockHttpResponse).setEntity(any(StringEntity.class));
 	}
