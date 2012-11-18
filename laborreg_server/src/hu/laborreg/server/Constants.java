@@ -12,15 +12,15 @@ public abstract class Constants {
 	public static final int COMPUTER_ADDED = 0;
 	public static final int COMPUTER_ALREADY_ADDED = 1;
 
-	//TODO Course.registerStudent()
-	//TODO Course.unregisterStudent()
+	//Course.registerStudent()
+	//Course.unregisterStudent()
 	public static final int STUDENT_REGISTERED = 0;
 	public static final int STUDENT_ALREADY_REGISTERED = 1;
 	public static final int STUDENT_UNREGISTERED = 0;
 	public static final int STUDENT_NOT_FOUND_IN_THE_REGISTERED_STUDENTS_LIST = 1;
 	
-	//TODO Course.addLabEvent()
-	//TODO Course.removeLabEvent()
+	//Course.addLabEvent()
+	//Course.removeLabEvent()
 	public static final int LAB_EVENT_ADDED = 0;
 	public static final int LAB_EVENT_ALREADY_ADDED = 1;
 	public static final int LAB_EVENT_REMOVED = 0;
