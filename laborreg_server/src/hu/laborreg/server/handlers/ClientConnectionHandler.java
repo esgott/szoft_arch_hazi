@@ -16,9 +16,12 @@ public class ClientConnectionHandler {
 	 * 
 	 * @param neptun
 	 *            The NEPTUN code of the student
+	 * @param The
+	 *            IP address of the computer from which the student has singed
+	 *            in
 	 * @return Message for the student
 	 */
-	public String signInForLabEvent(String neptun) {
-		return "Sikeres jelentkezés";
+	public String signInForLabEvent(String neptun, String ipAddress) {
+		return "Sikeres jelentkezÃ©s";
 	}
 }

@@ -6,6 +6,7 @@ import hu.laborreg.server.handlers.ClientConnectionHandler;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.InetAddress;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.util.List;
@@ -21,6 +22,7 @@ import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.FileEntity;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.DefaultHttpServerConnection;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpRequestHandler;
 
@@ -52,7 +54,7 @@ public class HttpFileHandler implements HttpRequestHandler {
 		if (parts.length > 1) {
 			Charset charset = Charset.forName("UTF-8");
 			List<NameValuePair> parameters = URLEncodedUtils.parse(parts[1], charset);
-			respondToParameters(targetFile, parameters);
+			respondToParameters(targetFile, parameters, context);
 		} else {
 			File file = getRequestedFile(targetFile);
 			if (!file.exists()) {
@@ -74,7 +76,8 @@ public class HttpFileHandler implements HttpRequestHandler {
 		}
 	}
 
-	private void respondToParameters(final String fileName, final List<NameValuePair> parameters) {
+	private void respondToParameters(final String fileName, final List<NameValuePair> parameters,
+			final HttpContext httpContext) {
 		String properFileName = "index.html";
 		File file = fileProvider.requestFile(docRoot, fileName);
 		if ((!fileName.contentEquals(properFileName) && !fileName.contentEquals("/")) || parameters.size() != 1) {
@@ -86,9 +89,23 @@ public class HttpFileHandler implements HttpRequestHandler {
 			replyAccessDenied(file);
 			return;
 		}
-		String message = clientConnHandler.signInForLabEvent(firstParameter.getValue());
+		String ipAddress = getIpAddress(httpContext);
+		String message = clientConnHandler.signInForLabEvent(firstParameter.getValue(), ipAddress);
 		replyWithMessage(message, HttpStatus.SC_OK);
 		logger.info("Message for sign in sent back");
+	}
+
+	private String getIpAddress(HttpContext httpContext) {
+		Object attribute = httpContext.getAttribute("http.connection");
+		if (attribute instanceof DefaultHttpServerConnection) {
+			@SuppressWarnings("resource")
+			DefaultHttpServerConnection serverConnetion = (DefaultHttpServerConnection) attribute;
+			InetAddress ipAddress = serverConnetion.getRemoteAddress();
+			return ipAddress.getHostAddress();
+		} else {
+			logger.warning("Failed to detect IP address of client");
+			return "";
+		}
 	}
 
 	private File getRequestedFile(final String target) throws UnsupportedEncodingException {

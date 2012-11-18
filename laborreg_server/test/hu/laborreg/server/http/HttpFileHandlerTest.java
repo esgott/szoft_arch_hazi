@@ -85,7 +85,7 @@ public class HttpFileHandlerTest {
 		when(mockRequestLine.getUri()).thenReturn(requestLine);
 		when(mockRequestLine.getMethod()).thenReturn("GET");
 		when(mockFileProvider.requestFile(documentsRoot, fileName)).thenReturn(mockFile);
-		when(mockClientConnHandler.signInForLabEvent(neptun)).thenReturn(message);
+		when(mockClientConnHandler.signInForLabEvent(neptun, "")).thenReturn(message);
 
 		httpFileHandler.handle(mockHttpRequest, mockHttpResponse, mockHttpContext);
 
