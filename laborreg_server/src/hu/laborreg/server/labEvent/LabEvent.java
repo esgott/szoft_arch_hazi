@@ -1,7 +1,9 @@
 package hu.laborreg.server.labEvent;
 
-import hu.laborreg.server.Constants;
+
 import hu.laborreg.server.computer.Computer;
+import hu.laborreg.server.exception.ElementAlreadyAddedException;
+import hu.laborreg.server.exception.TimeSetException;
 import hu.laborreg.server.student.Student;
 
 import java.util.Calendar;
@@ -17,9 +19,9 @@ public class LabEvent {
 	private String name;
 	private String courseName;
 	private int courseYear;
-	private String startTime;
-	private String stopTime;
-	private boolean isActive; //TODO Do we need this?
+	private String startTime = "23:59";
+	private String stopTime = "23:59";
+	//private boolean isActive; //TODO Do we need this?
 	private Set<Student> signedInStudents;
 	private Set<Computer> registeredComputers;
 	
@@ -33,13 +35,16 @@ public class LabEvent {
 	 * @param courseName The name of the course where the LabEvent is added to.
 	 * @param startTime The start time of the LabEvent in "HH:MM" format.
 	 * @param stopTime The stop time of the LabEvent in "HH:MM" format.
+	 * @throws ParseException 
+	 * @throws TimeSetException 
 	 */
-	public LabEvent(String name, String courseName, String startTime, String stopTime)
+	public LabEvent(String name, String courseName, int courseYear, String startTime, String stopTime) throws TimeSetException, ParseException
 	{
 		this.name = name;
 		this.courseName = courseName;
-		this.startTime = startTime;
-		this.stopTime = stopTime;
+		this.courseYear = courseYear;
+		
+		setStartAndStopTime(startTime, stopTime);
 		
 		signedInStudents = new HashSet<Student>();
 		registeredComputers = new HashSet<Computer>();
@@ -114,33 +119,12 @@ public class LabEvent {
 	 * @return If computer added to the list: COMPUTER_ADDED(0)
 	 * 			if computer already added to the list: COMPUTER_ALREADY_ADDED(1)
 	 */
-	public int allowMultipleRegistration(Computer computer)
+	public void allowMultipleRegistration(Computer computer) throws ElementAlreadyAddedException, UnsupportedClassVersionError, ClassCastException, NullPointerException, IllegalArgumentException
 	{
-		try
+		if(this.registeredComputers.add(computer) == false)
 		{
-			if(this.registeredComputers.add(computer) == false)
-			{
-				return Constants.COMPUTER_ALREADY_ADDED;
-			}
+			throw new ElementAlreadyAddedException("Computer " + computer.getIpAddress() + " already added to list.");
 		}
-		catch(UnsupportedOperationException e)
-		{
-			e.printStackTrace();
-		}
-		catch(ClassCastException e)
-		{
-			e.printStackTrace();
-		}
-		catch(NullPointerException e)
-		{
-			e.printStackTrace();
-		}
-		catch(IllegalArgumentException e)
-		{
-			e.printStackTrace();
-		}
-		
-		return Constants.COMPUTER_ADDED;
 	}
 	
 	/**
@@ -152,71 +136,58 @@ public class LabEvent {
 	 *			If LabEvent is currently ongoing: LABEVENT_IS_ONGOING(2)
 	 *			If LabEvent is already finished: LABEVENT_FINISHED(3)
 	 */
-	public int setStartAndStopTime(String startTime, String stopTime)
+	public void setStartAndStopTime(String startTime, String stopTime) throws TimeSetException, ParseException
 	{
-		int retVal = checkTime(startTime,stopTime);
-		if(retVal == 0)
+		if(checkTime(startTime,stopTime) == 999)
 		{
 			this.startTime = startTime;
 			this.stopTime = stopTime;
 		}
-		
-		return retVal;
 	}
 	
 	/**
 	 * Check the given times.
 	 * @param startTime The given start time. 
 	 * @param stopTime The given stop time.
-	 * @return If the setting correct:	TIME_IS_OK(0)
-	 *			If the stop time is later than start time: STARTTIME_IS_LATER_THAN_STOPTIME(1)
-	 *			If LabEvent is currently ongoing: LABEVENT_IS_ONGOING(2)
-	 *			If LabEvent is already finished: LABEVENT_FINISHED(3)
 	 */
-	private int checkTime(String startTime, String stopTime)
+	private int checkTime(String startTime, String stopTime) throws TimeSetException, ParseException
 	{
 		DateFormat df = new SimpleDateFormat("HH:mm");
 
 		Calendar currentTime = Calendar.getInstance();
+		
 		Calendar givenStartTime = Calendar.getInstance();
 		Calendar givenStopTime = Calendar.getInstance();
 		Calendar storedStartTime = Calendar.getInstance();
 		Calendar storedStopTime = Calendar.getInstance();
 		
-		try
-		{
-			givenStartTime.setTime(df.parse(startTime));
-			givenStopTime.setTime(df.parse(stopTime));
-			storedStartTime.setTime(df.parse(this.startTime));
-			storedStopTime.setTime(df.parse(this.stopTime));
-		}
-		catch(ParseException e)
-		{
-			e.printStackTrace();
-		}
+		givenStartTime.setTime(df.parse(startTime));
+		givenStopTime.setTime(df.parse(stopTime));
+		storedStartTime.setTime(df.parse(this.startTime));
+		storedStopTime.setTime(df.parse(this.stopTime));
 		
 		if(givenStartTime.get(Calendar.HOUR_OF_DAY) >= givenStopTime.get(Calendar.HOUR_OF_DAY))
 		{
 			if(givenStartTime.get(Calendar.MINUTE) >= givenStopTime.get(Calendar.MINUTE))
 			{
-				return Constants.STARTTIME_IS_LATER_THAN_STOPTIME;
+				throw new TimeSetException("Start time: " + startTime + " is later then stop time: " + stopTime);
 			}
 		}
 		if(currentTime.get(Calendar.HOUR_OF_DAY) >= storedStartTime.get(Calendar.HOUR_OF_DAY))
 		{
 			if(currentTime.get(Calendar.MINUTE) >= storedStartTime.get(Calendar.MINUTE))
 			{
-				return Constants.LABEVENT_IS_ONGOING;
+				throw new TimeSetException("Set time is not enabled, because the Lab event is currently ongoing.");
 			}
 		}
 		if(currentTime.get(Calendar.HOUR_OF_DAY) >= storedStopTime.get(Calendar.HOUR_OF_DAY))
 		{
 			if(currentTime.get(Calendar.MINUTE) >= storedStopTime.get(Calendar.MINUTE))
 			{
-				return Constants.LABEVENT_FINISHED;
+				throw new TimeSetException("Set time is not enabled, because the Lab event is finished.");
 			}
 		}
 		
-		return Constants.TIME_IS_OK;
+		return 999;
 	}
 }

@@ -1,5 +1,5 @@
 package hu.laborreg.server.labEvent;
 
-public class LabEventTest {
+public class LabEventContainerTest {
 	//TODO
-	}
+}

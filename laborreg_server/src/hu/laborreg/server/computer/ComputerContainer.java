@@ -1,6 +1,7 @@
 package hu.laborreg.server.computer;
 
-import hu.laborreg.server.Constants;
+import hu.laborreg.server.exception.ElementAlreadyAddedException;
+import hu.laborreg.server.exception.ElementNotFoundException;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -22,69 +23,25 @@ public class ComputerContainer {
 	/**
 	 * Add computer to the computers list.
 	 * @param computer The needed computer.
-	 * @return If the container does not contain this Computer yet: CONTAINER_OK(0)
-	 * 			If the container already contains this Computer: CONTAINER_ALREADY_CONTAINS_THIS_ELEMENT(1)
 	 */
-	public int addComputer(Computer computer)
+	public void addComputer(Computer computer) throws ElementAlreadyAddedException, ClassCastException, NullPointerException, IllegalArgumentException
 	{
-		
-		try
+		if(this.computers.add(computer) == false)
 		{
-			if(this.computers.add(computer) == false)
-			{
-				return Constants.CONTAINER_ALREADY_CONTAINS_THIS_ELEMENT;
-			}
+			throw new ElementAlreadyAddedException("Computer " + computer.getIpAddress() + " is already added to Computers list.");
 		}
-		catch(UnsupportedOperationException e)
-		{
-			e.printStackTrace();
-		}
-		catch(ClassCastException e)
-		{
-			e.printStackTrace();
-		}
-		catch(NullPointerException e)
-		{
-			e.printStackTrace();
-		}
-		catch(IllegalArgumentException e)
-		{
-			e.printStackTrace();
-		}
-		
-		return Constants.CONTAINER_OK;
 	}
 	
 	/**
 	 * Remove computer to the computers list.
 	 * @param computer The needed computer.
-	 * @return If the remove was successful: CONAINER_OK(0)
-	 * 			If the container does not contain this Computer: CONTAINER_DOES_NOT_CONTAIN_THIS_ELEMENT(1)
 	 */
-	public int removeComputer(Computer computer)
+	public void removeComputer(Computer computer) throws ElementNotFoundException, UnsupportedOperationException, ClassCastException, NullPointerException
 	{
-		
-		try
+		if(this.computers.remove(computer) == false)
 		{
-			if(this.computers.remove(computer) == false)
-			{
-				return Constants.CONTAINER_DOES_NOT_CONTAIN_THIS_ELEMENT;
-			}
+			throw new ElementNotFoundException("Computer " + computer.getIpAddress() + " does not found in Computers list.");
 		}
-		catch(UnsupportedOperationException e)
-		{
-			e.printStackTrace();
-		}
-		catch(ClassCastException e)
-		{
-			e.printStackTrace();
-		}
-		catch(NullPointerException e)
-		{
-			e.printStackTrace();
-		}
-		
-		return Constants.CONTAINER_OK;
 	}
 	
 	/**
@@ -93,7 +50,7 @@ public class ComputerContainer {
 	 * @param year The year of the computer.
 	 * @return The needed computer
 	 */
-	public Computer getComputer(String IpAddress)
+	public Computer getComputer(String IpAddress) throws ElementNotFoundException
 	{
 		Iterator<Computer> it = computers.iterator();
 		
@@ -105,6 +62,6 @@ public class ComputerContainer {
 				return retVal;
 			}
 		}
-		return null;
+		throw new ElementNotFoundException("Computer " + IpAddress + " does not found in Computers list.");
 	}
 }

@@ -3,13 +3,21 @@ package hu.laborreg.server.course;
 import static org.junit.Assert.*;
 
 import hu.laborreg.server.course.Course;
+import hu.laborreg.server.exception.ElementAlreadyAddedException;
+import hu.laborreg.server.exception.ElementNotFoundException;
+import hu.laborreg.server.exception.TimeSetException;
 import hu.laborreg.server.labEvent.LabEvent;
 import hu.laborreg.server.student.Student;
 
 import java.io.IOException;
+import java.text.ParseException;
 
 import org.junit.Test;
-
+	/*
+	 * ****************************************************
+	 * 	Kibaszott nagy TODO!!!
+	 * ****************************************************
+	 */
 public class CourseTest {
 
 	private CourseContainer cont;
@@ -17,35 +25,105 @@ public class CourseTest {
 	private Course c2;
 	private LabEvent ev1;
 	private LabEvent ev2;
+	private LabEvent ev3;
 	private Student st1;
 	private Student st2;
 	private Student st3;
 	
-	private void setUp()
+	private void init() throws TimeSetException, ParseException 
 	{
 		cont = new CourseContainer();
 		c1 = new Course("aaa",111);
 		c2 = new Course("bbb",222);
-		ev1 = new LabEvent("lab_1",c1.getName(),"11:00","12:00");
-		ev2 = new LabEvent("lab_2",c2.getName(),"12:00","13:00");
+
+		ev1 = new LabEvent("lab_1",c1.getName(),c1.getYear(), "11:00","12:00");
+		ev2 = new LabEvent("lab_2",c2.getName(),c1.getYear(), "12:00","13:00");
+
 		st1 = new Student("xxx","Bela");
 		st2 = new Student("yyy","Geza");
-		st3 = new Student("zzz", "Sanyi");
 	}
 	
 	@Test
-	public void createCourseAndAddLabEventsAndStudentsToIt() throws IOException {
-		
-		setUp();
-		
+	public void  basicAttributesTest() throws TimeSetException, ParseException
+	{
+		init();
+	
 		assertEquals("aaa",c1.getName());
-		assertEquals(111,c1.getYear());
+		assertEquals(222,c2.getYear());
 		
-		//TODO LabEvent gets' check
+		assertEquals("lab_1", ev1.getName());
+		assertEquals(c2.getName(), ev2.getCourseName());
+		assertEquals(c1.getYear(),ev1.getCourseYear());
+		assertEquals("11:00",ev1.getStartTime());
+		assertEquals("13:00",ev2.getStopTime());
 		
 		assertEquals("yyy", st2.getNeptunCode());
 		assertEquals("Geza", st2.getName());
+	}
+	
+	@Test
+	public void addCourseToContainerTest() throws UnsupportedOperationException, ClassCastException, NullPointerException, IllegalArgumentException, TimeSetException, ParseException
+	{
+		init();
 		
+		try
+		{
+			cont.addCourse(c1);
+			cont.addCourse(c2);
+		}catch(ElementAlreadyAddedException e)
+		{
+			e.printStackTrace();
+		}
+		
+		try
+		{
+			cont.addCourse(c1);
+		}
+		catch(ElementAlreadyAddedException e)
+		{
+			return;
+		}
+		
+		fail("ElementAlreadyAddedException not thrown");
+	}
+	
+	@Test
+	public void removeCourseFromContainerTest() throws UnsupportedOperationException, ClassCastException, NullPointerException, IllegalArgumentException, TimeSetException, ParseException
+	{
+		init();
+		
+		try
+		{
+			cont.addCourse(c1);
+			cont.addCourse(c2);
+		}catch(ElementAlreadyAddedException e)
+		{
+			e.printStackTrace();
+		}
+		
+		try
+		{
+			cont.removeCourse(c1);
+		}
+		catch(ElementNotFoundException e)
+		{
+			e.printStackTrace();
+		}
+		
+		try
+		{
+			cont.removeCourse(c1);
+		}
+		catch(ElementNotFoundException e)
+		{
+			return;
+		}
+		
+		fail("ElementNotFoundException not thrown");
+	}
+	
+	
+	/*
 		cont.addCourse(c1);
 		cont.addCourse(c2);
 		cont.removeCourse(c1);
@@ -89,8 +167,8 @@ public class CourseTest {
 		
 		cont.removeCourse(c2);
 		cont.removeCourse(c1);
-	}
-		
+	*/
+/*		
 		@Test
 		public void getDataFromCourseContainerAndCourse() throws IOException {
 			
@@ -124,4 +202,5 @@ public class CourseTest {
 			c1.unregisterStudent(st2);
 			c1.unregisterStudent(st3);
 		}
+		*/
 	}

@@ -1,6 +1,8 @@
 package hu.laborreg.server.student;
 
-import hu.laborreg.server.Constants;
+
+import hu.laborreg.server.exception.ElementAlreadyAddedException;
+import hu.laborreg.server.exception.ElementNotFoundException;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -22,69 +24,25 @@ public class StudentContainer {
 	/**
 	 * Add Student to the students list.
 	 * @param student The needed Student.
-	 * @return If the container does not contain this Student yet: CONTAINER_OK(0)
-	 * 			If the container already contains this Student: CONTAINER_ALREADY_CONTAINS_THIS_ELEMENT(1)
 	 */
-	public int addStudent(Student student)
+	public void addStudent(Student student) throws ElementAlreadyAddedException, UnsupportedOperationException, ClassCastException, NullPointerException, IllegalArgumentException
 	{
-		
-		try
+		if(this.students.add(student) == false)
 		{
-			if(this.students.add(student) == false)
-			{
-				return Constants.CONTAINER_ALREADY_CONTAINS_THIS_ELEMENT;
-			}
+			throw new ElementAlreadyAddedException("Student " + student.getName() + "(" + student.getNeptunCode() + ") already added to Students list.");
 		}
-		catch(UnsupportedOperationException e)
-		{
-			e.printStackTrace();
-		}
-		catch(ClassCastException e)
-		{
-			e.printStackTrace();
-		}
-		catch(NullPointerException e)
-		{
-			e.printStackTrace();
-		}
-		catch(IllegalArgumentException e)
-		{
-			e.printStackTrace();
-		}
-		
-		return Constants.CONTAINER_OK;
 	}
 	
 	/**
 	 * Remove Student to the Students list.
 	 * @param student The needed Student.
-	 * @return If the remove was successful: CONAINER_OK(0)
-	 * 			If the container does not contain this Student: CONTAINER_DOES_NOT_CONTAIN_THIS_ELEMENT(1)
 	 */
-	public int removeStudent(Student student)
+	public void removeStudent(Student student) throws ElementNotFoundException, UnsupportedOperationException, ClassCastException, NullPointerException
 	{
-		
-		try
+		if(this.students.remove(student) == false)
 		{
-			if(this.students.remove(student) == false)
-			{
-				return Constants.CONTAINER_ALREADY_CONTAINS_THIS_ELEMENT;
-			}
+			throw new ElementNotFoundException("Student " + student.getName() + "(" + student.getNeptunCode() + ") does not found in Students list.");
 		}
-		catch(UnsupportedOperationException e)
-		{
-			e.printStackTrace();
-		}
-		catch(ClassCastException e)
-		{
-			e.printStackTrace();
-		}
-		catch(NullPointerException e)
-		{
-			e.printStackTrace();
-		}
-		
-		return Constants.CONTAINER_OK;
 	}
 	
 	/**

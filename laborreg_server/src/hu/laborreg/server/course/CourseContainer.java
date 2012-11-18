@@ -1,7 +1,8 @@
 package hu.laborreg.server.course;
 
 
-import hu.laborreg.server.Constants;
+import hu.laborreg.server.exception.ElementAlreadyAddedException;
+import hu.laborreg.server.exception.ElementNotFoundException;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -23,69 +24,25 @@ public class CourseContainer {
 	/**
 	 * Add Course to the courses list.
 	 * @param course The needed course
-	 * @return If the container does not contain this Course yet: CONTAINER_OK(0)
-	 * 			If the container already contains this Course: CONTAINER_ALREADY_CONTAINS_THIS_ELEMENT(1)
 	 */
-	public int addCourse(Course course)
+	public void addCourse(Course course) throws ElementAlreadyAddedException, UnsupportedOperationException, ClassCastException, NullPointerException, IllegalArgumentException
 	{
-		
-		try
+		if(this.courses.add(course) == false)
 		{
-			if(this.courses.add(course) == false)
-			{
-				return Constants.CONTAINER_ALREADY_CONTAINS_THIS_ELEMENT;
-			}
+			throw new ElementAlreadyAddedException("Course" + course.getName() + "(" + course.getYear() + ") already added to the Courses list.");
 		}
-		catch(UnsupportedOperationException e)
-		{
-			e.printStackTrace();
-		}
-		catch(ClassCastException e)
-		{
-			e.printStackTrace();
-		}
-		catch(NullPointerException e)
-		{
-			e.printStackTrace();
-		}
-		catch(IllegalArgumentException e)
-		{
-			e.printStackTrace();
-		}
-		
-		return Constants.CONTAINER_OK;
 	}
 	
 	/**
 	 * Remove course to the courses list.
 	 * @param course The needed course
-	 * @return If the remove was successful: CONAINER_OK(0)
-	 * 			If the container does not contain this Course: CONTAINER_DOES_NOT_CONTAIN_THIS_ELEMENT(1)
 	 */
-	public int removeCourse(Course course)
+	public void removeCourse(Course course) throws ElementNotFoundException, UnsupportedOperationException, ClassCastException, NullPointerException
 	{
-		
-		try
+		if(this.courses.remove(course) == false)
 		{
-			if(this.courses.remove(course) == false)
-			{
-				return Constants.CONTAINER_DOES_NOT_CONTAIN_THIS_ELEMENT;
-			}
+			throw new ElementNotFoundException("Course" + course.getName() + "(" + course.getYear() + ") does not found in the Courses list.");
 		}
-		catch(UnsupportedOperationException e)
-		{
-			e.printStackTrace();
-		}
-		catch(ClassCastException e)
-		{
-			e.printStackTrace();
-		}
-		catch(NullPointerException e)
-		{
-			e.printStackTrace();
-		}
-		
-		return Constants.CONTAINER_OK;
 	}
 	
 	/**
@@ -94,7 +51,7 @@ public class CourseContainer {
 	 * @param year The year of the course.
 	 * @return The needed course
 	 */
-	public Course getCourse(String name, int year)
+	public Course getCourse(String name, int year) throws ElementNotFoundException
 	{
 		Iterator<Course> it = courses.iterator();
 		
@@ -106,6 +63,6 @@ public class CourseContainer {
 				return retVal;
 			}
 		}
-		return null;
+		throw new ElementNotFoundException("Course" + name + "(" + year + ") does not found in the Courses list.");
 	}
 }

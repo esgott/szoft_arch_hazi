@@ -1,7 +1,8 @@
 package hu.laborreg.server.labEvent;
 
 
-import hu.laborreg.server.Constants;
+import hu.laborreg.server.exception.ElementAlreadyAddedException;
+import hu.laborreg.server.exception.ElementNotFoundException;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -23,68 +24,25 @@ public class LabEventContainer {
 	/**
 	 * Add labEvent to the labEvents list.
 	 * @param labEvent The needed labEvent
-	 * @return If the container does not contain this LabEvent yet: CONTAINER_OK(0)
-	 * 			If the container already contains this LabEvent: CONTAINER_ALREADY_CONSISTS_THIS_ELEMENT(1)
 	 */
-	public int addLabEvent(LabEvent labEvent)
+	public void addLabEvent(LabEvent labEvent) throws ElementAlreadyAddedException, UnsupportedOperationException, ClassCastException, NullPointerException, IllegalArgumentException
 	{
-		try
+		if(this.labEvents.add(labEvent) == false)
 		{
-			if(this.labEvents.add(labEvent) == false)
-			{
-				return Constants.CONTAINER_ALREADY_CONTAINS_THIS_ELEMENT;
-			}
+			throw new ElementAlreadyAddedException("Lab event " + labEvent.getName() + " already added to Lab events list.");
 		}
-		catch(UnsupportedOperationException e)
-		{
-			e.printStackTrace();
-		}
-		catch(ClassCastException e)
-		{
-			e.printStackTrace();
-		}
-		catch(NullPointerException e)
-		{
-			e.printStackTrace();
-		}
-		catch(IllegalArgumentException e)
-		{
-			e.printStackTrace();
-		}
-		
-		return Constants.CONTAINER_OK;
 	}
 	
 	/**
 	 * Remove labEvent to the labEvents list.
 	 * @param labEvent The needed labEvent
-	 * @return If the remove was successful: CONAINER_OK(0)
-	 * 			If the container does not contain this LabEvent: CONTAINER_DOES_NOT_CONTAIN_THIS_ELEMENT(1)
 	 */
-	public int removeLabEvent(LabEvent labEvent)
+	public void removeLabEvent(LabEvent labEvent) throws ElementNotFoundException, UnsupportedOperationException, ClassCastException, NullPointerException
 	{
-		
-		try
+		if(this.labEvents.remove(labEvent) == false)
 		{
-			if(this.labEvents.remove(labEvent) == false)
-			{
-				return Constants.CONTAINER_DOES_NOT_CONTAIN_THIS_ELEMENT;
-			}
+			throw new ElementNotFoundException("Lab Event " + labEvent.getName() + " does not found in Lab events list.");
 		}
-		catch(UnsupportedOperationException e)
-		{
-			e.printStackTrace();
-		}
-		catch(ClassCastException e)
-		{
-			e.printStackTrace();
-		}
-		catch(NullPointerException e)
-		{
-			e.printStackTrace();
-		}
-		
-		return Constants.CONTAINER_OK;
 	}
 	
 	/**
