@@ -1,6 +1,10 @@
 package hu.laborreg.server.handlers;
 
+import java.util.logging.Logger;
+
 public class ClientConnectionHandler {
+
+	private Logger logger = Logger.getLogger(this.getClass().getName());
 
 	/**
 	 * This class handles the messages sent by client and the messages which the
@@ -22,6 +26,7 @@ public class ClientConnectionHandler {
 	 * @return Message for the student
 	 */
 	public String signInForLabEvent(String neptun, String ipAddress) {
+		logger.info("Sign in request with NEPTUN code " + neptun + " with IP address " + ipAddress);
 		return "Sikeres jelentkezés";
 	}
 }
