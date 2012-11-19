@@ -36,19 +36,38 @@ public class Main {
 
 	public static void main(String[] args) {
 		initializeLogger();
+		initializeDB();
+		initializeHttpServer();
+		MainWindow.display();
+	}
+
+	private static void initializeLogger() {
+		logger = Logger.getLogger(Main.class.getPackage().getName());
+		logger.setLevel(Level.ALL);
+		try {
+			FileHandler fileHandler = new FileHandler(configuration.getProperty(Configuration.logFile));
+			logger.addHandler(fileHandler);
+			SimpleFormatter formatter = new SimpleFormatter();
+			fileHandler.setFormatter(formatter);
+		} catch (Exception e) {
+			logger.warning("Failed to create logfile");
+		}
+		logger.info("Laborreg Server started");
+	}
+
+	private static void initializeDB() {
 		try {
 			Class.forName("org.sqlite.JDBC");
 			connection = DriverManager.getConnection("jdbc:sqlite:" + configuration.getProperty(Configuration.dbFile));
 			dbConnHandler = new DBConnectionHandler(connection);
 		} catch (SQLException e) {
 			logger.severe("SQLError: " + e.getMessage());
-			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
 			logger.severe("Failed to load database driver: " + e.getMessage());
-			e.printStackTrace();
 		}
-		MainWindow.display();
+	}
 
+	private static void initializeHttpServer() {
 		try {
 			int port = Integer.parseInt(configuration.getProperty(Configuration.httpServerPort));
 			String docRoot = configuration.getProperty(Configuration.htmlRoot);
@@ -64,19 +83,4 @@ public class Main {
 			e.printStackTrace();
 		}
 	}
-
-	private static void initializeLogger() {
-		logger = Logger.getLogger(Main.class.getPackage().getName());
-		logger.setLevel(Level.ALL);
-		try {
-			FileHandler fileHandler = new FileHandler(configuration.getProperty(Configuration.logFile));
-			logger.addHandler(fileHandler);
-			SimpleFormatter formatter = new SimpleFormatter();
-			fileHandler.setFormatter(formatter);
-		} catch (Exception e) {
-			System.out.println("Failed to create logfile");
-		}
-		logger.info("Laborreg Server started");
-	}
-
 }
