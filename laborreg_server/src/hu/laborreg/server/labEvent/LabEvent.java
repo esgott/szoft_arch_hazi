@@ -21,7 +21,6 @@ public class LabEvent {
 	private int courseYear;
 	private String startTime;
 	private String stopTime;
-	//private boolean isActive; //TODO Do we need this?
 	private Set<Student> signedInStudents;
 	private Set<Computer> registeredComputers;
 	
