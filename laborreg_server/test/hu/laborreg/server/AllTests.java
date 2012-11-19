@@ -21,8 +21,8 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Suite.class)
 @SuiteClasses({ DBConnectionHandlerTest.class, DBInitiatorTest.class, HttpWorkerThreadTest.class,
 		HttpRequestListenerThreadTest.class, HttpFileHandlerTest.class,  CourseContainerTest.class, CourseTest.class,
-		ComputerContainerTest.class, ComputerTest.class, /*LabEventContainerTest.class, LabEventTest.class,
-		StudentContainerTest.class, StudentTest.class*/})
+		ComputerContainerTest.class, ComputerTest.class, LabEventContainerTest.class, LabEventTest.class,
+		StudentContainerTest.class, StudentTest.class})
 public class AllTests {
 
 	public class HttpFileHandlerTest {

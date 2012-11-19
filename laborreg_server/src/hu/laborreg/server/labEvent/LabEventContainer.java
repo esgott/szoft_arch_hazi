@@ -50,8 +50,9 @@ public class LabEventContainer {
 	 * @param name The name of the labEvent (must be unique).
 	 * @param year The year of the labEvent.
 	 * @return The needed labEvent
+	 * @throws ElementNotFoundException 
 	 */
-	public LabEvent getLabEvent(String name, String courseName, int courseYear)
+	public LabEvent getLabEvent(String name, String courseName, int courseYear) throws ElementNotFoundException
 	{
 		Iterator<LabEvent> it = labEvents.iterator();
 		
@@ -63,6 +64,6 @@ public class LabEventContainer {
 				return retVal;
 			}
 		}
-		return null;
+		throw new ElementNotFoundException("Lab event: " + name + " with course: " + courseName + "(" + courseYear + ") does not found in the Lab events list.");
 	}
 }

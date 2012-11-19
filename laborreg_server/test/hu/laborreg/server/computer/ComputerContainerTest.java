@@ -2,6 +2,7 @@ package hu.laborreg.server.computer;
 
 import static org.junit.Assert.*;
 
+import hu.laborreg.server.Constants;
 import hu.laborreg.server.exception.ElementAlreadyAddedException;
 import hu.laborreg.server.exception.ElementNotFoundException;
 import hu.laborreg.server.exception.WrongIpAddressException;
@@ -17,8 +18,8 @@ public class ComputerContainerTest {
 	private void init() throws WrongIpAddressException
 	{
 		cont = new ComputerContainer();
-		c1 = new Computer("1.2.3.4");
-		c2 = new Computer("234.123.211.123");
+		c1 = new Computer(Constants.BIGGEST_VALID_IP_ADDRESS);
+		c2 = new Computer(Constants.SMALLEST_VALID_IP_ADDRESS);
 	}
 	
 	@Test

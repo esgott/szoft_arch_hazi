@@ -108,7 +108,7 @@ public class Course {
 	 * Remove lab event from this Course.
 	 * @param labEvent The lab event which want to be removed from this Course.
 	 */
-	public void removeLabEvent(LabEvent labEvent) throws ElementNotFoundException, UnsupportedClassVersionError, ClassCastException, NullPointerException
+	public void removeLabEvent(LabEvent labEvent) throws ElementNotFoundException, UnsupportedOperationException, ClassCastException, NullPointerException
 	{
 		if(labEvents.remove(labEvent) == false)
 		{

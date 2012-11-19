@@ -119,7 +119,6 @@ public class ComputerTest {
 		{
 			int badOctet = Integer.parseInt(smallestValidIpAddress[0])-1;
 			IpAddress = badOctet + "." + smallestValidIpAddress[1] + "." + smallestValidIpAddress[2] + "." + smallestValidIpAddress[3];
-			System.out.println(IpAddress);
 			c1 = new Computer(IpAddress);
 		}
 		catch(WrongIpAddressException e)
@@ -132,7 +131,6 @@ public class ComputerTest {
 		{
 			int badOctet = Integer.parseInt(biggestValidIpAddress[0])+1;
 			IpAddress = badOctet + "." + biggestValidIpAddress[1] + "." + biggestValidIpAddress[2] + "." + biggestValidIpAddress[3];
-			System.out.println(IpAddress);
 			c1 = new Computer(IpAddress);
 		}
 		catch(WrongIpAddressException e)
@@ -144,7 +142,6 @@ public class ComputerTest {
 		{
 			int badOctet = 256;
 			IpAddress = smallestValidIpAddress[0] + "." + badOctet + "." + smallestValidIpAddress[2] + "." + smallestValidIpAddress[3];
-			System.out.println(IpAddress);
 			c1 = new Computer(IpAddress);
 		}
 		catch(WrongIpAddressException e)
@@ -156,7 +153,6 @@ public class ComputerTest {
 		{
 			int badOctet = -1;
 			IpAddress = smallestValidIpAddress[0] + "." + badOctet + "." + smallestValidIpAddress[2] + "." + smallestValidIpAddress[3];
-			System.out.println(IpAddress);
 			c1 = new Computer(IpAddress);
 		}
 		catch(WrongIpAddressException e)

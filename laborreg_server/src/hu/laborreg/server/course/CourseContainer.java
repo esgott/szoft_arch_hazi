@@ -63,6 +63,6 @@ public class CourseContainer {
 				return retVal;
 			}
 		}
-		throw new ElementNotFoundException("Course" + name + "(" + year + ") does not found in the Courses list.");
+		throw new ElementNotFoundException("Course: " + name + "(" + year + ") does not found in the Courses list.");
 	}
 }

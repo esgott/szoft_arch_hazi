@@ -19,8 +19,8 @@ public class LabEvent {
 	private String name;
 	private String courseName;
 	private int courseYear;
-	private String startTime = "23:59";
-	private String stopTime = "23:59";
+	private String startTime;
+	private String stopTime;
 	//private boolean isActive; //TODO Do we need this?
 	private Set<Student> signedInStudents;
 	private Set<Computer> registeredComputers;
@@ -40,6 +40,18 @@ public class LabEvent {
 	 */
 	public LabEvent(String name, String courseName, int courseYear, String startTime, String stopTime) throws TimeSetException, ParseException
 	{
+		Calendar currentTime = Calendar.getInstance();
+		if(currentTime.get(Calendar.HOUR_OF_DAY) < 23)
+		{
+			this.startTime = (currentTime.get(Calendar.HOUR_OF_DAY)+1) + ":" + currentTime.get(Calendar.MINUTE);
+			this.stopTime = (currentTime.get(Calendar.HOUR_OF_DAY)+2) + ":" + currentTime.get(Calendar.MINUTE);
+		}
+		else
+		{
+			this.startTime = "23:58";
+			this.stopTime = "23:59";
+		}
+		
 		this.name = name;
 		this.courseName = courseName;
 		this.courseYear = courseYear;
@@ -114,16 +126,30 @@ public class LabEvent {
 	}
 	
 	/**
+	 * Sign in Student to the Lab event participants list.
+	 * @param student The Students who wants to sign in.
+	 */
+	public void signInStudent(Student student) throws ElementAlreadyAddedException, UnsupportedClassVersionError,
+														ClassCastException, NullPointerException, IllegalArgumentException
+	{
+		if(this.signedInStudents.add(student) == false)
+		{
+			throw new ElementAlreadyAddedException("Student: " + student.getName() + "(" + student.getName() + ") already signed in to this Lab event.");
+		}
+	}
+	
+	/**
 	 * Allow multiple registration to the specified Computer. After this more than one Students can sign in from this computer.
 	 * @param computer The needed Computer.
 	 * @return If computer added to the list: COMPUTER_ADDED(0)
 	 * 			if computer already added to the list: COMPUTER_ALREADY_ADDED(1)
 	 */
-	public void allowMultipleRegistration(Computer computer) throws ElementAlreadyAddedException, UnsupportedClassVersionError, ClassCastException, NullPointerException, IllegalArgumentException
+	public void allowMultipleRegistration(Computer computer) throws ElementAlreadyAddedException, UnsupportedClassVersionError,
+																		ClassCastException, NullPointerException, IllegalArgumentException
 	{
 		if(this.registeredComputers.add(computer) == false)
 		{
-			throw new ElementAlreadyAddedException("Computer " + computer.getIpAddress() + " already added to list.");
+			throw new ElementAlreadyAddedException("Computer: " + computer.getIpAddress() + " already added to list.");
 		}
 	}
 	
@@ -180,9 +206,32 @@ public class LabEvent {
 				throw new TimeSetException("Set time is not enabled, because the Lab event is currently ongoing.");
 			}
 		}
-		if(currentTime.get(Calendar.HOUR_OF_DAY) >= storedStopTime.get(Calendar.HOUR_OF_DAY))
+		if(currentTime.get(Calendar.HOUR_OF_DAY) >= storedStartTime.get(Calendar.HOUR_OF_DAY))
+		{
+			if(currentTime.get(Calendar.MINUTE) >= storedStartTime.get(Calendar.MINUTE))
+			{
+				throw new TimeSetException("Set time is not enabled, because the Lab event is currently ongoing.");
+			}
+		}
+		if((currentTime.get(Calendar.HOUR_OF_DAY) >= givenStartTime.get(Calendar.HOUR_OF_DAY)) &&
+			(currentTime.get(Calendar.HOUR_OF_DAY) <= givenStopTime.get(Calendar.HOUR_OF_DAY)))
+		{
+			if((currentTime.get(Calendar.MINUTE) >= givenStartTime.get(Calendar.MINUTE)) &&
+				(currentTime.get(Calendar.MINUTE) <= givenStopTime.get(Calendar.MINUTE)))
+			{
+				throw new TimeSetException("Set time is not enabled, because the Lab event is currently ongoing.");
+			}
+		}
+		if(currentTime.get(Calendar.HOUR_OF_DAY) >= storedStopTime.get(Calendar.HOUR_OF_DAY))		
 		{
 			if(currentTime.get(Calendar.MINUTE) >= storedStopTime.get(Calendar.MINUTE))
+			{
+				throw new TimeSetException("Set time is not enabled, because the Lab event is finished.");
+			}
+		}
+		if(currentTime.get(Calendar.HOUR_OF_DAY) >= givenStopTime.get(Calendar.HOUR_OF_DAY))		
+		{
+			if(currentTime.get(Calendar.MINUTE) >= givenStopTime.get(Calendar.MINUTE))
 			{
 				throw new TimeSetException("Set time is not enabled, because the Lab event is finished.");
 			}

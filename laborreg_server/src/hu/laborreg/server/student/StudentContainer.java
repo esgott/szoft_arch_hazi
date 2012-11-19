@@ -50,7 +50,7 @@ public class StudentContainer {
 	 * @param neptunCode The Neptun code of the Student (must be unique).
 	 * @return The needed Student.
 	 */
-	public Student getStudent(String neptunCode)
+	public Student getStudent(String neptunCode) throws ElementNotFoundException
 	{
 		Iterator<Student> it = students.iterator();
 		
@@ -62,6 +62,6 @@ public class StudentContainer {
 				return retVal;
 			}
 		}
-		return null;
+		throw new ElementNotFoundException("Student: " + neptunCode + "does not found in the Students list.");
 	}
 }
