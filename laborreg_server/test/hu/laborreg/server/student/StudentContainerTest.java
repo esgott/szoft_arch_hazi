@@ -2,92 +2,104 @@ package hu.laborreg.server.student;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
+import hu.laborreg.server.db.DBConnectionHandler;
 import hu.laborreg.server.exception.ElementAlreadyAddedException;
 import hu.laborreg.server.exception.ElementNotFoundException;
 
-public class StudentContainerTest{
-	
+public class StudentContainerTest {
+
+	@Mock
+	DBConnectionHandler mockDbConnectionHandler;
+	@Mock
+	PreparedStatement mockPreparedStatement;
+	@Mock
+	ResultSet mockResultset;
+
 	private StudentContainer cont;
 	private Student s1;
 	private Student s2;
-	
-	private void init()
-	{
-		cont = new StudentContainer();
-		s1 = new Student("abcdef","Bela");
-		s2 = new Student("a123bcd","Geza");
+
+	@Before
+	public void init() throws SQLException {
+		MockitoAnnotations.initMocks(this);
+
+		when(mockDbConnectionHandler.createPreparedStatement(anyString())).thenReturn(mockPreparedStatement);
+		when(mockPreparedStatement.executeQuery()).thenReturn(mockResultset);
+		when(mockResultset.next()).thenReturn(false);
+
+		cont = new StudentContainer(mockDbConnectionHandler);
+		s1 = new Student("abcdef", "Bela");
+		s2 = new Student("a123bcd", "Geza");
 	}
-	
+
 	@Test
-	public void addStudentToContainerTest() throws UnsupportedOperationException, ClassCastException, NullPointerException,
-												IllegalArgumentException, ElementAlreadyAddedException
-	{
-		init();
-		
+	public void addStudentToContainerTest() throws ElementAlreadyAddedException, SQLException {
 		cont.addStudent(s1);
 		cont.addStudent(s2);
-		
-		try
-		{
+
+		verify(mockPreparedStatement, times(2)).executeUpdate();
+
+		try {
 			cont.addStudent(s1);
-		}
-		catch(ElementAlreadyAddedException e)
-		{
+		} catch (ElementAlreadyAddedException e) {
 			return;
 		}
-		
+
 		fail("ElementAlreadyAddedException not thrown.");
 	}
-	
+
 	@Test
-	public void removeStudentFromContainerTest() throws UnsupportedOperationException, ClassCastException, NullPointerException,
-													IllegalArgumentException, ElementAlreadyAddedException, ElementNotFoundException
-	{
-		init();
-		
+	public void removeStudentFromContainerTest() throws ElementAlreadyAddedException, ElementNotFoundException,
+			SQLException {
 		cont.addStudent(s1);
 		cont.addStudent(s2);
 
 		cont.removeStudent(s1);
-		
-		try
-		{
+
+		verify(mockPreparedStatement, times(3)).executeUpdate();
+
+		try {
 			cont.removeStudent(s1);
-		}
-		catch(ElementNotFoundException e)
-		{
+		} catch (ElementNotFoundException e) {
 			return;
 		}
-		
+
 		fail("ElementNotFoundException not thrown.");
 	}
-	
+
 	@Test
-	public void getStduentFromContainerTest() throws UnsupportedOperationException, ClassCastException, NullPointerException,
-												IllegalArgumentException, ElementAlreadyAddedException, ElementNotFoundException
-	{
-		init();
-		
+	public void getStduentFromContainerTest() throws ElementAlreadyAddedException, ElementNotFoundException,
+			SQLException {
 		cont.addStudent(s1);
 		cont.addStudent(s2);
-		
-		assertEquals(s1.getName(),cont.getStudent(s1.getNeptunCode()).getName());
-		assertEquals(s2.getName(),cont.getStudent(s2.getNeptunCode()).getName());
-		
+
+		assertEquals(s1.getName(), cont.getStudent(s1.getNeptunCode()).getName());
+		assertEquals(s2.getName(), cont.getStudent(s2.getNeptunCode()).getName());
+
 		cont.removeStudent(s2);
-		
-		try
-		{
+
+		verify(mockPreparedStatement, times(3)).executeUpdate();
+
+		try {
 			cont.getStudent(s2.getNeptunCode());
-		}
-		catch(ElementNotFoundException e)
-		{
+		} catch (ElementNotFoundException e) {
 			return;
 		}
-		
+
 		fail("ElementNotFoundException not thrown.");
 	}
 }

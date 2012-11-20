@@ -28,7 +28,7 @@ public class DBInitiator {
 	private void addCommands() {
 		commands.put("course",
 				"CREATE TABLE course (year INTEGER NOT NULL, name TEXT NOT NULL, PRIMARY KEY (year, name))");
-		commands.put("student", "CREATE TABLE student (neptun TEXT PRIMARY KEY)");
+		commands.put("student", "CREATE TABLE student (neptun TEXT PRIMARY KEY, name TEXT)");
 		commands.put("computer", "CREATE TABLE computer (ip_address TEXT PRIMARY KEY)");
 		commands.put("lab_event", "CREATE TABLE lab_event (name TEXT PRIMARY KEY, part_of_course_name TEXT NOT NULL, "
 				+ "part_of_course_year INTEGER NOT NULL, start_time DATETIME NOT NULL, end_time DATETIME NOT NULL, "

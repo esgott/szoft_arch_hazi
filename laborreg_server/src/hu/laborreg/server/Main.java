@@ -35,7 +35,7 @@ public class Main {
 	private static CourseContainer courseContainer;
 	private LabEventContainer labEventContainer = new LabEventContainer();
 	private static ComputerContainer computercontainer;
-	private StudentContainer studentContainer = new StudentContainer();
+	private static StudentContainer studentContainer;
 
 	public static void main(String[] args) {
 		initializeLogger();
@@ -74,6 +74,7 @@ public class Main {
 	private static void initializeContainers() {
 		computercontainer = new ComputerContainer(dbConnHandler);
 		courseContainer = new CourseContainer(dbConnHandler);
+		studentContainer = new StudentContainer(dbConnHandler);
 	}
 
 	private static void initializeHttpServer() {
