@@ -34,14 +34,15 @@ public class ComputerContainer {
 			while (result.next()) {
 				String ipAddress = result.getString("ip_address");
 				Computer newComputer = new Computer(ipAddress);
-				addComputer(newComputer);
+				boolean success = computers.add(newComputer);
+				if (!success) {
+					logger.warning("Comupter instance found multiple times in the DB: " + ipAddress);
+				}
 			}
 		} catch (SQLException e) {
-			logger.severe("Could not read Computers from database: " + e.getMessage());
+			logger.severe("Could init Computers from database: " + e.getMessage());
 		} catch (WrongIpAddressException e) {
 			logger.warning("Can't create Computer instance: " + e.getMessage());
-		} catch (ElementAlreadyAddedException e) {
-			logger.warning("Comupter instance found multiple times in the DB: " + e.getMessage());
 		}
 	}
 
@@ -67,11 +68,7 @@ public class ComputerContainer {
 			statement.executeUpdate();
 		} catch (SQLException e) {
 			logger.severe("Failed to add new computer to db: " + e.getMessage());
-			try {
-				removeComputer(computer);
-			} catch (ElementNotFoundException ex) {
-				logger.severe("Failed to remove computer: " + ex.getMessage());
-			}
+			computers.remove(computer);
 		}
 	}
 
