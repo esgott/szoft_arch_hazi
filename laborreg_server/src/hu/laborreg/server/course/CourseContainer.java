@@ -1,6 +1,5 @@
 package hu.laborreg.server.course;
 
-
 import hu.laborreg.server.db.DBConnectionHandler;
 import hu.laborreg.server.exception.ElementAlreadyAddedException;
 import hu.laborreg.server.exception.ElementNotFoundException;
@@ -14,21 +13,20 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 public class CourseContainer {
-	
+
 	private Set<Course> courses;
 	private DBConnectionHandler dbConnection;
 	private final Logger logger = Logger.getLogger(this.getClass().getName());
-	
+
 	/**
 	 * A container class which contains the courses.
 	 */
-	public CourseContainer(DBConnectionHandler dbConnectionHandler)
-	{
+	public CourseContainer(DBConnectionHandler dbConnectionHandler) {
 		courses = new HashSet<Course>();
 		dbConnection = dbConnectionHandler;
 		initFromDB();
 	}
-	
+
 	private void initFromDB() {
 		try {
 			PreparedStatement statement = dbConnection.createPreparedStatement("SELECT * FROM course");
@@ -49,17 +47,18 @@ public class CourseContainer {
 
 	/**
 	 * Add Course to the courses list.
-	 * @param course The needed course
+	 * 
+	 * @param course
+	 *            The needed course
 	 */
-	public void addCourse(Course course) throws ElementAlreadyAddedException
-	{
-		if(this.courses.add(course) == false)
-		{
-			throw new ElementAlreadyAddedException("Course" + course.getName() + "(" + course.getYear() + ") already added to the Courses list.");
+	public void addCourse(Course course) throws ElementAlreadyAddedException {
+		if (this.courses.add(course) == false) {
+			throw new ElementAlreadyAddedException("Course" + course.getName() + "(" + course.getYear()
+					+ ") already added to the Courses list.");
 		}
 		addToDB(course);
 	}
-	
+
 	private void addToDB(Course course) {
 		try {
 			String command = "INSERT INTO course VALUES(name = ?, year = ?)";
@@ -75,17 +74,19 @@ public class CourseContainer {
 
 	/**
 	 * Remove course to the courses list.
-	 * @param course The needed course
+	 * 
+	 * @param course
+	 *            The needed course
 	 */
-	public void removeCourse(Course course) throws ElementNotFoundException, UnsupportedOperationException, ClassCastException, NullPointerException
-	{
-		if(this.courses.remove(course) == false)
-		{
-			throw new ElementNotFoundException("Course" + course.getName() + "(" + course.getYear() + ") does not found in the Courses list.");
+	public void removeCourse(Course course) throws ElementNotFoundException, UnsupportedOperationException,
+			ClassCastException, NullPointerException {
+		if (this.courses.remove(course) == false) {
+			throw new ElementNotFoundException("Course" + course.getName() + "(" + course.getYear()
+					+ ") does not found in the Courses list.");
 		}
 		removeFromDB(course);
 	}
-	
+
 	private void removeFromDB(Course course) {
 		try {
 			String command = "DELETE FROM course WHERE name = ? AND year = ?";
@@ -100,19 +101,19 @@ public class CourseContainer {
 
 	/**
 	 * Get the specified course from courses.
-	 * @param name The name of the course (must be unique).
-	 * @param year The year of the course.
+	 * 
+	 * @param name
+	 *            The name of the course (must be unique).
+	 * @param year
+	 *            The year of the course.
 	 * @return The needed course
 	 */
-	public Course getCourse(String name, int year) throws ElementNotFoundException
-	{
+	public Course getCourse(String name, int year) throws ElementNotFoundException {
 		Iterator<Course> it = courses.iterator();
-		
-		while(it.hasNext())
-		{
+
+		while (it.hasNext()) {
 			Course retVal = it.next();
-			if(retVal.getName().equals(name) && retVal.getYear()==year)
-			{
+			if (retVal.getName().equals(name) && retVal.getYear() == year) {
 				return retVal;
 			}
 		}
