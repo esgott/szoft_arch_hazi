@@ -1,11 +1,13 @@
 package hu.laborreg.server.gui;
 
+import hu.laborreg.server.course.CourseContainer;
+import hu.laborreg.server.exception.ElementNotFoundException;
+
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 
 import javax.swing.ImageIcon;
@@ -16,12 +18,11 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
-import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 public class MainWindow {
 
-	private static final int MINIMUM_WIDTH = 600;
+	private static final int MINIMUM_WIDTH = 620;
 	private static final int MINIMUM_HEIGHT = 200;
 
 	private JFrame frame = new JFrame("Jelenlét regisztráló rendszer");;
@@ -29,38 +30,21 @@ public class MainWindow {
 	private JToolBar toolBar = new JToolBar();;
 	private JFileChooser fileChooser;
 	private DataManipulatorDialog dataManipulatorDialog;
+	private CourseTable courseTable;
 
-	public static void display() {
-		try {
-			SwingUtilities.invokeAndWait(new Runnable() {
-				@Override
-				public void run() {
-					MainWindow window = new MainWindow();
-					window.frame.setVisible(true);
-				}
-			});
-		} catch (InvocationTargetException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	public MainWindow(CourseContainer courses) {
+		initialize(courses);
 	}
 
-	public MainWindow() {
-		initialize();
-	}
-
-	private void initialize() {
+	private void initialize(CourseContainer courses) {
 		frame.setBounds(100, 100, MINIMUM_WIDTH, MINIMUM_HEIGHT + 200);
 		frame.setMinimumSize(new Dimension(MINIMUM_WIDTH, MINIMUM_HEIGHT));
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
+
 		translateJFileChooser();
 		fileChooser = new JFileChooser();
 
-		dataManipulatorDialog = new DataManipulatorDialog(300, 100, new CourseManipulatorPanel());
+		dataManipulatorDialog = new DataManipulatorDialog(300, 150, new CourseManipulatorPanel(courses, this));
 
 		toolBar.setRollover(true);
 		toolBar.setFloatable(false);
@@ -68,7 +52,7 @@ public class MainWindow {
 		createToolbarButtons();
 		frame.getContentPane().add(toolBar, BorderLayout.NORTH);
 
-		createTabs();
+		createTabs(courses);
 		frame.getContentPane().add(tabbedPane, BorderLayout.CENTER);
 	}
 
@@ -80,7 +64,21 @@ public class MainWindow {
 			}
 		});
 
-		createButton("Töröl", "Kijelölt törlése", "minus-circle");
+		createButton("Töröl", "Kijelölt törlése", "minus-circle", new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String title = "Törlés megerősítése";
+				String message = "Biztosan törölni szeretnéd?";
+				int answer = JOptionPane.showConfirmDialog(frame, message, title, JOptionPane.YES_NO_OPTION);
+				if (answer == JOptionPane.YES_OPTION) {
+					try {
+						courseTable.deleteCurrent();
+					} catch (ElementNotFoundException ex) {
+						JOptionPane.showMessageDialog(frame, "Törlés sikertelen");
+					}
+				}
+			}
+		});
 
 		createButton("Szerkeszt", "Kijelölt szerkesztése", "keyboard-command");
 
@@ -121,11 +119,11 @@ public class MainWindow {
 		createButton(buttonText, tooltipText, iconName, null);
 	}
 
-	private void createTabs() {
-		tabbedPane.addTab("Kurzusok", new CourseTable());
+	private void createTabs(CourseContainer courses) {
+		courseTable = new CourseTable(courses);
+		tabbedPane.addTab("Kurzusok", courseTable);
 		tabbedPane.addTab("Laboresemények", new JPanel());
 	}
-
 
 	private void translateJFileChooser() {
 		UIManager.put("FileChooser.acceptAllFileFilterText", "Összes fájl");
@@ -136,20 +134,28 @@ public class MainWindow {
 		UIManager.put("FileChooser.openButtonToolTipText", "Fájl megnyitása");
 		UIManager.put("FileChooser.filesOfTypeLabelText", "Típus");
 		UIManager.put("FileChooser.fileNameLabelText", "Fájlnév");
-		UIManager.put("FileChooser.listViewButtonToolTipText", "Lista"); 
-		UIManager.put("FileChooser.listViewButtonAccessibleName", "Lista"); 
+		UIManager.put("FileChooser.listViewButtonToolTipText", "Lista");
+		UIManager.put("FileChooser.listViewButtonAccessibleName", "Lista");
 		UIManager.put("FileChooser.detailsViewButtonToolTipText", "Részletek");
 		UIManager.put("FileChooser.detailsViewButtonAccessibleName", "Részletek");
-		UIManager.put("FileChooser.upFolderToolTipText", "Egy szinttel feljebb"); 
-		UIManager.put("FileChooser.upFolderAccessibleName", "Egy szinttel feljebb"); 
-		UIManager.put("FileChooser.homeFolderToolTipText", "Saját mappa"); 
+		UIManager.put("FileChooser.upFolderToolTipText", "Egy szinttel feljebb");
+		UIManager.put("FileChooser.upFolderAccessibleName", "Egy szinttel feljebb");
+		UIManager.put("FileChooser.homeFolderToolTipText", "Saját mappa");
 		UIManager.put("FileChooser.homeFolderAccessibleName", "Saját mappa");
-		UIManager.put("FileChooser.fileNameHeaderText", "Név"); 
-		UIManager.put("FileChooser.fileSizeHeaderText", "Méret"); 
-		UIManager.put("FileChooser.fileTypeHeaderText", "Típus"); 
-		UIManager.put("FileChooser.fileDateHeaderText", "Módosítva"); 
-		UIManager.put("FileChooser.fileAttrHeaderText", "Attribútumok"); 
-		UIManager.put("FileChooser.openDialogTitleText","Megnyitás");
+		UIManager.put("FileChooser.fileNameHeaderText", "Név");
+		UIManager.put("FileChooser.fileSizeHeaderText", "Méret");
+		UIManager.put("FileChooser.fileTypeHeaderText", "Típus");
+		UIManager.put("FileChooser.fileDateHeaderText", "Módosítva");
+		UIManager.put("FileChooser.fileAttrHeaderText", "Attribútumok");
+		UIManager.put("FileChooser.openDialogTitleText", "Megnyitás");
 		UIManager.put("FileChooser.readOnly", Boolean.TRUE);
+	}
+
+	public void dataOfCoursesChanged() {
+		courseTable.dataChanged();
+	}
+
+	public void display() {
+		frame.setVisible(true);
 	}
 }

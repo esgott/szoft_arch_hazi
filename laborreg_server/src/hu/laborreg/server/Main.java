@@ -12,6 +12,7 @@ import hu.laborreg.server.labEvent.LabEventContainer;
 import hu.laborreg.server.student.StudentContainer;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -19,6 +20,8 @@ import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
+
+import javax.swing.SwingUtilities;
 
 public class Main {
 
@@ -39,7 +42,7 @@ public class Main {
 		initializeDB();
 		initializeContainers();
 		initializeHttpServer();
-		MainWindow.display();
+		displayGUI();
 	}
 
 	private static void initializeLogger() {
@@ -86,6 +89,24 @@ public class Main {
 			thread.start();
 		} catch (IOException e) {
 			logger.severe("Failed to initilaize HTTP server:" + e.getMessage());
+			e.printStackTrace();
+		}
+	}
+
+	private static void displayGUI() {
+		try {
+			SwingUtilities.invokeAndWait(new Runnable() {
+				@Override
+				public void run() {
+					MainWindow window = new MainWindow(courseContainer);
+					window.display();
+				}
+			});
+		} catch (InvocationTargetException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

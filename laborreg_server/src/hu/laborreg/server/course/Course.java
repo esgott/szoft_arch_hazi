@@ -28,6 +28,9 @@ public class Course {
 	 *            Year of the course.
 	 */
 	public Course(String name, int year) {
+		if (name.equals("")) {
+			throw new IllegalArgumentException("Name cannot be empty string");
+		}
 		this.name = name;
 		this.year = year;
 

@@ -7,14 +7,13 @@ import hu.laborreg.server.exception.ElementNotFoundException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 public class CourseContainer {
 
-	private Set<Course> courses;
+	private List<Course> courses;
 	private DBConnectionHandler dbConnection;
 	private final Logger logger = Logger.getLogger(this.getClass().getName());
 
@@ -22,7 +21,7 @@ public class CourseContainer {
 	 * A container class which contains the courses.
 	 */
 	public CourseContainer(DBConnectionHandler dbConnectionHandler) {
-		courses = new HashSet<Course>();
+		courses = new ArrayList<Course>();
 		dbConnection = dbConnectionHandler;
 		initFromDB();
 	}
@@ -35,8 +34,9 @@ public class CourseContainer {
 				String name = result.getString("name");
 				int year = result.getInt("year");
 				Course course = new Course(name, year);
-				boolean success = courses.add(course);
-				if (!success) {
+				if (!courses.contains(course)) {
+					courses.add(course);
+				} else {
 					logger.warning("Multiple instances in Course table: " + name + " " + year);
 				}
 			}
@@ -52,7 +52,9 @@ public class CourseContainer {
 	 *            The needed course
 	 */
 	public void addCourse(Course course) throws ElementAlreadyAddedException {
-		if (this.courses.add(course) == false) {
+		if (!courses.contains(course)) {
+			courses.add(course);
+		} else {
 			throw new ElementAlreadyAddedException("Course" + course.getName() + "(" + course.getYear()
 					+ ") already added to the Courses list.");
 		}
@@ -61,10 +63,10 @@ public class CourseContainer {
 
 	private void addToDB(Course course) {
 		try {
-			String command = "INSERT INTO course VALUES(name = ?, year = ?)";
+			String command = "INSERT INTO course(year, name) VALUES(?, ?)";
 			PreparedStatement statement = dbConnection.createPreparedStatement(command);
-			statement.setString(1, course.getName());
-			statement.setInt(2, course.getYear());
+			statement.setInt(1, course.getYear());
+			statement.setString(2, course.getName());
 			statement.executeUpdate();
 		} catch (SQLException e) {
 			logger.severe("Failed to add new course to db: " + e.getMessage());
@@ -78,8 +80,7 @@ public class CourseContainer {
 	 * @param course
 	 *            The needed course
 	 */
-	public void removeCourse(Course course) throws ElementNotFoundException, UnsupportedOperationException,
-			ClassCastException, NullPointerException {
+	public void removeCourse(Course course) throws ElementNotFoundException {
 		if (this.courses.remove(course) == false) {
 			throw new ElementNotFoundException("Course" + course.getName() + "(" + course.getYear()
 					+ ") does not found in the Courses list.");
@@ -109,14 +110,24 @@ public class CourseContainer {
 	 * @return The needed course
 	 */
 	public Course getCourse(String name, int year) throws ElementNotFoundException {
-		Iterator<Course> it = courses.iterator();
-
-		while (it.hasNext()) {
-			Course retVal = it.next();
-			if (retVal.getName().equals(name) && retVal.getYear() == year) {
-				return retVal;
+		for (Course course : courses) {
+			if (course.getName().equals(name) && course.getYear() == year) {
+				return course;
 			}
 		}
 		throw new ElementNotFoundException("Course: " + name + "(" + year + ") does not found in the Courses list.");
+	}
+
+	/**
+	 * Get the number of elements in this container
+	 * 
+	 * @return Number of elements
+	 */
+	public int getNumberOfCourses() {
+		return courses.size();
+	}
+
+	public Course getCourse(int index) {
+		return courses.get(index);
 	}
 }

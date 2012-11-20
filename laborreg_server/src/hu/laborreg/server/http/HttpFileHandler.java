@@ -70,7 +70,7 @@ public class HttpFileHandler implements HttpRequestHandler {
 	private void checkMethod(final HttpRequest request) throws MethodNotSupportedException {
 		String method = request.getRequestLine().getMethod().toUpperCase(Locale.ENGLISH);
 		if (!method.equals("GET") && !method.equals("HEAD") && !method.equals("POST")) {
-			String message = method + "method not supported";
+			String message = method + " method not supported";
 			logger.info(message);
 			throw new MethodNotSupportedException(message);
 		}

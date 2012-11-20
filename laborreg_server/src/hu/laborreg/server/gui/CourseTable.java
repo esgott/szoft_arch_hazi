@@ -1,26 +1,40 @@
 package hu.laborreg.server.gui;
 
+import hu.laborreg.server.course.CourseContainer;
+import hu.laborreg.server.exception.ElementNotFoundException;
+
 import java.awt.BorderLayout;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
 
 public class CourseTable extends JPanel {
 
 	private static final long serialVersionUID = 1207047791312415309L;
-	private JTable table;
+	private final JTable table;
+	private final CourseTableModel tableModel;
 
-	public CourseTable() {
+	public CourseTable(CourseContainer courses) {
 		setLayout(new BorderLayout());
-		
-		String[] columnNames = { "Év", "Név" };
-		Object[][] data = { { "1999", "kurzus1" }, { "2005", "kurzus2", }, { "2012", "kurzus3", }, };
-		table = new JTable(data, columnNames);
+
+		tableModel = new CourseTableModel(courses);
+		table = new JTable(tableModel);
 		table.setFillsViewportHeight(true);
-		
+		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
 		JScrollPane scrollPane = new JScrollPane(table);
 		add(scrollPane, BorderLayout.CENTER);
+	}
+
+	public void dataChanged() {
+		tableModel.fireTableDataChanged();
+	}
+
+	public void deleteCurrent() throws ElementNotFoundException {
+		int rowIndex = table.getSelectedRow();
+		tableModel.deleteRow(rowIndex);
 	}
 
 }
