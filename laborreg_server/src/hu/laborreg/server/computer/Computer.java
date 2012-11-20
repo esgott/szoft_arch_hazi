@@ -9,7 +9,6 @@ import java.util.regex.Pattern;
 public class Computer {
 	
 	private String IpAddress;
-	private boolean isMultipleRegistrationAllowed;
 	
 	/**
 	 * This class represents the computers in the lab. The lab leader can set the "multiple registration allowed" flag in each Computer.
@@ -18,29 +17,10 @@ public class Computer {
 	 */
 	public Computer(String IpAddress) throws WrongIpAddressException
 	{
-		isMultipleRegistrationAllowed = false;
-		
 		if(validateIpAddress(IpAddress))
 		{
 			this.IpAddress = IpAddress;
 		}
-	}
-	
-	/**
-	 * Set the "multiple registration allowed" to true.
-	 */
-	public void allowMultipleRegistration()
-	{
-		this.isMultipleRegistrationAllowed = true;
-	}
-	
-	/**
-	 * Returns the current value of "multiple registration allowed" flag.
-	 * @return The current value of "multiple registration allowed" flag.
-	 */
-	public boolean isMultipleRegistrationAllowed()
-	{
-		return this.isMultipleRegistrationAllowed;
 	}
 	
 	/**

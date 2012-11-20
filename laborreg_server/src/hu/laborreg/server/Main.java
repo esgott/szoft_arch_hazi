@@ -31,12 +31,13 @@ public class Main {
 	private ClientConnectionHandler clientConnectionHandler = new ClientConnectionHandler();
 	private CourseContainer courseContainer = new CourseContainer();
 	private LabEventContainer labEventContainer = new LabEventContainer();
-	private ComputerContainer computercontainer = new ComputerContainer();
+	private static ComputerContainer computercontainer;
 	private StudentContainer studentContainer = new StudentContainer();
 
 	public static void main(String[] args) {
 		initializeLogger();
 		initializeDB();
+		initializeContainers();
 		initializeHttpServer();
 		MainWindow.display();
 	}
@@ -65,6 +66,10 @@ public class Main {
 		} catch (ClassNotFoundException e) {
 			logger.severe("Failed to load database driver: " + e.getMessage());
 		}
+	}
+	
+	private static void initializeContainers() {
+		computercontainer = new ComputerContainer(dbConnHandler);
 	}
 
 	private static void initializeHttpServer() {

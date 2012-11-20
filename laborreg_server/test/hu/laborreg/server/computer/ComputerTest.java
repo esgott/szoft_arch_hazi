@@ -12,25 +12,6 @@ public class ComputerTest {
 	private Computer c1;
 	private Computer c2;
 	
-	private void init() throws WrongIpAddressException
-	{
-		c1 = new Computer(Constants.SMALLEST_VALID_IP_ADDRESS);
-		c2 = new Computer(Constants.BIGGEST_VALID_IP_ADDRESS);
-	}
-	
-	@Test
-	public void basicAttributesTest() throws WrongIpAddressException
-	{
-		init();
-		
-		assertEquals(Constants.SMALLEST_VALID_IP_ADDRESS,c1.getIpAddress());
-		assertEquals(Constants.BIGGEST_VALID_IP_ADDRESS,c2.getIpAddress());
-		
-		c1.allowMultipleRegistration();
-		assertEquals(false,c2.isMultipleRegistrationAllowed());
-		assertEquals(true, c1.isMultipleRegistrationAllowed());
-	}
-	
 	@Test
 	public void invalidFormatOfIpAddress()
 	{
