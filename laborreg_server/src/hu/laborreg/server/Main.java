@@ -29,7 +29,7 @@ public class Main {
 
 	private DataExporter dataExporter = new DataExporter(dbConnHandler);
 	private ClientConnectionHandler clientConnectionHandler = new ClientConnectionHandler();
-	private CourseContainer courseContainer = new CourseContainer();
+	private static CourseContainer courseContainer;
 	private LabEventContainer labEventContainer = new LabEventContainer();
 	private static ComputerContainer computercontainer;
 	private StudentContainer studentContainer = new StudentContainer();
@@ -67,9 +67,10 @@ public class Main {
 			logger.severe("Failed to load database driver: " + e.getMessage());
 		}
 	}
-	
+
 	private static void initializeContainers() {
 		computercontainer = new ComputerContainer(dbConnHandler);
+		courseContainer = new CourseContainer(dbConnHandler);
 	}
 
 	private static void initializeHttpServer() {
