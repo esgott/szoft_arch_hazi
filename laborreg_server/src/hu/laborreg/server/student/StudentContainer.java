@@ -33,8 +33,7 @@ public class StudentContainer {
 			ResultSet result = statement.executeQuery();
 			while (result.next()) {
 				String neptun = result.getString("neptun");
-				String name = result.getString("name");
-				Student student = new Student(neptun, name);
+				Student student = new Student(neptun);
 				boolean success = students.add(student);
 				if (!success) {
 					logger.warning("Student instance found multiple times in the DB: " + neptun);
@@ -51,11 +50,10 @@ public class StudentContainer {
 	 * @param student
 	 *            The needed Student.
 	 */
-	public void addStudent(Student student) throws ElementAlreadyAddedException, UnsupportedOperationException,
-			ClassCastException, NullPointerException, IllegalArgumentException {
+	public void addStudent(Student student) throws ElementAlreadyAddedException {
 		if (this.students.add(student) == false) {
-			throw new ElementAlreadyAddedException("Student " + student.getName() + "(" + student.getNeptunCode()
-					+ ") already added to Students list.");
+			throw new ElementAlreadyAddedException("Student " + student.getNeptunCode()
+					+ " already added to Students list.");
 		}
 
 		addToDB(student);
@@ -63,10 +61,9 @@ public class StudentContainer {
 
 	private void addToDB(Student student) {
 		try {
-			String command = "INSERT INTO student(neptun, name) VALUES(?, ?)";
+			String command = "INSERT INTO student(neptun, name) VALUES(?, NULL)";
 			PreparedStatement statement = dbConnection.createPreparedStatement(command);
 			statement.setString(1, student.getNeptunCode());
-			statement.setString(2, student.getName());
 			statement.executeUpdate();
 		} catch (SQLException e) {
 			logger.severe("Failed to add new student to db: " + e.getMessage());
@@ -83,8 +80,8 @@ public class StudentContainer {
 	public void removeStudent(Student student) throws ElementNotFoundException, UnsupportedOperationException,
 			ClassCastException, NullPointerException {
 		if (this.students.remove(student) == false) {
-			throw new ElementNotFoundException("Student " + student.getName() + "(" + student.getNeptunCode()
-					+ ") does not found in Students list.");
+			throw new ElementNotFoundException("Student " + student.getNeptunCode()
+					+ " does not found in Students list.");
 		}
 		removeFromDB(student);
 	}

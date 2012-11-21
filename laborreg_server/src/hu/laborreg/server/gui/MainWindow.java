@@ -9,6 +9,7 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URL;
+import java.util.logging.Logger;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -30,7 +31,9 @@ public class MainWindow {
 	private JToolBar toolBar = new JToolBar();;
 	private JFileChooser fileChooser;
 	private DataManipulatorDialog dataManipulatorDialog;
+	private CourseManipulatorPanel courseManipulatorPanel;
 	private CourseTable courseTable;
+	private final Logger logger = Logger.getLogger(this.getClass().getName());
 
 	public MainWindow(CourseContainer courses) {
 		initialize(courses);
@@ -44,7 +47,8 @@ public class MainWindow {
 		translateJFileChooser();
 		fileChooser = new JFileChooser();
 
-		dataManipulatorDialog = new DataManipulatorDialog(300, 150, new CourseManipulatorPanel(courses, this));
+		courseManipulatorPanel = new CourseManipulatorPanel(courses, this);
+		dataManipulatorDialog = new DataManipulatorDialog(400, 200, courseManipulatorPanel);
 
 		toolBar.setRollover(true);
 		toolBar.setFloatable(false);
@@ -80,13 +84,22 @@ public class MainWindow {
 			}
 		});
 
-		createButton("Szerkeszt", "Kijelölt szerkesztése", "keyboard-command");
+		createButton("Szerkeszt", "Kijelölt szerkesztése", "keyboard-command", new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					courseManipulatorPanel.setFields(courseTable.getCurrentElement());
+					dataManipulatorDialog.display("Kurzus módosítása");
+				} catch (ArrayIndexOutOfBoundsException ex) {
+					logger.info("Failed to display details, probably wrong selection");
+				}
+			}
+		});
 
 		createButton("Részletek", "Részletes információ megjelenítése", "eye", new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String message = "Kurzus neve: kurzus1\nÉv: 1999\nLaboresemények: labor1, labor2\nRegisztrált hallgatók: ABC123, DEF456";
-				JOptionPane.showMessageDialog(frame, message, "Részletek", JOptionPane.PLAIN_MESSAGE);
+				courseTable.displayDetails();
 			}
 		});
 

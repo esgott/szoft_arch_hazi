@@ -73,5 +73,9 @@ public class CourseTableModel extends AbstractTableModel {
 		courses.removeCourse(course);
 		fireTableRowsDeleted(rowIndex, rowIndex);
 	}
+	
+	public Course getCourseAt(int rowIndex) {
+		return courses.getCourse(rowIndex);
+	}
 
 }

@@ -28,8 +28,8 @@ public class CourseTest {
 		c1 = new Course("aaa",111);
 		c2 = new Course("bbb",222);
 
-		st1 = new Student("xxx","Bela");
-		st2 = new Student("yyy","Geza");
+		st1 = new Student("xxx");
+		st2 = new Student("yyy");
 		
 		Calendar currentTime = Calendar.getInstance();
 		

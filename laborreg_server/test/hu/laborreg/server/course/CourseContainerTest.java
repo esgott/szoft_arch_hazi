@@ -12,6 +12,7 @@ import hu.laborreg.server.db.DBConnectionHandler;
 import hu.laborreg.server.exception.ElementAlreadyAddedException;
 import hu.laborreg.server.exception.ElementNotFoundException;
 import hu.laborreg.server.exception.TimeSetException;
+import hu.laborreg.server.student.StudentContainer;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -30,6 +31,8 @@ public class CourseContainerTest {
 	PreparedStatement mockPreparedStatement;
 	@Mock
 	ResultSet mockResultset;
+	@Mock
+	StudentContainer mockStudentContainer;
 
 	private CourseContainer cont;
 	private Course c1;
@@ -43,7 +46,7 @@ public class CourseContainerTest {
 		when(mockPreparedStatement.executeQuery()).thenReturn(mockResultset);
 		when(mockResultset.next()).thenReturn(false);
 
-		cont = new CourseContainer(mockDbConnectionHandler);
+		cont = new CourseContainer(mockDbConnectionHandler, mockStudentContainer);
 
 		verify(mockPreparedStatement).executeQuery();
 
@@ -74,7 +77,7 @@ public class CourseContainerTest {
 
 		cont.removeCourse(c1);
 
-		verify(mockPreparedStatement, times(3)).executeUpdate();
+		verify(mockPreparedStatement, times(4)).executeUpdate();
 
 		try {
 			cont.removeCourse(c1);
@@ -96,7 +99,7 @@ public class CourseContainerTest {
 
 		cont.removeCourse(c2);
 
-		verify(mockPreparedStatement, times(3)).executeUpdate();
+		verify(mockPreparedStatement, times(4)).executeUpdate();
 
 		try {
 			cont.getCourse(c2.getName(), c2.getYear());

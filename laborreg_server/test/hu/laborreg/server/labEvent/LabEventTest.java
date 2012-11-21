@@ -33,8 +33,8 @@ public class LabEventTest
 		comp1 = new Computer(Constants.SMALLEST_VALID_IP_ADDRESS);
 		comp2 = new Computer(Constants.BIGGEST_VALID_IP_ADDRESS);
 		
-		s1 = new Student("abcdef","Bela");
-		s2 = new Student("xyz","Geza");
+		s1 = new Student("abcdef");
+		s2 = new Student("xyz");
 		
 		Calendar currentTime = Calendar.getInstance();
 		

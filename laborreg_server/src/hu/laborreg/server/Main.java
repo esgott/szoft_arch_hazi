@@ -73,8 +73,8 @@ public class Main {
 
 	private static void initializeContainers() {
 		computercontainer = new ComputerContainer(dbConnHandler);
-		courseContainer = new CourseContainer(dbConnHandler);
 		studentContainer = new StudentContainer(dbConnHandler);
+		courseContainer = new CourseContainer(dbConnHandler, studentContainer);
 	}
 
 	private static void initializeHttpServer() {

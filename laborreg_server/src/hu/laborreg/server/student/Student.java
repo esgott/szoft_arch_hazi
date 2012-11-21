@@ -3,7 +3,6 @@ package hu.laborreg.server.student;
 public class Student {
 	
 	private String neptunCode;
-	private String name;
 	
 	/**
 	 * This class represents the students and store their Neptun codes and names. When a student sign in to a LabEvent, the server identify him/her with help of these attributes.
@@ -11,10 +10,9 @@ public class Student {
 	 * @param neptunCode The Neptun code of the student.
 	 * @param name The name of the student.
 	 */
-	public Student(String neptunCode, String name)
+	public Student(String neptunCode)
 	{
 		this.neptunCode = neptunCode;
-		this.name = name;
 	}
 	
 	/**
@@ -24,14 +22,5 @@ public class Student {
 	public String getNeptunCode()
 	{
 		return this.neptunCode;
-	}
-	
-	/**
-	 * Returns the name of the student.
-	 * @return Name of the student.
-	 */
-	public String getName()
-	{
-		return this.name;
 	}
 }

@@ -56,6 +56,24 @@ public class Course {
 		return this.year;
 	}
 
+	public String getRegisteredStudentsAsString() {
+		StringBuilder message = new StringBuilder();
+		for (Student student : registeredStudents) {
+			message.append(student.getNeptunCode());
+			message.append(", ");
+		}
+		return message.toString();
+	}
+
+	public String getLabEventsAsString() {
+		StringBuilder message = new StringBuilder();
+		for (LabEvent labEvent : labEvents) {
+			message.append(labEvent.getName());
+			message.append(", ");
+		}
+		return message.toString();
+	}
+
 	/**
 	 * Returns the registered students of this Course.
 	 * 
@@ -80,11 +98,10 @@ public class Course {
 	 * @param student
 	 *            The Student who wants to be registered to this Course.
 	 */
-	public void registerStudent(Student student) throws ElementAlreadyAddedException, UnsupportedOperationException,
-			ClassCastException, NullPointerException, IllegalArgumentException {
+	public void registerStudent(Student student) throws ElementAlreadyAddedException {
 		if (registeredStudents.add(student) == false) {
-			throw new ElementAlreadyAddedException("Student " + student.getName() + "(" + student.getNeptunCode()
-					+ ") already registered to this course.");
+			throw new ElementAlreadyAddedException("Student " + student.getNeptunCode()
+					+ " already registered to this course.");
 		}
 	}
 
@@ -94,11 +111,10 @@ public class Course {
 	 * @param student
 	 *            The Student who wants to be deleted from this Course.
 	 */
-	public void unregisterStudent(Student student) throws ElementNotFoundException, UnsupportedOperationException,
-			ClassCastException, NullPointerException {
+	public void unregisterStudent(Student student) throws ElementNotFoundException {
 		if (registeredStudents.remove(student) == false) {
-			throw new ElementNotFoundException("Student " + student.getName() + "(" + student.getNeptunCode()
-					+ ") not found in Course's Student list.");
+			throw new ElementNotFoundException("Student " + student.getNeptunCode()
+					+ " not found in Course's Student list.");
 		}
 	}
 
@@ -108,8 +124,7 @@ public class Course {
 	 * @param labEvent
 	 *            The lab event which want to be added to this Course.
 	 */
-	public void addLabEvent(LabEvent labEvent) throws ElementAlreadyAddedException, UnsupportedOperationException,
-			ClassCastException, NullPointerException, IllegalArgumentException {
+	public void addLabEvent(LabEvent labEvent) throws ElementAlreadyAddedException {
 		if (labEvents.add(labEvent) == false) {
 			throw new ElementAlreadyAddedException("Lab event " + labEvent.getName() + " already added to this Course.");
 		}
@@ -122,11 +137,21 @@ public class Course {
 	 * @param labEvent
 	 *            The lab event which want to be removed from this Course.
 	 */
-	public void removeLabEvent(LabEvent labEvent) throws ElementNotFoundException, UnsupportedOperationException,
-			ClassCastException, NullPointerException {
+	public void removeLabEvent(LabEvent labEvent) throws ElementNotFoundException {
 		if (labEvents.remove(labEvent) == false) {
 			throw new ElementNotFoundException("Lab event" + labEvent.getName()
 					+ " not found in Course's Lab Event list.");
 		}
+	}
+
+	@Override
+	public boolean equals(Object other) {
+		if (this == other) {
+			return true;
+		} else if (!(other instanceof Course)) {
+			return false;
+		}
+		Course course = (Course) other;
+		return course.name.equals(name) && course.year == year;
 	}
 }

@@ -1,11 +1,13 @@
 package hu.laborreg.server.student;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import hu.laborreg.server.db.DBConnectionHandler;
+import hu.laborreg.server.exception.ElementAlreadyAddedException;
+import hu.laborreg.server.exception.ElementNotFoundException;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -15,10 +17,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-
-import hu.laborreg.server.db.DBConnectionHandler;
-import hu.laborreg.server.exception.ElementAlreadyAddedException;
-import hu.laborreg.server.exception.ElementNotFoundException;
 
 public class StudentContainerTest {
 
@@ -42,8 +40,8 @@ public class StudentContainerTest {
 		when(mockResultset.next()).thenReturn(false);
 
 		cont = new StudentContainer(mockDbConnectionHandler);
-		s1 = new Student("abcdef", "Bela");
-		s2 = new Student("a123bcd", "Geza");
+		s1 = new Student("abcdef");
+		s2 = new Student("a123bcd");
 	}
 
 	@Test
@@ -87,8 +85,12 @@ public class StudentContainerTest {
 		cont.addStudent(s1);
 		cont.addStudent(s2);
 
-		assertEquals(s1.getName(), cont.getStudent(s1.getNeptunCode()).getName());
-		assertEquals(s2.getName(), cont.getStudent(s2.getNeptunCode()).getName());
+		try {
+			cont.getStudent(s1.getNeptunCode());
+			cont.getStudent(s2.getNeptunCode());
+		} catch (ElementNotFoundException e) {
+			fail("ElementNotFoundException thrown.");
+		}
 
 		cont.removeStudent(s2);
 
