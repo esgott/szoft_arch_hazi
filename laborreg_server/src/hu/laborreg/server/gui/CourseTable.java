@@ -13,7 +13,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 
-public class CourseTable extends JPanel {
+public class CourseTable extends JPanel implements TableInterface {
 
 	private static final long serialVersionUID = 1207047791312415309L;
 	private final JTable table;
@@ -32,15 +32,18 @@ public class CourseTable extends JPanel {
 		add(scrollPane, BorderLayout.CENTER);
 	}
 
+	@Override
 	public void dataChanged() {
 		tableModel.fireTableDataChanged();
 	}
 
+	@Override
 	public void deleteCurrent() throws ElementNotFoundException {
 		int rowIndex = table.getSelectedRow();
 		tableModel.deleteRow(rowIndex);
 	}
 
+	@Override
 	public void displayDetails() {
 		int rowIndex = table.getSelectedRow();
 		try {

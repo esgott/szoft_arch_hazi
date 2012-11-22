@@ -33,7 +33,7 @@ public class Main {
 	private DataExporter dataExporter = new DataExporter(dbConnHandler);
 	private ClientConnectionHandler clientConnectionHandler = new ClientConnectionHandler();
 	private static CourseContainer courseContainer;
-	private LabEventContainer labEventContainer = new LabEventContainer();
+	private static LabEventContainer labEventContainer = new LabEventContainer();
 	private static ComputerContainer computercontainer;
 	private static StudentContainer studentContainer;
 
@@ -99,7 +99,7 @@ public class Main {
 			SwingUtilities.invokeAndWait(new Runnable() {
 				@Override
 				public void run() {
-					MainWindow window = new MainWindow(courseContainer);
+					MainWindow window = new MainWindow(courseContainer, labEventContainer);
 					window.display();
 				}
 			});

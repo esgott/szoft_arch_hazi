@@ -2,6 +2,7 @@ package hu.laborreg.server.gui;
 
 import hu.laborreg.server.course.CourseContainer;
 import hu.laborreg.server.exception.ElementNotFoundException;
+import hu.laborreg.server.labEvent.LabEventContainer;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -16,10 +17,11 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
 import javax.swing.UIManager;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 public class MainWindow {
 
@@ -30,16 +32,18 @@ public class MainWindow {
 	private JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);;
 	private JToolBar toolBar = new JToolBar();;
 	private JFileChooser fileChooser;
-	private DataManipulatorDialog dataManipulatorDialog;
+	private DataManipulatorDialog courseManipulatorDialog;
 	private CourseManipulatorPanel courseManipulatorPanel;
 	private CourseTable courseTable;
+	private LabEventTable labEventTable;
+	private TableInterface activetab;
 	private final Logger logger = Logger.getLogger(this.getClass().getName());
 
-	public MainWindow(CourseContainer courses) {
-		initialize(courses);
+	public MainWindow(CourseContainer courses, LabEventContainer labEventContainer) {
+		initialize(courses, labEventContainer);
 	}
 
-	private void initialize(CourseContainer courses) {
+	private void initialize(CourseContainer courses, LabEventContainer labEventContainer) {
 		frame.setBounds(100, 100, MINIMUM_WIDTH, MINIMUM_HEIGHT + 200);
 		frame.setMinimumSize(new Dimension(MINIMUM_WIDTH, MINIMUM_HEIGHT));
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -48,7 +52,7 @@ public class MainWindow {
 		fileChooser = new JFileChooser();
 
 		courseManipulatorPanel = new CourseManipulatorPanel(courses, this);
-		dataManipulatorDialog = new DataManipulatorDialog(400, 200, courseManipulatorPanel);
+		courseManipulatorDialog = new DataManipulatorDialog(400, 200, courseManipulatorPanel);
 
 		toolBar.setRollover(true);
 		toolBar.setFloatable(false);
@@ -56,7 +60,7 @@ public class MainWindow {
 		createToolbarButtons();
 		frame.getContentPane().add(toolBar, BorderLayout.NORTH);
 
-		createTabs(courses);
+		createTabs(courses, labEventContainer);
 		frame.getContentPane().add(tabbedPane, BorderLayout.CENTER);
 	}
 
@@ -64,7 +68,9 @@ public class MainWindow {
 		createButton("Hozzáad", "Új hozzáadása", "plus-circle", new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				dataManipulatorDialog.display("Kurzus hozzáadása");
+				if (activetab == courseTable) {
+					courseManipulatorDialog.display("Kurzus hozzáadása");
+				}
 			}
 		});
 
@@ -76,7 +82,7 @@ public class MainWindow {
 				int answer = JOptionPane.showConfirmDialog(frame, message, title, JOptionPane.YES_NO_OPTION);
 				if (answer == JOptionPane.YES_OPTION) {
 					try {
-						courseTable.deleteCurrent();
+						activetab.deleteCurrent();
 					} catch (ElementNotFoundException ex) {
 						JOptionPane.showMessageDialog(frame, "Törlés sikertelen");
 					}
@@ -88,8 +94,10 @@ public class MainWindow {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
-					courseManipulatorPanel.setFields(courseTable.getCurrentElement());
-					dataManipulatorDialog.display("Kurzus módosítása");
+					if (activetab == courseTable) {
+						courseManipulatorPanel.setFields(courseTable.getCurrentElement());
+						courseManipulatorDialog.display("Kurzus módosítása");
+					}
 				} catch (ArrayIndexOutOfBoundsException ex) {
 					logger.info("Failed to display details, probably wrong selection");
 				}
@@ -99,7 +107,7 @@ public class MainWindow {
 		createButton("Részletek", "Részletes információ megjelenítése", "eye", new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				courseTable.displayDetails();
+				activetab.displayDetails();
 			}
 		});
 
@@ -132,10 +140,24 @@ public class MainWindow {
 		createButton(buttonText, tooltipText, iconName, null);
 	}
 
-	private void createTabs(CourseContainer courses) {
+	private void createTabs(CourseContainer courses, LabEventContainer labEventContainer) {
 		courseTable = new CourseTable(courses);
+		activetab = courseTable;
+		labEventTable = new LabEventTable(labEventContainer);
 		tabbedPane.addTab("Kurzusok", courseTable);
-		tabbedPane.addTab("Laboresemények", new JPanel());
+		tabbedPane.addTab("Laboresemények", labEventTable);
+		tabbedPane.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				JTabbedPane sourceTabbedPane = (JTabbedPane) e.getSource();
+				int index = sourceTabbedPane.getSelectedIndex();
+				if (index == 0) {
+					activetab = courseTable;
+				} else {
+					activetab = labEventTable;
+				}
+			}
+		});
 	}
 
 	private void translateJFileChooser() {
