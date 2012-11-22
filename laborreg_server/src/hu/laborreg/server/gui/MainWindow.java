@@ -119,7 +119,12 @@ public class MainWindow {
 			}
 		});
 
-		createButton("Frissít", "Frissítés", "arrow-circle-double-135");
+		createButton("Frissít", "Frissítés", "arrow-circle-double-135", new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				//TODO re-read sign ins
+			}
+		});
 
 		createButton("Exportál", "Adatok exportálása CSV formátumba", "arrow-curve", new ActionListener() {
 			@Override
