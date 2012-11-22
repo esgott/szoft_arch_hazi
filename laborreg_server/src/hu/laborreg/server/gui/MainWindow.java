@@ -34,6 +34,8 @@ public class MainWindow {
 	private JFileChooser fileChooser;
 	private DataManipulatorDialog courseManipulatorDialog;
 	private CourseManipulatorPanel courseManipulatorPanel;
+	private DataManipulatorDialog labEventManipulatorDialog;
+	private LabEventManipulatorPanel labEventManipulatorPanel;
 	private CourseTable courseTable;
 	private LabEventTable labEventTable;
 	private TableInterface activetab;
@@ -53,6 +55,8 @@ public class MainWindow {
 
 		courseManipulatorPanel = new CourseManipulatorPanel(courses, this);
 		courseManipulatorDialog = new DataManipulatorDialog(400, 200, courseManipulatorPanel);
+		labEventManipulatorPanel = new LabEventManipulatorPanel();
+		labEventManipulatorDialog = new DataManipulatorDialog(300, 250, labEventManipulatorPanel);
 
 		toolBar.setRollover(true);
 		toolBar.setFloatable(false);
@@ -70,6 +74,8 @@ public class MainWindow {
 			public void actionPerformed(ActionEvent e) {
 				if (activetab == courseTable) {
 					courseManipulatorDialog.display("Kurzus hozzáadása");
+				} else {
+					labEventManipulatorDialog.display("Laboresemény hozzáadása");
 				}
 			}
 		});
@@ -97,6 +103,8 @@ public class MainWindow {
 					if (activetab == courseTable) {
 						courseManipulatorPanel.setFields(courseTable.getCurrentElement());
 						courseManipulatorDialog.display("Kurzus módosítása");
+					} else {
+						labEventManipulatorDialog.display("Laboresemény módosítása");
 					}
 				} catch (ArrayIndexOutOfBoundsException ex) {
 					logger.info("Failed to display details, probably wrong selection");

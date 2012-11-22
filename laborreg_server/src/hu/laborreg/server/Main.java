@@ -104,12 +104,8 @@ public class Main {
 					window.display();
 				}
 			});
-		} catch (InvocationTargetException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (InvocationTargetException | InterruptedException e) {
+			logger.severe("GUI thread problem: " + e.getMessage());
 		}
 	}
 }
