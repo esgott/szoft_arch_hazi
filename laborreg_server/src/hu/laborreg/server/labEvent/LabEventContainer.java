@@ -1,22 +1,49 @@
 package hu.laborreg.server.labEvent;
 
+import hu.laborreg.server.db.DBConnectionHandler;
 import hu.laborreg.server.exception.ElementAlreadyAddedException;
 import hu.laborreg.server.exception.ElementNotFoundException;
 
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class LabEventContainer {
 
 	private List<LabEvent> labEvents;
+	private final DBConnectionHandler dbConnection;
+	private final Logger logger = Logger.getLogger(this.getClass().getName());
 
 	/**
 	 * A container class which contains the labEvents.
 	 */
-	public LabEventContainer() {
+	public LabEventContainer(DBConnectionHandler dbConnectionHandler) {
 		labEvents = new ArrayList<LabEvent>();
-		// TODO read the existing labEvents from the DB.
+		dbConnection = dbConnectionHandler;
+//		initFromDB();
+	}
+
+	private void initFromDB() {
+		try {
+			PreparedStatement statement = dbConnection.createPreparedStatement("SELECT * FROM lab_event");
+			ResultSet result = statement.executeQuery();
+			while (result.next()) {
+				String name = result.getString("name");
+				String courseName = result.getString("part_of_course_name");
+				int courseYear = result.getInt("part_of_course_year");
+				Date startTime = result.getDate("start_time");
+				Date endTime = result.getDate("end_time");
+				//LabEvent = new LabEvent(name, courseName, courseYear, startTime, endTime);
+				//TODO finish connecting to DB
+			}
+		} catch (SQLException e) {
+			logger.severe("Failed to init LabEvents from DB: " + e.getMessage());
+		}
 	}
 
 	/**

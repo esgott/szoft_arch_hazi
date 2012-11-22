@@ -33,7 +33,7 @@ public class Main {
 	private DataExporter dataExporter = new DataExporter(dbConnHandler);
 	private ClientConnectionHandler clientConnectionHandler = new ClientConnectionHandler();
 	private static CourseContainer courseContainer;
-	private static LabEventContainer labEventContainer = new LabEventContainer();
+	private static LabEventContainer labEventContainer;
 	private static ComputerContainer computercontainer;
 	private static StudentContainer studentContainer;
 
@@ -75,6 +75,7 @@ public class Main {
 		computercontainer = new ComputerContainer(dbConnHandler);
 		studentContainer = new StudentContainer(dbConnHandler);
 		courseContainer = new CourseContainer(dbConnHandler, studentContainer);
+		labEventContainer = new LabEventContainer(dbConnHandler);
 	}
 
 	private static void initializeHttpServer() {
