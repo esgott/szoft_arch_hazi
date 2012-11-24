@@ -36,7 +36,6 @@ public class DBConnectionHandlerTest {
 		when(mockConnection.createStatement()).thenReturn(mockStatement);
 
 		/* DBConnectionHandler dbConnHandler = */new DBConnectionHandler(mockConnection);
-		//TODO create tests
 	}
 
 }
