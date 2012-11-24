@@ -1,5 +1,8 @@
 package hu.laborreg.server.gui;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+
 import hu.laborreg.server.exception.ElementNotFoundException;
 import hu.laborreg.server.labEvent.LabEvent;
 import hu.laborreg.server.labEvent.LabEventContainer;
@@ -11,6 +14,7 @@ public class LabEventTableModel extends AbstractTableModel {
 	private static final long serialVersionUID = 1L;
 
 	private final LabEventContainer labEvents;
+	private final DateFormat formatter = new SimpleDateFormat(LabEventContainer.DATE_FORMAT);
 	private String[] columnNames;
 
 	public LabEventTableModel(LabEventContainer labEventContainer) {
@@ -54,9 +58,9 @@ public class LabEventTableModel extends AbstractTableModel {
 		case 2:
 			return labEvent.getCourseYear();
 		case 3:
-			return labEvent.getStartTime();
+			return formatter.format(labEvent.getStartTime());
 		case 4:
-			return labEvent.getStopTime();
+			return formatter.format(labEvent.getStopTime());
 		}
 		return null;
 	}

@@ -75,7 +75,7 @@ public class Main {
 		computercontainer = new ComputerContainer(dbConnHandler);
 		studentContainer = new StudentContainer(dbConnHandler);
 		courseContainer = new CourseContainer(dbConnHandler, studentContainer);
-		labEventContainer = new LabEventContainer(dbConnHandler);
+		labEventContainer = new LabEventContainer(dbConnHandler, studentContainer, computercontainer);
 		dataExporter = new DataExporter(dbConnHandler);
 	}
 

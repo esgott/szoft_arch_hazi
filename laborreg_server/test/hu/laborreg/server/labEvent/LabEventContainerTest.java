@@ -12,11 +12,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Calendar;
 
+import hu.laborreg.server.computer.ComputerContainer;
 import hu.laborreg.server.course.Course;
 import hu.laborreg.server.db.DBConnectionHandler;
 import hu.laborreg.server.exception.ElementAlreadyAddedException;
 import hu.laborreg.server.exception.ElementNotFoundException;
 import hu.laborreg.server.exception.TimeSetException;
+import hu.laborreg.server.student.StudentContainer;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -29,6 +31,10 @@ public class LabEventContainerTest {
 	DBConnectionHandler mockDbConnectionHandler;
 	@Mock
 	PreparedStatement mockPreparedStatement;
+	@Mock
+	StudentContainer mockStudentContainer;
+	@Mock
+	ComputerContainer computerContainer;
 	@Mock
 	ResultSet mockResultset;
 	
@@ -45,7 +51,7 @@ public class LabEventContainerTest {
 		when(mockPreparedStatement.executeQuery()).thenReturn(mockResultset);
 		when(mockResultset.next()).thenReturn(false);
 		
-		cont = new LabEventContainer(mockDbConnectionHandler);
+		cont = new LabEventContainer(mockDbConnectionHandler, mockStudentContainer, computerContainer);
 		c1 = new Course("course1", 1999);
 
 		Calendar startTime = Calendar.getInstance();

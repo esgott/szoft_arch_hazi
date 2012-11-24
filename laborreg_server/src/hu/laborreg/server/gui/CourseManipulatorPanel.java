@@ -75,7 +75,7 @@ public class CourseManipulatorPanel extends ManipulatorPanel {
 			if (!success) {
 				throw new Exception("Módosítás nem sikerült");
 			}
-			mainWindow.dataOfCoursesChanged();
+			mainWindow.dataOfTableChanged();
 		} catch (Exception e) {
 			String message = "Hozzáadás sikertelen - " + e.getMessage();
 			JOptionPane.showMessageDialog(this, message, "Hiba", JOptionPane.ERROR_MESSAGE);

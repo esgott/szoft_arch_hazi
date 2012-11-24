@@ -1,9 +1,10 @@
 package hu.laborreg.server.gui;
 
-import java.awt.BorderLayout;
-
 import hu.laborreg.server.exception.ElementNotFoundException;
+import hu.laborreg.server.labEvent.LabEvent;
 import hu.laborreg.server.labEvent.LabEventContainer;
+
+import java.awt.BorderLayout;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -30,8 +31,7 @@ public class LabEventTable extends JPanel implements TableInterface{
 
 	@Override
 	public void dataChanged() {
-		// TODO Auto-generated method stub
-		
+		labEventTableModel.fireTableDataChanged();
 	}
 
 	@Override
@@ -44,6 +44,12 @@ public class LabEventTable extends JPanel implements TableInterface{
 	public void displayDetails() {
 		// TODO Auto-generated method stub
 		
+	}
+
+	public LabEvent getCurrentElement() {
+		int rowIndex = table.getSelectedRow();
+		LabEvent labEvent = labEventTableModel.getLabEventAt(rowIndex);
+		return labEvent;
 	}
 
 }
