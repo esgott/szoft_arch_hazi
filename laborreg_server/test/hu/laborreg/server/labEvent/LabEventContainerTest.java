@@ -3,6 +3,7 @@ package hu.laborreg.server.labEvent;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
+import hu.laborreg.server.Configuration;
 import hu.laborreg.server.computer.ComputerContainer;
 import hu.laborreg.server.course.Course;
 import hu.laborreg.server.db.DBConnectionHandler;
@@ -33,6 +34,8 @@ public class LabEventContainerTest {
 	ComputerContainer computerContainer;
 	@Mock
 	ResultSet mockResultset;
+	@Mock
+	Configuration mockConfiguration;
 	
 	private LabEventContainer cont;
 	private Course c1;
@@ -46,7 +49,7 @@ public class LabEventContainerTest {
 		when(mockPreparedStatement.executeQuery()).thenReturn(mockResultset);
 		when(mockResultset.next()).thenReturn(false);
 		
-		cont = new LabEventContainer(mockDbConnectionHandler, mockStudentContainer, computerContainer);
+		cont = new LabEventContainer(mockDbConnectionHandler, mockStudentContainer, computerContainer, mockConfiguration);
 		c1 = new Course("course1", 1999);
 
 		Calendar startTime = Calendar.getInstance();

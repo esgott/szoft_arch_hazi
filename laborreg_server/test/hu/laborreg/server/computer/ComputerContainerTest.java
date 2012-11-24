@@ -31,7 +31,7 @@ public class ComputerContainerTest {
 	private Computer c1;
 	private Computer c2;
 	
-	private static Configuration configuration = new Configuration();
+	private static Configuration configuration = new Configuration(new String[0]);
 	
 	@Before
 	public void init() throws WrongIpAddressException, SQLException
@@ -42,12 +42,12 @@ public class ComputerContainerTest {
 		when(mockPreparedStatement.executeQuery()).thenReturn(mockResultset);
 		when(mockResultset.next()).thenReturn(false);
 		
-		cont = new ComputerContainer(mockDbConnectionHandler);
+		cont = new ComputerContainer(mockDbConnectionHandler, configuration);
 		
 		verify(mockPreparedStatement).executeQuery();
 		
-		c1 = new Computer(configuration.getProperty(Configuration.biggestIpAddress));
-		c2 = new Computer(configuration.getProperty(Configuration.smallestIpAddress));
+		c1 = new Computer(configuration.getProperty(Configuration.biggestIpAddress), configuration);
+		c2 = new Computer(configuration.getProperty(Configuration.smallestIpAddress), configuration);
 	}
 	
 	@Test

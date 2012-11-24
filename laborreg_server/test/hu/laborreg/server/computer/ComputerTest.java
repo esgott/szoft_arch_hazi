@@ -11,7 +11,7 @@ import hu.laborreg.server.exception.WrongIpAddressException;
 
 public class ComputerTest {
 	
-	private static Configuration configuration = new Configuration();
+	private static Configuration configuration = new Configuration(new String[0]);
 	
 	
 	@Test
@@ -21,7 +21,7 @@ public class ComputerTest {
 		
 		try
 		{
-			new Computer(configuration.getProperty(Configuration.biggestIpAddress));
+			new Computer(configuration.getProperty(Configuration.biggestIpAddress), configuration);
 		}
 		catch(WrongIpAddressException e)
 		{
@@ -30,7 +30,7 @@ public class ComputerTest {
 		
 		try
 		{
-			new Computer("aaa");
+			new Computer("aaa", configuration);
 		}
 		catch(WrongIpAddressException e)
 		{
@@ -39,7 +39,7 @@ public class ComputerTest {
 		
 		try
 		{
-			new Computer("100.101.102.");
+			new Computer("100.101.102.", configuration);
 		}
 		catch(WrongIpAddressException e)
 		{
@@ -49,7 +49,7 @@ public class ComputerTest {
 		
 		try
 		{
-			new Computer("a.b.c.d");
+			new Computer("a.b.c.d", configuration);
 		}
 		catch(WrongIpAddressException e)
 		{
@@ -79,7 +79,7 @@ public class ComputerTest {
 		{
 			IpAddress = smallestValidIpAddress[0] + "." + smallestValidIpAddress[1] + "." +
 					smallestValidIpAddress[2] + "." + smallestValidIpAddress[3];
-			new Computer(IpAddress);
+			new Computer(IpAddress, configuration);
 		}
 		catch(WrongIpAddressException e)
 		{
@@ -90,7 +90,7 @@ public class ComputerTest {
 		{
 			IpAddress = biggestValidIpAddress[0] + "." + biggestValidIpAddress[1] + "." +
 					biggestValidIpAddress[2] + "." + biggestValidIpAddress[3];
-			new Computer(IpAddress);
+			new Computer(IpAddress, configuration);
 		}
 		catch(WrongIpAddressException e)
 		{
@@ -102,7 +102,7 @@ public class ComputerTest {
 		{
 			int badOctet = Integer.parseInt(smallestValidIpAddress[0])-1;
 			IpAddress = badOctet + "." + smallestValidIpAddress[1] + "." + smallestValidIpAddress[2] + "." + smallestValidIpAddress[3];
-			new Computer(IpAddress);
+			new Computer(IpAddress, configuration);
 		}
 		catch(WrongIpAddressException e)
 		{
@@ -114,7 +114,7 @@ public class ComputerTest {
 		{
 			int badOctet = Integer.parseInt(biggestValidIpAddress[0])+1;
 			IpAddress = badOctet + "." + biggestValidIpAddress[1] + "." + biggestValidIpAddress[2] + "." + biggestValidIpAddress[3];
-			new Computer(IpAddress);
+			new Computer(IpAddress, configuration);
 		}
 		catch(WrongIpAddressException e)
 		{
@@ -125,7 +125,7 @@ public class ComputerTest {
 		{
 			int badOctet = 256;
 			IpAddress = smallestValidIpAddress[0] + "." + badOctet + "." + smallestValidIpAddress[2] + "." + smallestValidIpAddress[3];
-			new Computer(IpAddress);
+			new Computer(IpAddress, configuration);
 		}
 		catch(WrongIpAddressException e)
 		{
@@ -136,7 +136,7 @@ public class ComputerTest {
 		{
 			int badOctet = -1;
 			IpAddress = smallestValidIpAddress[0] + "." + badOctet + "." + smallestValidIpAddress[2] + "." + smallestValidIpAddress[3];
-			new Computer(IpAddress);
+			new Computer(IpAddress, configuration);
 		}
 		catch(WrongIpAddressException e)
 		{

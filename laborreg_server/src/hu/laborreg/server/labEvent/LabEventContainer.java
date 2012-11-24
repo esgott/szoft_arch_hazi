@@ -1,5 +1,6 @@
 package hu.laborreg.server.labEvent;
 
+import hu.laborreg.server.Configuration;
 import hu.laborreg.server.computer.Computer;
 import hu.laborreg.server.computer.ComputerContainer;
 import hu.laborreg.server.db.DBConnectionHandler;
@@ -30,17 +31,19 @@ public class LabEventContainer {
 	private final StudentContainer students;
 	private final ComputerContainer computers;
 	private final DateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
+	private final Configuration configuration;
 	private final Logger logger = Logger.getLogger(this.getClass().getName());
 
 	/**
 	 * A container class which contains the labEvents.
 	 */
 	public LabEventContainer(DBConnectionHandler dbConnectionHandler, StudentContainer studentContainer,
-			ComputerContainer computerContainer) {
+			ComputerContainer computerContainer, Configuration config) {
 		labEvents = new ArrayList<LabEvent>();
 		dbConnection = dbConnectionHandler;
 		students = studentContainer;
 		computers = computerContainer;
+		configuration = config;
 		initFromDB();
 	}
 
@@ -272,7 +275,7 @@ public class LabEventContainer {
 			try {
 				computer = computers.getComputer(ipAddress);
 			} catch (ElementNotFoundException e) {
-				computer = new Computer(ipAddress);
+				computer = new Computer(ipAddress, configuration);
 				try {
 					computers.addComputer(computer);
 				} catch (ElementAlreadyAddedException e1) {

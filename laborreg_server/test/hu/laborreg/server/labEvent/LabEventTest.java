@@ -24,15 +24,15 @@ public class LabEventTest
 	private LabEvent l1;
 	private LabEvent l2;
 	
-	private Configuration configuration = new Configuration();
+	private Configuration configuration = new Configuration(new String[0]);
 	
 	@Before
 	public void init() throws TimeSetException, WrongIpAddressException
 	{
 		c1 = new Course("course1",1999);
 		
-		comp1 = new Computer(configuration.getProperty(Configuration.smallestIpAddress));
-		comp2 = new Computer(configuration.getProperty(Configuration.biggestIpAddress));
+		comp1 = new Computer(configuration.getProperty(Configuration.smallestIpAddress), configuration);
+		comp2 = new Computer(configuration.getProperty(Configuration.biggestIpAddress), configuration);
 		
 		s1 = new Student("abcdef");
 		s2 = new Student("xyz");

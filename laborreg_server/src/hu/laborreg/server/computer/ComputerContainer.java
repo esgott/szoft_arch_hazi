@@ -1,5 +1,6 @@
 package hu.laborreg.server.computer;
 
+import hu.laborreg.server.Configuration;
 import hu.laborreg.server.db.DBConnectionHandler;
 import hu.laborreg.server.exception.ElementAlreadyAddedException;
 import hu.laborreg.server.exception.ElementNotFoundException;
@@ -16,14 +17,16 @@ public class ComputerContainer {
 
 	private Set<Computer> computers;
 	private final DBConnectionHandler dbConnection;
+	private final Configuration configuration;
 	private final Logger logger = Logger.getLogger(this.getClass().getName());
 
 	/**
 	 * A container class which contains the computers.
 	 */
-	public ComputerContainer(DBConnectionHandler dbConnectionhandler) {
+	public ComputerContainer(DBConnectionHandler dbConnectionhandler, Configuration config) {
 		computers = new HashSet<Computer>();
 		dbConnection = dbConnectionhandler;
+		configuration = config;
 		intializeFromDB();
 	}
 
@@ -33,7 +36,7 @@ public class ComputerContainer {
 			ResultSet result = statement.executeQuery();
 			while (result.next()) {
 				String ipAddress = result.getString("ip_address");
-				Computer newComputer = new Computer(ipAddress);
+				Computer newComputer = new Computer(ipAddress, configuration);
 				boolean success = computers.add(newComputer);
 				if (!success) {
 					logger.warning("Comupter instance found multiple times in the DB: " + ipAddress);

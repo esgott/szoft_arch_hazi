@@ -27,7 +27,7 @@ public class Main {
 
 	private static DBConnectionHandler dbConnHandler;
 	private static Connection connection;
-	private static Configuration configuration = new Configuration();
+	private static Configuration configuration;
 	private static Logger logger;
 
 	private static DataExporter dataExporter;
@@ -37,6 +37,7 @@ public class Main {
 	private static StudentContainer studentContainer;
 
 	public static void main(String[] args) {
+		configuration = new Configuration(args);
 		initializeLogger();
 		initializeDB();
 		initializeContainers();
@@ -71,10 +72,10 @@ public class Main {
 	}
 
 	private static void initializeContainers() {
-		computercontainer = new ComputerContainer(dbConnHandler);
+		computercontainer = new ComputerContainer(dbConnHandler, configuration);
 		studentContainer = new StudentContainer(dbConnHandler);
 		courseContainer = new CourseContainer(dbConnHandler, studentContainer);
-		labEventContainer = new LabEventContainer(dbConnHandler, studentContainer, computercontainer);
+		labEventContainer = new LabEventContainer(dbConnHandler, studentContainer, computercontainer, configuration);
 		dataExporter = new DataExporter(dbConnHandler);
 	}
 
