@@ -45,7 +45,7 @@ public class MainWindow {
 		initialize(courses, labEventContainer);
 	}
 
-	private void initialize(CourseContainer courses, LabEventContainer labEventContainer) {
+	private void initialize(CourseContainer courses, LabEventContainer labEvents) {
 		frame.setBounds(100, 100, MINIMUM_WIDTH, MINIMUM_HEIGHT + 200);
 		frame.setMinimumSize(new Dimension(MINIMUM_WIDTH, MINIMUM_HEIGHT));
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -55,8 +55,8 @@ public class MainWindow {
 
 		courseManipulatorPanel = new CourseManipulatorPanel(courses, this);
 		courseManipulatorDialog = new DataManipulatorDialog(400, 200, courseManipulatorPanel);
-		labEventManipulatorPanel = new LabEventManipulatorPanel();
-		labEventManipulatorDialog = new DataManipulatorDialog(300, 250, labEventManipulatorPanel);
+		labEventManipulatorPanel = new LabEventManipulatorPanel(labEvents, this);
+		labEventManipulatorDialog = new DataManipulatorDialog(400, 300, labEventManipulatorPanel);
 
 		toolBar.setRollover(true);
 		toolBar.setFloatable(false);
@@ -64,7 +64,7 @@ public class MainWindow {
 		createToolbarButtons();
 		frame.getContentPane().add(toolBar, BorderLayout.NORTH);
 
-		createTabs(courses, labEventContainer);
+		createTabs(courses, labEvents);
 		frame.getContentPane().add(tabbedPane, BorderLayout.CENTER);
 	}
 
@@ -104,6 +104,7 @@ public class MainWindow {
 						courseManipulatorPanel.setFields(courseTable.getCurrentElement());
 						courseManipulatorDialog.display("Kurzus módosítása");
 					} else {
+						labEventManipulatorPanel.setFields(labEventTable.getCurrentElement());
 						labEventManipulatorDialog.display("Laboresemény módosítása");
 					}
 				} catch (ArrayIndexOutOfBoundsException ex) {
@@ -147,10 +148,6 @@ public class MainWindow {
 			button.addActionListener(listener);
 		}
 		toolBar.add(button);
-	}
-
-	private void createButton(String buttonText, String tooltipText, String iconName) {
-		createButton(buttonText, tooltipText, iconName, null);
 	}
 
 	private void createTabs(CourseContainer courses, LabEventContainer labEventContainer) {
@@ -199,8 +196,8 @@ public class MainWindow {
 		UIManager.put("FileChooser.readOnly", Boolean.TRUE);
 	}
 
-	public void dataOfCoursesChanged() {
-		courseTable.dataChanged();
+	public void dataOfTableChanged() {
+		activetab.dataChanged();
 	}
 
 	public void display() {

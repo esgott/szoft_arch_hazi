@@ -1,10 +1,15 @@
 package hu.laborreg.server.gui;
 
 import hu.laborreg.server.labEvent.LabEvent;
+import hu.laborreg.server.labEvent.LabEventContainer;
 
 import java.awt.GridLayout;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
 public class LabEventManipulatorPanel extends ManipulatorPanel {
@@ -15,10 +20,15 @@ public class LabEventManipulatorPanel extends ManipulatorPanel {
 	private JTextField courseYearTextField;
 	private JTextField startTextField;
 	private JTextField endTextField;
-	private LabEvent oldLabEvent;
+	private JLabel multiplaRegLabel;
+	private JTextField multipleRegTextField;
+	private String oldLabEventName;
+	private final LabEventContainer labEvents;
+	private final MainWindow mainWindow;
+	private final DateFormat formatter = new SimpleDateFormat(LabEventContainer.DATE_FORMAT);
 
-	public LabEventManipulatorPanel() {
-		setLayout(new GridLayout(5, 2, 10, 10));
+	public LabEventManipulatorPanel(LabEventContainer labEventContainer, MainWindow parent) {
+		setLayout(new GridLayout(6, 2, 10, 10));
 
 		JLabel nameLabel = new JLabel("Név");
 		add(nameLabel);
@@ -55,6 +65,16 @@ public class LabEventManipulatorPanel extends ManipulatorPanel {
 		add(endTextField);
 		endTextField.setColumns(10);
 
+		multiplaRegLabel = new JLabel("Többszörös jelentkezés");
+		add(multiplaRegLabel);
+
+		multipleRegTextField = new JTextField();
+		add(multipleRegTextField);
+		multipleRegTextField.setColumns(10);
+
+		labEvents = labEventContainer;
+		mainWindow = parent;
+		oldLabEventName = " ";
 	}
 
 	@Override
@@ -64,17 +84,49 @@ public class LabEventManipulatorPanel extends ManipulatorPanel {
 		courseYearTextField.setText("");
 		startTextField.setText("");
 		endTextField.setText("");
+		multipleRegTextField.setText("");
 	}
-	
+
 	public void setFields(LabEvent labEvent) {
-		oldLabEvent = labEvent;
-		//TODO set fields
+		oldLabEventName = labEvent.getName();
+		nameTextField.setText(labEvent.getName());
+		courseNameTextField.setText(labEvent.getCourseName());
+		String year = Integer.toString(labEvent.getCourseYear());
+		courseYearTextField.setText(year);
+		Date startTime = labEvent.getStartTime();
+		startTextField.setText(formatter.format(startTime));
+		Date endTime = labEvent.getStopTime();
+		endTextField.setText(formatter.format(endTime));
+		multipleRegTextField.setText(labEvent.getRegisteredComputersAsString());
 	}
 
 	@Override
 	public void commit() {
-		// TODO Auto-generated method stub
-
+		try {
+			String name = nameTextField.getText();
+			String courseName = courseNameTextField.getText();
+			int courseYear = Integer.parseInt(courseYearTextField.getText());
+			Date startTime = formatter.parse(startTextField.getText());
+			Date endTime = formatter.parse(endTextField.getText());
+			String[] ipAddresses = null;
+			if (multipleRegTextField.getText().equals("")) {
+				ipAddresses = new String[0];
+			} else {
+				ipAddresses = multipleRegTextField.getText().split(",");
+			}
+			for (int i = 0; i < ipAddresses.length; i++) {
+				ipAddresses[i] = ipAddresses[i].trim();
+			}
+			boolean success = labEvents.setLabEvent(name, oldLabEventName, courseName, courseYear, ipAddresses,
+					startTime, endTime);
+			if (!success) {
+				throw new Exception("Módosítás nem sikerült");
+			}
+			mainWindow.dataOfTableChanged();
+		} catch (Exception e) {
+			String message = "Hozzáadás sikertelen - " + e.getMessage();
+			JOptionPane.showMessageDialog(this, message, "Hiba", JOptionPane.ERROR_MESSAGE);
+		}
 	}
 
 }

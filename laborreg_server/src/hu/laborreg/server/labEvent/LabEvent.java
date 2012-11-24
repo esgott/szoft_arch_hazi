@@ -115,6 +115,15 @@ public class LabEvent {
 	public Set<Computer> getRegisteredComputers() {
 		return this.registeredComputers;
 	}
+	
+	public String getRegisteredComputersAsString() {
+		StringBuilder result = new StringBuilder();
+		for (Computer computer : registeredComputers) {
+			result.append(computer.getIpAddress());
+			result.append(", ");
+		}
+		return result.toString();
+	}
 
 	/**
 	 * Sign in Student to the Lab event participants list.
@@ -122,8 +131,7 @@ public class LabEvent {
 	 * @param student
 	 *            The Students who wants to sign in.
 	 */
-	public void signInStudent(Student student) throws ElementAlreadyAddedException, UnsupportedClassVersionError,
-			ClassCastException, NullPointerException, IllegalArgumentException {
+	public void signInStudent(Student student) throws ElementAlreadyAddedException {
 		if (this.signedInStudents.add(student) == false) {
 			throw new ElementAlreadyAddedException("Student: " + student.getNeptunCode()
 					+ " already signed in to this Lab event.");
@@ -139,8 +147,7 @@ public class LabEvent {
 	 * @return If computer added to the list: COMPUTER_ADDED(0) if computer
 	 *         already added to the list: COMPUTER_ALREADY_ADDED(1)
 	 */
-	public void allowMultipleRegistration(Computer computer) throws ElementAlreadyAddedException,
-			UnsupportedClassVersionError, ClassCastException, NullPointerException, IllegalArgumentException {
+	public void allowMultipleRegistration(Computer computer) throws ElementAlreadyAddedException {
 		if (this.registeredComputers.add(computer) == false) {
 			throw new ElementAlreadyAddedException("Computer: " + computer.getIpAddress() + " already added to list.");
 		}
