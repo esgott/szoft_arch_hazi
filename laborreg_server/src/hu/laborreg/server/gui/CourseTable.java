@@ -48,7 +48,7 @@ public class CourseTable extends JPanel implements TableInterface {
 		int rowIndex = table.getSelectedRow();
 		try {
 			Course course = tableModel.getCourseAt(rowIndex);
-			StringBuilder message = new StringBuilder("Kurzus név: :");
+			StringBuilder message = new StringBuilder("Kurzus név:");
 			message.append(course.getName());
 			message.append("\nKurzus év: ");
 			message.append(course.getYear());
@@ -56,7 +56,7 @@ public class CourseTable extends JPanel implements TableInterface {
 			message.append(course.getRegisteredStudentsAsString());
 			message.append("\nLaboresemények: ");
 			message.append(course.getLabEventsAsString());
-			JOptionPane.showMessageDialog(this, message.toString(), "Kurzus Részletek", JOptionPane.PLAIN_MESSAGE);
+			JOptionPane.showMessageDialog(this, message.toString(), "Kurzus részletek", JOptionPane.PLAIN_MESSAGE);
 		} catch (ArrayIndexOutOfBoundsException e) {
 			logger.info("Failed to display details, probably wrong selection");
 		}
