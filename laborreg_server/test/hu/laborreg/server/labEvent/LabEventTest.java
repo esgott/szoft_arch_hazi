@@ -9,9 +9,9 @@ import hu.laborreg.server.exception.TimeSetException;
 import hu.laborreg.server.exception.WrongIpAddressException;
 import hu.laborreg.server.student.Student;
 
-import java.text.ParseException;
 import java.util.Calendar;
 
+import org.junit.Before;
 import org.junit.Test;
 
 public class LabEventTest
@@ -25,7 +25,8 @@ public class LabEventTest
 	private LabEvent l1;
 	private LabEvent l2;
 	
-	private void init() throws TimeSetException, ParseException, WrongIpAddressException
+	@Before
+	public void init() throws TimeSetException, WrongIpAddressException
 	{
 		c1 = new Course("course1",1999);
 		c2 = new Course("course2",2001);
@@ -36,67 +37,70 @@ public class LabEventTest
 		s1 = new Student("abcdef");
 		s2 = new Student("xyz");
 		
-		Calendar currentTime = Calendar.getInstance();
+		Calendar startTime = Calendar.getInstance();
+		startTime.set(Calendar.MINUTE,startTime.get(Calendar.MINUTE)+1);
+		Calendar startTime2 = Calendar.getInstance();
+		startTime2.set(Calendar.MINUTE,startTime2.get(Calendar.MINUTE)+2);
+		Calendar stopTime = Calendar.getInstance();
+		stopTime.set(Calendar.MINUTE,stopTime.get(Calendar.MINUTE)+3);
+		Calendar stopTime2 = Calendar.getInstance();
+		stopTime2.set(Calendar.MINUTE,stopTime2.get(Calendar.MINUTE)+4);
 		
-		l1 = new LabEvent("lab_event_1",c1.getName(),c1.getYear(),
-				currentTime.get(Calendar.HOUR_OF_DAY)+":"+(currentTime.get(Calendar.MINUTE)+1),
-				currentTime.get(Calendar.HOUR_OF_DAY)+":"+(currentTime.get(Calendar.MINUTE)+3));
-		l2 = new LabEvent("lab_event_2",c1.getName(),c1.getYear(),
-				currentTime.get(Calendar.HOUR_OF_DAY)+":"+(currentTime.get(Calendar.MINUTE)+2),
-				currentTime.get(Calendar.HOUR_OF_DAY)+":"+(currentTime.get(Calendar.MINUTE)+4));
+		l1 = new LabEvent("lab_event_1",c1.getName(),c1.getYear(),startTime.getTime(),stopTime.getTime());
+		l2 = new LabEvent("lab_event_2",c1.getName(),c1.getYear(),startTime2.getTime(),stopTime2.getTime());
 	}
 	
 	@Test
-	public void basicAttributeTest() throws TimeSetException, ParseException, WrongIpAddressException
+	public void basicAttributeTest() throws TimeSetException, WrongIpAddressException
 	{
-		init();
+		Calendar startTime = Calendar.getInstance();
+		startTime.set(Calendar.MINUTE,startTime.get(Calendar.MINUTE)+1);
+		Calendar stopTime = Calendar.getInstance();
+		stopTime.set(Calendar.MINUTE,stopTime.get(Calendar.MINUTE)+4);
 		
-		Calendar currentTime = Calendar.getInstance();
-		
-		l1 = new LabEvent("lab_event_1",c1.getName(),c1.getYear(),
-				currentTime.get(Calendar.HOUR_OF_DAY)+":"+(currentTime.get(Calendar.MINUTE)+1),
-				currentTime.get(Calendar.HOUR_OF_DAY)+":"+(currentTime.get(Calendar.MINUTE)+3));
-		l2 = new LabEvent("lab_event_2",c2.getName(),c2.getYear(),
-				currentTime.get(Calendar.HOUR_OF_DAY)+":"+(currentTime.get(Calendar.MINUTE)+2),
-				currentTime.get(Calendar.HOUR_OF_DAY)+":"+(currentTime.get(Calendar.MINUTE)+4));
 		
 		assertEquals("lab_event_1",l1.getName());
 		assertEquals(c1.getName(),l1.getCourseName());
-		assertEquals(c2.getYear(),l2.getCourseYear());
-		assertEquals(currentTime.get(Calendar.HOUR_OF_DAY)+":"+(currentTime.get(Calendar.MINUTE)+4),l2.getStopTime());
-		assertEquals(currentTime.get(Calendar.HOUR_OF_DAY)+":"+(currentTime.get(Calendar.MINUTE)+1),l1.getStartTime());
+		assertEquals(c1.getYear(),l1.getCourseYear());
+		
+		Calendar retVal = Calendar.getInstance();
+		retVal.setTime(l1.getStartTime());
+		assertEquals(startTime.get(Calendar.HOUR_OF_DAY),retVal.get(Calendar.HOUR_OF_DAY));
+		assertEquals(startTime.get(Calendar.MINUTE),retVal.get(Calendar.MINUTE));
+
+		retVal.setTime(l2.getStopTime());
+		assertEquals(stopTime.get(Calendar.HOUR_OF_DAY),retVal.get(Calendar.HOUR_OF_DAY));
+		assertEquals(stopTime.get(Calendar.MINUTE),retVal.get(Calendar.MINUTE));
 	}
 	
 	@Test
-	public void createLabEventWithWrongStartAndStopDateTest() throws ParseException, TimeSetException, WrongIpAddressException
+	public void createLabEventWithWrongStartAndStopDateTest() throws TimeSetException, WrongIpAddressException
 	{
-		init();
 		Calendar currentTime = Calendar.getInstance();
+		Calendar startTime = Calendar.getInstance();
+		Calendar stopTime = Calendar.getInstance();
+
 		
 		int numberOfThrownExceptions = 0;
 		
 		try
 		{
-			l1 = new LabEvent("lab_event_1",c1.getName(),c1.getYear(),
-					(currentTime.get(Calendar.HOUR_OF_DAY)+1)+":00",(currentTime.get(Calendar.HOUR_OF_DAY)+1)+":30"); //OK
+			startTime.set(Calendar.MINUTE,currentTime.get(Calendar.MINUTE)+1);
+			stopTime.set(Calendar.MINUTE,currentTime.get(Calendar.MINUTE)+2);
+			
+			l1 = new LabEvent("lab_event_1",c1.getName(),c1.getYear(),startTime.getTime(),stopTime.getTime()); //OK
 		}
 		catch (TimeSetException e)
 		{
 			numberOfThrownExceptions++;
 		}
-	
-		try
-		{
-			l1 = new LabEvent("lab_event_1",c1.getName(),c1.getYear(),"12:aa","13:00"); //NOK
-		}
-		catch(ParseException e)
-		{
-			numberOfThrownExceptions++;
-		}
 		
 		try
 		{
-			l1 = new LabEvent("lab_event_1",c1.getName(),c1.getYear(),"12:05","12:04"); //NOK
+			startTime.set(Calendar.MINUTE,currentTime.get(Calendar.MINUTE)+2);
+			stopTime.set(Calendar.MINUTE,currentTime.get(Calendar.MINUTE)+1);
+			
+			l1 = new LabEvent("lab_event_1",c1.getName(),c1.getYear(),startTime.getTime(), stopTime.getTime()); //NOK
 		}
 		catch(TimeSetException e)
 		{
@@ -105,10 +109,10 @@ public class LabEventTest
 		
 		try
 		{
-			//NOK
-			l1 = new LabEvent("lab_event_1",c1.getName(),c1.getYear(),
-								currentTime.get(Calendar.HOUR_OF_DAY) + ":" + (currentTime.get(Calendar.MINUTE)-1),
-								currentTime.get(Calendar.HOUR_OF_DAY) + ":" + (currentTime.get(Calendar.MINUTE)+1));
+			startTime.set(Calendar.MINUTE,currentTime.get(Calendar.MINUTE)-1);
+			stopTime.set(Calendar.MINUTE,currentTime.get(Calendar.MINUTE)+1);
+			
+			l1 = new LabEvent("lab_event_1",c1.getName(),c1.getYear(),startTime.getTime(),stopTime.getTime()); //NOK
 		}
 		catch(TimeSetException e)
 		{
@@ -117,50 +121,53 @@ public class LabEventTest
 	
 		try
 		{
-			//NOK
-			l1 = new LabEvent("lab_event_1",c1.getName(),c1.getYear(),
-								currentTime.get(Calendar.HOUR_OF_DAY) + ":" + (currentTime.get(Calendar.MINUTE)-3),
-								currentTime.get(Calendar.HOUR_OF_DAY) + ":" + (currentTime.get(Calendar.MINUTE)-1));	
+			startTime.set(Calendar.MINUTE,currentTime.get(Calendar.MINUTE)-2);
+			stopTime.set(Calendar.MINUTE,currentTime.get(Calendar.MINUTE)-1);
+			
+			l1 = new LabEvent("lab_event_1",c1.getName(),c1.getYear(),startTime.getTime(), stopTime.getTime()); //NOK	
 		}
 		catch(TimeSetException e)
 		{
 			numberOfThrownExceptions++;
 		}
 		
-		if(numberOfThrownExceptions == 4)
+		if(numberOfThrownExceptions == 3)
 		{
 			return;
 		}
 		else
 		{
-			fail("Bad number of TimeSetExceptions or ParseExceptions thrown.");
+			fail("Bad number of TimeSetExceptions thrown.");
 		}
 	}
 	
 	@Test
-	public void setStartAndStopTimeTest() throws ParseException, TimeSetException, WrongIpAddressException
+	public void setStartAndStopTimeTest() throws TimeSetException, WrongIpAddressException
 	{
-		init();
 		Calendar currentTime = Calendar.getInstance();
+		Calendar startTime = Calendar.getInstance();
+		Calendar stopTime = Calendar.getInstance();
 		
+		//TODO
+		/*
+		
+		startTime.set(Calendar.MINUTE,currentTime.get(Calendar.MINUTE)-1);
+		stopTime.set(Calendar.MINUTE,currentTime.get(Calendar.MINUTE)+1);
 		try
 		{
-			l1.setStartAndStopTime(currentTime.get(Calendar.HOUR_OF_DAY)+":"+(currentTime.get(Calendar.MINUTE)-1),
-									currentTime.get(Calendar.HOUR_OF_DAY)+":"+(currentTime.get(Calendar.MINUTE)+1));
+			l1.setStartAndStopTime(startTime.getTime(),stopTime.getTime(),false);
 		}
 		catch (TimeSetException e)
 		{
 			return;
 		}
 	
-		fail("TimeSetException not thrown.");
+		fail("TimeSetException not thrown.");*/
 	}
 	
 	@Test
-	public void allowMultipleRegistartionsTest() throws ParseException, TimeSetException, WrongIpAddressException, ElementAlreadyAddedException
+	public void allowMultipleRegistartionsTest() throws TimeSetException, WrongIpAddressException, ElementAlreadyAddedException
 	{
-		init();
-
 		assertEquals(0,l1.getRegisteredComputers().size());
 		assertEquals(0,l1.getRegisteredComputers().size());
 		
@@ -183,10 +190,8 @@ public class LabEventTest
 		fail("ElementAlreadyAddedException not thrown.");
 	}
 	
-	public void signInStudentTest() throws ParseException, TimeSetException, WrongIpAddressException, ElementAlreadyAddedException
+	public void signInStudentTest() throws TimeSetException, WrongIpAddressException, ElementAlreadyAddedException
 	{
-		init();
-
 		assertEquals(0,l1.getSignedInStudents().size());
 		assertEquals(0,l2.getSignedInStudents().size());
 		

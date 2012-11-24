@@ -3,12 +3,14 @@ package hu.laborreg.server.labEvent;
 import hu.laborreg.server.db.DBConnectionHandler;
 import hu.laborreg.server.exception.ElementAlreadyAddedException;
 import hu.laborreg.server.exception.ElementNotFoundException;
+import hu.laborreg.server.exception.TimeSetException;
+import hu.laborreg.server.student.Student;
 
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
@@ -28,7 +30,7 @@ public class LabEventContainer {
 //		initFromDB();
 	}
 
-	private void initFromDB() {
+	private void initFromDB() throws TimeSetException{
 		try {
 			PreparedStatement statement = dbConnection.createPreparedStatement("SELECT * FROM lab_event");
 			ResultSet result = statement.executeQuery();
@@ -36,9 +38,16 @@ public class LabEventContainer {
 				String name = result.getString("name");
 				String courseName = result.getString("part_of_course_name");
 				int courseYear = result.getInt("part_of_course_year");
-				Date startTime = result.getDate("start_time");
-				Date endTime = result.getDate("end_time");
-				//LabEvent = new LabEvent(name, courseName, courseYear, startTime, endTime);
+				
+				Date startTime = result.getTimestamp("start_time");
+				Date endTime = result.getTimestamp("end_time");
+				
+				LabEvent labEvent = new LabEvent(name, courseName, courseYear, startTime, endTime);
+				boolean success = labEvents.add(labEvent);
+				if (!success) {
+					logger.warning("LabEvent instance found multiple times in the DB: " + labEvent.getName() +
+							" for course: " + labEvent.getCourseName() + "," +labEvent.getCourseYear());
+				}
 				//TODO finish connecting to DB
 			}
 		} catch (SQLException e) {

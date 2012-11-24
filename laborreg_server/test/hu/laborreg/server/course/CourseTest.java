@@ -9,9 +9,9 @@ import hu.laborreg.server.exception.TimeSetException;
 import hu.laborreg.server.labEvent.LabEvent;
 import hu.laborreg.server.student.Student;
 
-import java.text.ParseException;
 import java.util.Calendar;
 
+import org.junit.Before;
 import org.junit.Test;
 
 public class CourseTest {
@@ -23,28 +23,27 @@ public class CourseTest {
 	private Student st1;
 	private Student st2;
 	
-	private void init() throws TimeSetException, ParseException 
+	@Before
+	public void init() throws TimeSetException 
 	{
 		c1 = new Course("aaa",111);
 		c2 = new Course("bbb",222);
 
 		st1 = new Student("xxx");
 		st2 = new Student("yyy");
+
+		Calendar startTime = Calendar.getInstance();
+		startTime.set(Calendar.MINUTE,startTime.get(Calendar.MINUTE)+1);
+		Calendar stopTime = Calendar.getInstance();
+		stopTime.set(Calendar.MINUTE,stopTime.get(Calendar.MINUTE)+2);
 		
-		Calendar currentTime = Calendar.getInstance();
-		
-		ev1 = new LabEvent("lab_event_1",c1.getName(),c1.getYear(),
-				currentTime.get(Calendar.HOUR_OF_DAY)+":"+(currentTime.get(Calendar.MINUTE)+1),
-				currentTime.get(Calendar.HOUR_OF_DAY)+":"+(currentTime.get(Calendar.MINUTE)+3));
-		ev2 = new LabEvent("lab_event_2",c1.getName(),c1.getYear(),
-				currentTime.get(Calendar.HOUR_OF_DAY)+":"+(currentTime.get(Calendar.MINUTE)+2),
-				currentTime.get(Calendar.HOUR_OF_DAY)+":"+(currentTime.get(Calendar.MINUTE)+4));
+		ev1 = new LabEvent("lab_event_1",c1.getName(),c1.getYear(),startTime.getTime(),stopTime.getTime());
+		ev2 = new LabEvent("lab_event_2",c1.getName(),c1.getYear(),startTime.getTime(),stopTime.getTime());
 	}
 	
 	@Test
-	public void basicAttributesTest() throws TimeSetException, ParseException
+	public void basicAttributesTest() throws TimeSetException
 	{
-		init();
 		assertEquals("aaa",c1.getName());
 		assertEquals("bbb",c2.getName());
 		assertEquals(111,c1.getYear());
@@ -52,12 +51,10 @@ public class CourseTest {
 	}
 	
 	@Test
-	public void registerAndUnregisterStudentTest() throws TimeSetException, ParseException, UnsupportedOperationException,
+	public void registerAndUnregisterStudentTest() throws TimeSetException, UnsupportedOperationException,
 														ClassCastException, NullPointerException, IllegalArgumentException,
 														ElementAlreadyAddedException, ElementNotFoundException
 	{
-		init();
-
 		int numberOfThrownExceptions = 0;
 		
 		assertEquals(0,c1.getRegisteredStudents().size());
@@ -113,12 +110,10 @@ public class CourseTest {
 	}
 	
 	@Test
-	public void addAndRemoveLabEventTest() throws TimeSetException, ParseException, UnsupportedOperationException,
+	public void addAndRemoveLabEventTest() throws TimeSetException, UnsupportedOperationException,
 												ClassCastException, NullPointerException, IllegalArgumentException,
 												ElementAlreadyAddedException, ElementNotFoundException
 	{
-		init();
-
 		int numberOfThrownExceptions = 0;
 		
 		assertEquals(0,c1.getLabEvents().size());

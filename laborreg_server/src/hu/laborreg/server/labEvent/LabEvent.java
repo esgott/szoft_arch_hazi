@@ -6,10 +6,9 @@ import hu.laborreg.server.exception.TimeSetException;
 import hu.laborreg.server.student.Student;
 
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.text.ParseException;
 
 public class LabEvent {
@@ -17,8 +16,8 @@ public class LabEvent {
 	private String name;
 	private String courseName;
 	private int courseYear;
-	private String startTime;
-	private String stopTime;
+	private Date startTime;
+	private Date stopTime;
 	private Set<Student> signedInStudents;
 	private Set<Computer> registeredComputers;
 
@@ -40,22 +39,14 @@ public class LabEvent {
 	 * @throws ParseException
 	 * @throws TimeSetException
 	 */
-	public LabEvent(String name, String courseName, int courseYear, String startTime, String stopTime)
-			throws TimeSetException, ParseException {
-		Calendar currentTime = Calendar.getInstance();
-		if (currentTime.get(Calendar.HOUR_OF_DAY) < 23) {
-			this.startTime = (currentTime.get(Calendar.HOUR_OF_DAY) + 1) + ":" + currentTime.get(Calendar.MINUTE);
-			this.stopTime = (currentTime.get(Calendar.HOUR_OF_DAY) + 2) + ":" + currentTime.get(Calendar.MINUTE);
-		} else {
-			this.startTime = "23:58";
-			this.stopTime = "23:59";
-		}
+	public LabEvent(String name, String courseName, int courseYear, Date startTime, Date stopTime)
+			throws TimeSetException {
 
 		this.name = name;
 		this.courseName = courseName;
 		this.courseYear = courseYear;
 
-		setStartAndStopTime(startTime, stopTime);
+		setStartAndStopTime(startTime, stopTime, true);
 
 		signedInStudents = new HashSet<Student>();
 		registeredComputers = new HashSet<Computer>();
@@ -93,7 +84,7 @@ public class LabEvent {
 	 * 
 	 * @return The start time of the LabEvent in "HH:MM" format.
 	 */
-	public String getStartTime() {
+	public Date getStartTime() {
 		return this.startTime;
 	}
 
@@ -102,7 +93,7 @@ public class LabEvent {
 	 * 
 	 * @return The stop time of the LabEvent in "HH:MM" format.
 	 */
-	public String getStopTime() {
+	public Date getStopTime() {
 		return this.stopTime;
 	}
 
@@ -167,8 +158,8 @@ public class LabEvent {
 	 *         is currently ongoing: LABEVENT_IS_ONGOING(2) If LabEvent is
 	 *         already finished: LABEVENT_FINISHED(3)
 	 */
-	public void setStartAndStopTime(String startTime, String stopTime) throws TimeSetException, ParseException {
-		if (checkTime(startTime, stopTime) == 999) {
+	public void setStartAndStopTime(Date startTime, Date stopTime, boolean isCalledFromConstructor) throws TimeSetException {
+		if (checkTime(startTime, stopTime, isCalledFromConstructor) == 999) {
 			this.startTime = startTime;
 			this.stopTime = stopTime;
 		}
@@ -182,54 +173,38 @@ public class LabEvent {
 	 * @param stopTime
 	 *            The given stop time.
 	 */
-	private int checkTime(String startTime, String stopTime) throws TimeSetException, ParseException {
-		DateFormat df = new SimpleDateFormat("HH:mm");
+	private int checkTime(Date startTime, Date stopTime, boolean isCalledFromConstructor) throws TimeSetException {
 
-		Calendar currentTime = Calendar.getInstance();
+		Date currentTime = Calendar.getInstance().getTime();
 
-		Calendar givenStartTime = Calendar.getInstance();
-		Calendar givenStopTime = Calendar.getInstance();
-		Calendar storedStartTime = Calendar.getInstance();
-		Calendar storedStopTime = Calendar.getInstance();
+		Calendar newStartTime = Calendar.getInstance();
+		newStartTime.setTime(startTime);
+		Calendar newStopTime = Calendar.getInstance();
+		newStopTime.setTime(stopTime);
 
-		givenStartTime.setTime(df.parse(startTime));
-		givenStopTime.setTime(df.parse(stopTime));
-		storedStartTime.setTime(df.parse(this.startTime));
-		storedStopTime.setTime(df.parse(this.stopTime));
-
-		if (givenStartTime.get(Calendar.HOUR_OF_DAY) >= givenStopTime.get(Calendar.HOUR_OF_DAY)) {
-			if (givenStartTime.get(Calendar.MINUTE) >= givenStopTime.get(Calendar.MINUTE)) {
-				throw new TimeSetException("Start time: " + startTime + " is later then stop time: " + stopTime);
-			}
+		if(stopTime.before(startTime)) {
+			throw new TimeSetException("Start time: " + newStartTime.get(Calendar.HOUR_OF_DAY) + ":" + newStartTime.get(Calendar.MINUTE) + 
+					" is later then stop time: " + newStopTime.get(Calendar.HOUR_OF_DAY) + ":" + newStopTime.get(Calendar.MINUTE));
 		}
-		if (currentTime.get(Calendar.HOUR_OF_DAY) >= storedStartTime.get(Calendar.HOUR_OF_DAY)) {
-			if (currentTime.get(Calendar.MINUTE) >= storedStartTime.get(Calendar.MINUTE)) {
+
+		if(currentTime.after(startTime) && currentTime.before(stopTime)) {
+			throw new TimeSetException("Set time is not enabled, because the Lab event is currently ongoing or the start time of of the lab event is in the past.");
+		}
+		
+		if(currentTime.after(stopTime)) {
+			throw new TimeSetException("Set time is not enabled, because the Lab event is finished or the stop time of the lab event is in the past.");
+		}
+		
+		if(isCalledFromConstructor == false)
+		{
+			if(currentTime.after(this.startTime)) {
 				throw new TimeSetException("Set time is not enabled, because the Lab event is currently ongoing.");
 			}
-		}
-		if (currentTime.get(Calendar.HOUR_OF_DAY) >= storedStartTime.get(Calendar.HOUR_OF_DAY)) {
-			if (currentTime.get(Calendar.MINUTE) >= storedStartTime.get(Calendar.MINUTE)) {
-				throw new TimeSetException("Set time is not enabled, because the Lab event is currently ongoing.");
-			}
-		}
-		if ((currentTime.get(Calendar.HOUR_OF_DAY) >= givenStartTime.get(Calendar.HOUR_OF_DAY))
-				&& (currentTime.get(Calendar.HOUR_OF_DAY) <= givenStopTime.get(Calendar.HOUR_OF_DAY))) {
-			if ((currentTime.get(Calendar.MINUTE) >= givenStartTime.get(Calendar.MINUTE))
-					&& (currentTime.get(Calendar.MINUTE) <= givenStopTime.get(Calendar.MINUTE))) {
-				throw new TimeSetException("Set time is not enabled, because the Lab event is currently ongoing.");
-			}
-		}
-		if (currentTime.get(Calendar.HOUR_OF_DAY) >= storedStopTime.get(Calendar.HOUR_OF_DAY)) {
-			if (currentTime.get(Calendar.MINUTE) >= storedStopTime.get(Calendar.MINUTE)) {
+			
+			if(currentTime.after(this.stopTime)){
 				throw new TimeSetException("Set time is not enabled, because the Lab event is finished.");
 			}
 		}
-		if (currentTime.get(Calendar.HOUR_OF_DAY) >= givenStopTime.get(Calendar.HOUR_OF_DAY)) {
-			if (currentTime.get(Calendar.MINUTE) >= givenStopTime.get(Calendar.MINUTE)) {
-				throw new TimeSetException("Set time is not enabled, because the Lab event is finished.");
-			}
-		}
-
 		return 999;
 	}
 }
