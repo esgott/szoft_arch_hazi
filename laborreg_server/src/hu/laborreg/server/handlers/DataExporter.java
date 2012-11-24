@@ -31,7 +31,7 @@ public class DataExporter {
 	public void exportData(File file)
 	{	
 		try{
-			CSVWriter writer = new CSVWriter(new FileWriter(file.getPath()), ',');
+			CSVWriter writer = new CSVWriter(new FileWriter(file.getPath() + ".csv"), ',');
 			ResultSet result;
 			
 			try {

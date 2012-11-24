@@ -24,6 +24,7 @@ import javax.swing.JToolBar;
 import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class MainWindow {
 
@@ -54,6 +55,7 @@ public class MainWindow {
 
 		translateJFileChooser();
 		fileChooser = new JFileChooser();
+		fileChooser.setFileFilter(new FileNameExtensionFilter("Comma Separated Values (.csv)","csv"));
 
 		courseManipulatorPanel = new CourseManipulatorPanel(courses, this);
 		courseManipulatorDialog = new DataManipulatorDialog(400, 200, courseManipulatorPanel);
@@ -134,11 +136,12 @@ public class MainWindow {
 		createButton("Exportál", "Adatok exportálása CSV formátumba", "arrow-curve", new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				fileChooser.showDialog(frame, "Exportálás");
-				
-				//TODO is export button pressed?
-				File file = fileChooser.getSelectedFile();
-				dataExporter.exportData(file);
+				int retVal = fileChooser.showDialog(frame, "Exportálás");
+				if(retVal == JFileChooser.APPROVE_OPTION)
+				{
+					File file = fileChooser.getSelectedFile();
+					dataExporter.exportData(file);
+				}
 			}
 		});
 	}
