@@ -26,7 +26,7 @@ public class DataManipulatorDialog extends JDialog {
 		contentPanel.setLayout(new FlowLayout());
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		getContentPane().add(contentPanel, BorderLayout.CENTER);
-		
+
 		this.manipulatorPanel = manipulatorPanel;
 		contentPanel.add(manipulatorPanel);
 
@@ -52,8 +52,10 @@ public class DataManipulatorDialog extends JDialog {
 		okButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				manipulatorPanel.commit();
-				clearAndHide();
+				boolean success = manipulatorPanel.commit();
+				if (success) {
+					clearAndHide();
+				}
 			}
 		});
 	}

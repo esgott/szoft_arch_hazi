@@ -1,6 +1,7 @@
 package hu.laborreg.server.labEvent;
 
 import hu.laborreg.server.computer.Computer;
+import hu.laborreg.server.course.Course;
 import hu.laborreg.server.exception.ElementAlreadyAddedException;
 import hu.laborreg.server.exception.TimeSetException;
 import hu.laborreg.server.student.Student;
@@ -215,5 +216,16 @@ public class LabEvent {
 		}
 		*/
 		return 999;
+	}
+	
+	@Override
+	public boolean equals(Object other) {
+		if (this == other) {
+			return true;
+		} else if (!(other instanceof Course)) {
+			return false;
+		}
+		LabEvent labEvent = (LabEvent) other;
+		return labEvent.name.equals(name);
 	}
 }

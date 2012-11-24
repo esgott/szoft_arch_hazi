@@ -67,7 +67,7 @@ public class LabEventTableModel extends AbstractTableModel {
 
 	public void deleteRow(int rowIndex) throws ElementNotFoundException {
 		LabEvent labEvent = labEvents.getLabEvent(rowIndex);
-		labEvents.removeLabEvent(labEvent);
+		labEvents.removeLabEvent(labEvent, true);
 		fireTableRowsDeleted(rowIndex, rowIndex);
 	}
 

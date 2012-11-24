@@ -249,7 +249,7 @@ public class CourseContainer {
 			}
 		}
 		try {
-			updateStudents(course, neptuns);
+			updateStudents(course, oldCourse, neptuns);
 		} catch (SQLException | ElementNotFoundException e) {
 			logger.severe("Failed to update registration in DB: " + e.getMessage());
 			success = false;
@@ -257,12 +257,12 @@ public class CourseContainer {
 		return success;
 	}
 
-	private void updateStudents(Course course, String[] neptuns) throws SQLException, ElementNotFoundException {
+	private void updateStudents(Course course, Course oldCourse, String[] neptuns) throws SQLException, ElementNotFoundException {
 		course = getCourse(course.getName(), course.getYear());
 		String command = "DELETE FROM registered WHERE course_name = ? AND course_year = ?";
 		PreparedStatement deleteStatement = dbConnection.createPreparedStatement(command);
-		deleteStatement.setString(1, course.getName());
-		deleteStatement.setInt(2, course.getYear());
+		deleteStatement.setString(1, oldCourse.getName());
+		deleteStatement.setInt(2, oldCourse.getYear());
 		deleteStatement.executeUpdate();
 		Set<Student> students = course.getRegisteredStudents();
 		students.clear();

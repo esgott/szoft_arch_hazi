@@ -8,6 +8,6 @@ public abstract class ManipulatorPanel extends JPanel {
 	
 	public abstract void clear();
 	
-	public abstract void commit();
+	public abstract boolean commit();
 
 }

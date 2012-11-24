@@ -54,10 +54,11 @@ public class CourseManipulatorPanel extends ManipulatorPanel {
 		yearTextField.setText("");
 		nameTextField.setText("");
 		neptunTextField.setText("");
+		oldCourse = new Course(" ", 0);
 	}
 
 	@Override
-	public void commit() {
+	public boolean commit() {
 		try {
 			String name = nameTextField.getText();
 			int year = Integer.parseInt(yearTextField.getText());
@@ -76,9 +77,11 @@ public class CourseManipulatorPanel extends ManipulatorPanel {
 				throw new Exception("Módosítás nem sikerült");
 			}
 			mainWindow.dataOfTableChanged();
+			return success;
 		} catch (Exception e) {
 			String message = "Hozzáadás sikertelen - " + e.getMessage();
 			JOptionPane.showMessageDialog(this, message, "Hiba", JOptionPane.ERROR_MESSAGE);
+			return false;
 		}
 	}
 

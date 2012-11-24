@@ -91,7 +91,7 @@ public class LabEventContainerTest {
 		//cont.removeLabEvent(l2);
 
 		try {
-			cont.removeLabEvent(l1);
+			cont.removeLabEvent(l1, true);
 		} catch (ElementNotFoundException e) {
 			return;
 		}

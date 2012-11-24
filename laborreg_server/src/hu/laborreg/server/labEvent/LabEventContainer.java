@@ -6,6 +6,7 @@ import hu.laborreg.server.db.DBConnectionHandler;
 import hu.laborreg.server.exception.ElementAlreadyAddedException;
 import hu.laborreg.server.exception.ElementNotFoundException;
 import hu.laborreg.server.exception.TimeSetException;
+import hu.laborreg.server.exception.WrongIpAddressException;
 import hu.laborreg.server.student.Student;
 import hu.laborreg.server.student.StudentContainer;
 
@@ -17,12 +18,11 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
 public class LabEventContainer {
-	
+
 	public static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
 	private List<LabEvent> labEvents;
@@ -119,13 +119,30 @@ public class LabEventContainer {
 	 * @param labEvent
 	 *            The needed labEvent
 	 */
-	public void addLabEvent(LabEvent labEvent) throws ElementAlreadyAddedException, UnsupportedOperationException,
-			ClassCastException, NullPointerException, IllegalArgumentException {
-		if (labEvents.contains(labEvent)) {
+	public void addLabEvent(LabEvent labEvent) throws ElementAlreadyAddedException {
+		if (!labEvents.contains(labEvent)) {
 			labEvents.add(labEvent);
 		} else {
 			throw new ElementAlreadyAddedException("Lab event " + labEvent.getName()
 					+ " already added to Lab events list.");
+		}
+		addToDB(labEvent);
+	}
+
+	private void addToDB(LabEvent labEvent) {
+		try {
+			String command = "INSERT INTO lab_event (name, part_of_course_name, part_of_course_year, start_time, end_time)"
+					+ " VALUES(?, ?, ?, ?, ?)";
+			PreparedStatement statement = dbConnection.createPreparedStatement(command);
+			statement.setString(1, labEvent.getName());
+			statement.setString(2, labEvent.getCourseName());
+			statement.setInt(3, labEvent.getCourseYear());
+			statement.setString(4, formatter.format(labEvent.getStartTime()));
+			statement.setString(5, formatter.format(labEvent.getStopTime()));
+			statement.executeUpdate();
+		} catch (SQLException e) {
+			logger.severe("Failed to add new labEvent to db: " + e.getMessage());
+			labEvents.remove(labEvent);
 		}
 	}
 
@@ -135,12 +152,42 @@ public class LabEventContainer {
 	 * @param labEvent
 	 *            The needed labEvent
 	 */
-	public void removeLabEvent(LabEvent labEvent) throws ElementNotFoundException, UnsupportedOperationException,
-			ClassCastException, NullPointerException {
+	public void removeLabEvent(LabEvent labEvent, boolean removeSignInAndMultipleRegistration)
+			throws ElementNotFoundException {
 		if (this.labEvents.remove(labEvent) == false) {
 			throw new ElementNotFoundException("Lab Event " + labEvent.getName()
 					+ " does not found in Lab events list.");
 		}
+		removeFromDB(labEvent, removeSignInAndMultipleRegistration);
+	}
+
+	private void removeFromDB(LabEvent labEvent, boolean removeSignInAndMultipleRegistration) {
+		try {
+			String command = "DELETE FROM lab_event WHERE name = ?";
+			PreparedStatement statement = dbConnection.createPreparedStatement(command);
+			statement.setString(1, labEvent.getName());
+			statement.executeUpdate();
+			if (removeSignInAndMultipleRegistration) {
+				removeSignIns(labEvent);
+				removeMultipleRegistrations(labEvent);
+			}
+		} catch (SQLException e) {
+			logger.severe("Failed to delete labEvent from DB: " + e.getMessage());
+		}
+	}
+
+	private void removeSignIns(LabEvent labEvent) throws SQLException {
+		String command = "DELETE FROM signed WHERE lab_event_name = ?";
+		PreparedStatement statement = dbConnection.createPreparedStatement(command);
+		statement.setString(1, labEvent.getName());
+		statement.executeUpdate();
+	}
+
+	private void removeMultipleRegistrations(LabEvent labEvent) throws SQLException {
+		String command = "DELETE FROM multiple_registration_allowed WHERE lab_event_name = ?";
+		PreparedStatement statement = dbConnection.createPreparedStatement(command);
+		statement.setString(1, labEvent.getName());
+		statement.executeUpdate();
 	}
 
 	/**
@@ -153,23 +200,101 @@ public class LabEventContainer {
 	 * @return The needed labEvent
 	 * @throws ElementNotFoundException
 	 */
-	public LabEvent getLabEvent(String name, String courseName, int courseYear) throws ElementNotFoundException {
-		Iterator<LabEvent> it = labEvents.iterator();
-
-		while (it.hasNext()) {
-			LabEvent retVal = it.next();
-			if (retVal.getName().equals(name) && retVal.getCourseName().equals(courseName)
-					&& retVal.getCourseYear() == courseYear) {
-				return retVal;
+	public LabEvent getLabEvent(String name) throws ElementNotFoundException {
+		for (LabEvent labEvent : labEvents) {
+			if (name.equals(labEvent.getName())) {
+				return labEvent;
 			}
 		}
-		throw new ElementNotFoundException("Lab event: " + name + " with course: " + courseName + "(" + courseYear
-				+ ") does not found in the Lab events list.");
+
+		throw new ElementNotFoundException("Lab event: " + name + ") does not found in the Lab events list.");
 	}
 
 	public boolean setLabEvent(String name, String oldName, String courseName, int courseYear,
-			String[] multipleRegistrations, Date startTime, Date endTime) {
-		return false;
+			String[] multipleRegistrations, Date startTime, Date endTime) throws TimeSetException,
+			WrongIpAddressException {
+		boolean success = true;
+		LabEvent labEvent = new LabEvent(name, courseName, courseYear, startTime, endTime);
+
+		if (!name.equals(oldName)) {
+			LabEvent oldLabEvent = null;
+			try {
+				oldLabEvent = getLabEvent(oldName);
+				removeLabEvent(oldLabEvent, false);
+			} catch (ElementNotFoundException e) {
+				logger.fine("Failed to delete old element");
+			}
+			try {
+				addLabEvent(labEvent);
+				updateSignInfo(oldLabEvent, labEvent);
+			} catch (ElementAlreadyAddedException e) {
+				logger.warning("Failed to add new element: " + e.getMessage());
+			}
+		}
+		try {
+			updateMultipleRegistration(name, oldName, multipleRegistrations);
+		} catch (SQLException | ElementNotFoundException e) {
+			logger.warning("Failed to move multiple registration information to new labEvent: " + e.getMessage());
+			success = false;
+		}
+		return success;
+	}
+
+	private void updateSignInfo(LabEvent oldLabEvent, LabEvent labEvent) {
+		if (oldLabEvent == null) {
+			logger.fine("oldLabEvent was null");
+			return;
+		}
+		try {
+			String command = "UPDATE signed SET lab_event_name = ? WHERE lab_event_name = ?";
+			PreparedStatement statement = dbConnection.createPreparedStatement(command);
+			statement.setString(1, labEvent.getName());
+			statement.setString(2, oldLabEvent.getName());
+			statement.executeUpdate();
+		} catch (SQLException e) {
+			logger.severe("Failed to move old sign in info to new lab event: " + e.getMessage());
+		}
+	}
+
+	private void updateMultipleRegistration(String labEventName, String oldLabEventName, String[] multipleRegistrations)
+			throws SQLException, ElementNotFoundException, WrongIpAddressException {
+		String command = "DELETE FROM multiple_registration_allowed WHERE lab_event_name = ?";
+		PreparedStatement statement = dbConnection.createPreparedStatement(command);
+		statement.setString(1, oldLabEventName);
+		statement.executeUpdate();
+		LabEvent labEvent = getLabEvent(labEventName);
+		labEvent.getRegisteredComputers().clear();
+		for (String ipAddress : multipleRegistrations) {
+			if (ipAddress.equals("")) {
+				continue;
+			}
+			Computer computer = null;
+			try {
+				computer = computers.getComputer(ipAddress);
+			} catch (ElementNotFoundException e) {
+				computer = new Computer(ipAddress);
+				try {
+					computers.addComputer(computer);
+				} catch (ElementAlreadyAddedException e1) {
+					logger.warning("Failed to add new computer: " + e.getMessage());
+				}
+			}
+			try {
+				addComputerForMultipleRegistration(labEvent, computer);
+			} catch (ElementAlreadyAddedException | SQLException e) {
+				logger.warning("Failed to allow multiple registration: " + e.getMessage());
+			}
+		}
+	}
+
+	private void addComputerForMultipleRegistration(LabEvent labEvent, Computer computer)
+			throws ElementAlreadyAddedException, SQLException {
+		labEvent.allowMultipleRegistration(computer);
+		String command = "INSERT INTO multiple_registration_allowed (lab_event_name, computer_ip_address) VALUES (?, ?)";
+		PreparedStatement statement = dbConnection.createPreparedStatement(command);
+		statement.setString(1, labEvent.getName());
+		statement.setString(2, computer.getIpAddress());
+		statement.executeUpdate();
 	}
 
 	public int getNumberOfLabevents() {

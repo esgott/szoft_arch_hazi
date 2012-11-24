@@ -85,6 +85,7 @@ public class LabEventManipulatorPanel extends ManipulatorPanel {
 		startTextField.setText("");
 		endTextField.setText("");
 		multipleRegTextField.setText("");
+		oldLabEventName = " ";
 	}
 
 	public void setFields(LabEvent labEvent) {
@@ -101,7 +102,7 @@ public class LabEventManipulatorPanel extends ManipulatorPanel {
 	}
 
 	@Override
-	public void commit() {
+	public boolean commit() {
 		try {
 			String name = nameTextField.getText();
 			String courseName = courseNameTextField.getText();
@@ -123,9 +124,11 @@ public class LabEventManipulatorPanel extends ManipulatorPanel {
 				throw new Exception("Módosítás nem sikerült");
 			}
 			mainWindow.dataOfTableChanged();
+			return success;
 		} catch (Exception e) {
 			String message = "Hozzáadás sikertelen - " + e.getMessage();
 			JOptionPane.showMessageDialog(this, message, "Hiba", JOptionPane.ERROR_MESSAGE);
+			return false;
 		}
 	}
 
