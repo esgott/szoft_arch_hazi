@@ -148,21 +148,10 @@ public class LabEventTest
 		Calendar startTime = Calendar.getInstance();
 		Calendar stopTime = Calendar.getInstance();
 		
-		//TODO
-		/*
+		startTime.set(Calendar.MINUTE,currentTime.get(Calendar.MINUTE)+2);
+		stopTime.set(Calendar.MINUTE,currentTime.get(Calendar.MINUTE)+4);
 		
-		startTime.set(Calendar.MINUTE,currentTime.get(Calendar.MINUTE)-1);
-		stopTime.set(Calendar.MINUTE,currentTime.get(Calendar.MINUTE)+1);
-		try
-		{
-			l1.setStartAndStopTime(startTime.getTime(),stopTime.getTime(),false);
-		}
-		catch (TimeSetException e)
-		{
-			return;
-		}
-	
-		fail("TimeSetException not thrown.");*/
+		l1.setStartAndStopTime(startTime.getTime(),stopTime.getTime(),false);
 	}
 	
 	@Test

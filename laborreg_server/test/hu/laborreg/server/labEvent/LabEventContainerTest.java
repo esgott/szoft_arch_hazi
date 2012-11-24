@@ -63,7 +63,8 @@ public class LabEventContainerTest {
 			ElementAlreadyAddedException, SQLException {
 		
 		//TODO
-		//verify(mockPreparedStatement, times(2)).executeUpdate();
+		//cont.addLabEvent(l1);
+		//cont.addLabEvent(l2);
 		
 		try {
 			cont.addLabEvent(l1);
