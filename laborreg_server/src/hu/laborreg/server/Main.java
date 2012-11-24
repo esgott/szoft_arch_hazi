@@ -31,7 +31,6 @@ public class Main {
 	private static Logger logger;
 
 	private static DataExporter dataExporter;
-	private ClientConnectionHandler clientConnectionHandler = new ClientConnectionHandler();
 	private static CourseContainer courseContainer;
 	private static LabEventContainer labEventContainer;
 	private static ComputerContainer computercontainer;
@@ -84,7 +83,7 @@ public class Main {
 			int port = Integer.parseInt(configuration.getProperty(Configuration.httpServerPort));
 			String docRoot = configuration.getProperty(Configuration.htmlRoot);
 			HttpFactory httpFactory = new HttpFactory();
-			ClientConnectionHandler clientConnHandler = new ClientConnectionHandler();
+			ClientConnectionHandler clientConnHandler = new ClientConnectionHandler(labEventContainer);
 			HttpRequestListenerThread httpServer = new HttpRequestListenerThread(port, docRoot, httpFactory,
 					clientConnHandler);
 			Thread thread = new Thread(httpServer);

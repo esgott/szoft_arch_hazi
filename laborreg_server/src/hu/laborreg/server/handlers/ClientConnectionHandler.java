@@ -1,17 +1,20 @@
 package hu.laborreg.server.handlers;
 
+import hu.laborreg.server.labEvent.LabEventContainer;
+
 import java.util.logging.Logger;
 
 public class ClientConnectionHandler {
 
-	private Logger logger = Logger.getLogger(this.getClass().getName());
+	private final LabEventContainer labEvents;
+	private final Logger logger = Logger.getLogger(this.getClass().getName());
 
 	/**
 	 * This class handles the messages sent by client and the messages which the
 	 * server wants to send to the client.
 	 */
-	public ClientConnectionHandler() {
-		// TODO constructor. Do we need this?
+	public ClientConnectionHandler(LabEventContainer labEventContainer) {
+		labEvents = labEventContainer;
 	}
 
 	/**
