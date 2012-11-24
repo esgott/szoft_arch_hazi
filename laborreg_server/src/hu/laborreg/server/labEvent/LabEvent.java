@@ -106,6 +106,15 @@ public class LabEvent {
 	public Set<Student> getSignedInStudents() {
 		return this.signedInStudents;
 	}
+	
+	public String getSignedInStudentsAsString() {
+		StringBuilder result = new StringBuilder();
+		for (Student student : signedInStudents) {
+			result.append(student.getNeptunCode());
+			result.append(", ");
+		}
+		return result.toString();
+	}
 
 	/**
 	 * Return the list of the registered computers (which is enabled to have
