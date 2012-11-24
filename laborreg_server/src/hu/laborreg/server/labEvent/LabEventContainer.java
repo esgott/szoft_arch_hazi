@@ -296,6 +296,23 @@ public class LabEventContainer {
 		statement.setString(2, computer.getIpAddress());
 		statement.executeUpdate();
 	}
+	
+	public void signInForLabEvent(String labEventName, String neptun) throws ElementNotFoundException,
+			ElementAlreadyAddedException {
+		LabEvent labEvent = getLabEvent(labEventName);
+		Student student = students.getStudent(neptun);
+		labEvent.signInStudent(student);
+		try {
+			String command = "INSERT INTO signed (lab_event_name, student_neptun) VALUES (?, ?)";
+			PreparedStatement statement = dbConnection.createPreparedStatement(command);
+			statement.setString(1, labEvent.getName());
+			statement.setString(2, student.getNeptunCode());
+			statement.executeUpdate();
+		} catch (SQLException e) {
+			logger.warning("Failed to record sign in in DB: " + e.getMessage());
+			throw new ElementNotFoundException("Failed to record sign in in DB");
+		}
+	}
 
 	public int getNumberOfLabevents() {
 		return labEvents.size();

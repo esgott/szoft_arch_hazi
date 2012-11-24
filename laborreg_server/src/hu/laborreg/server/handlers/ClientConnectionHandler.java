@@ -1,5 +1,7 @@
 package hu.laborreg.server.handlers;
 
+import hu.laborreg.server.exception.ElementAlreadyAddedException;
+import hu.laborreg.server.exception.ElementNotFoundException;
 import hu.laborreg.server.labEvent.LabEventContainer;
 
 import java.util.logging.Logger;
@@ -23,13 +25,24 @@ public class ClientConnectionHandler {
 	 * 
 	 * @param neptun
 	 *            The NEPTUN code of the student
+	 * @param ipAddress2
 	 * @param The
 	 *            IP address of the computer from which the student has singed
 	 *            in
 	 * @return Message for the student
 	 */
-	public String signInForLabEvent(String neptun, String ipAddress) {
-		logger.info("Sign in request with NEPTUN code " + neptun + " with IP address " + ipAddress);
+	public String signInForLabEvent(String neptun, String labEventName, String ipAddress) {
+		logger.info("Sign in request with NEPTUN code " + neptun + " with IP address " + ipAddress + " for "
+				+ labEventName + " labEvent.");
+		try {
+			labEvents.signInForLabEvent(labEventName, neptun);
+		} catch (ElementNotFoundException e) {
+			logger.info("Requested thing not found: " + e.getMessage());
+			return "Jelentkezés sikertelen";
+		} catch (ElementAlreadyAddedException e) {
+			logger.info("Sign in already happened: " + e.getMessage());
+			return "Jelentkezés már korábban megtörtént";
+		}
 		return "Sikeres jelentkezés";
 	}
 }

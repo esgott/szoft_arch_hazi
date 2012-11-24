@@ -80,19 +80,22 @@ public class HttpFileHandler implements HttpRequestHandler {
 			final HttpContext httpContext) {
 		String properFileName = "index.html";
 		File file = fileProvider.requestFile(docRoot, fileName);
-		if ((!fileName.contentEquals(properFileName) && !fileName.contentEquals("/")) || parameters.size() != 1) {
+		if ((!fileName.contentEquals(properFileName) && !fileName.contentEquals("/")) || parameters.size() != 2) {
 			replyFileNotFound(file);
 			return;
 		}
-		NameValuePair firstParameter = parameters.get(0);
-		if (!firstParameter.getName().equals("neptun")) {
+		NameValuePair neptunParameter = parameters.get(0);
+		NameValuePair labEventParameter = parameters.get(1);
+		if (!neptunParameter.getName().equals("neptun") || !labEventParameter.getName().equals("labevent")) {
 			replyAccessDenied(file);
 			return;
 		}
 		String ipAddress = getIpAddress(httpContext);
-		String message = clientConnHandler.signInForLabEvent(firstParameter.getValue(), ipAddress);
+		String neptun = neptunParameter.getValue();
+		String labEventName = labEventParameter.getValue();
+		String message = clientConnHandler.signInForLabEvent(neptun, labEventName, ipAddress);
 		replyWithMessage(message, HttpStatus.SC_OK);
-		logger.info("Message for sign in sent back");
+		logger.info("Message for sign in sent back: " + message);
 	}
 
 	private String getIpAddress(HttpContext httpContext) {

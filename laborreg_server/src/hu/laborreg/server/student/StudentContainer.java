@@ -105,13 +105,9 @@ public class StudentContainer {
 	 * @return The needed Student.
 	 */
 	public Student getStudent(String neptunCode) throws ElementNotFoundException {
-		Iterator<Student> it = students.iterator();
-
-		while (it.hasNext()) {
-			Student retVal = it.next();
-			if (retVal.getNeptunCode().equals(neptunCode)) {
-				return retVal;
-			}
+		for (Student student : students) {
+			if (neptunCode.equalsIgnoreCase(student.getNeptunCode()))
+				return student;
 		}
 		throw new ElementNotFoundException("Student: " + neptunCode + "does not found in the Students list.");
 	}

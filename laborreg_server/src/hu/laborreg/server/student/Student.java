@@ -12,7 +12,7 @@ public class Student {
 	 */
 	public Student(String neptunCode)
 	{
-		this.neptunCode = neptunCode;
+		this.neptunCode = neptunCode.toUpperCase();
 	}
 	
 	/**

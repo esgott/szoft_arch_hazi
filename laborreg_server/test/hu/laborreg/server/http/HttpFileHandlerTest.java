@@ -84,7 +84,8 @@ public class HttpFileHandlerTest {
 	public void properResponseGivenForNeptunParameter() throws HttpException, IOException {
 		String fileName = "index.html";
 		String neptun = "jqumgw";
-		String requestLine = fileName + "?neptun=" + neptun;
+		String labEvent = "example";
+		String requestLine = fileName + "?neptun=" + neptun + "&labevent=" + labEvent;
 		String message = "abcde";
 		String ipAddress = "192.168.0.1";
 
@@ -95,11 +96,11 @@ public class HttpFileHandlerTest {
 		when(mockHttpContext.getAttribute("http.connection")).thenReturn(mockHttpServerConnection);
 		when(mockHttpServerConnection.getRemoteAddress()).thenReturn(mockInetAddress);
 		when(mockInetAddress.getHostAddress()).thenReturn(ipAddress);
-		when(mockClientConnHandler.signInForLabEvent(neptun, ipAddress)).thenReturn(message);
+		when(mockClientConnHandler.signInForLabEvent(neptun, labEvent, ipAddress)).thenReturn(message);
 
 		httpFileHandler.handle(mockHttpRequest, mockHttpResponse, mockHttpContext);
 
-		verify(mockClientConnHandler).signInForLabEvent(neptun, ipAddress);
+		verify(mockClientConnHandler).signInForLabEvent(neptun, labEvent, ipAddress);
 		verify(mockHttpResponse).setStatusCode(HttpStatus.SC_OK);
 		verify(mockHttpResponse).setEntity(any(StringEntity.class));
 	}
@@ -158,7 +159,7 @@ public class HttpFileHandlerTest {
 	@Test
 	public void accessDeniedRepliedForGoodFilenameAndWrongParameter() throws HttpException, IOException {
 		String fileName = "index.html";
-		String requestLine = fileName + "?abcd=jqumgw";
+		String requestLine = fileName + "?abcd=jqumgw&labevent=example";
 
 		when(mockHttpRequest.getRequestLine()).thenReturn(mockRequestLine);
 		when(mockRequestLine.getUri()).thenReturn(requestLine);
