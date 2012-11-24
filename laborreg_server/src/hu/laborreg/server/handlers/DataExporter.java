@@ -33,7 +33,6 @@ public class DataExporter {
 		try{
 			CSVWriter writer = new CSVWriter(new FileWriter(file.getPath() + ".csv"), ',');
 			ResultSet result;
-			
 			try {
 				PreparedStatement statement = dbConnHandler.createPreparedStatement("SELECT * FROM lab_event");
 				result = statement.executeQuery();
