@@ -1,6 +1,6 @@
 package hu.laborreg.server.labEvent;
 
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 import hu.laborreg.server.Configuration;
@@ -40,6 +40,7 @@ public class LabEventContainerTest {
 	private LabEventContainer cont;
 	private Course c1;
 	private LabEvent l1;
+	private LabEvent l2;
 
 	@Before
 	public void init() throws TimeSetException, SQLException {
@@ -58,6 +59,7 @@ public class LabEventContainerTest {
 		stopTime.set(Calendar.MINUTE,stopTime.get(Calendar.MINUTE)+2);
 		
 		l1 = new LabEvent("lab_event_1", c1.getName(), c1.getYear(), startTime.getTime(), stopTime.getTime());
+		l2 = new LabEvent("lab_event_2", c1.getName(), c1.getYear(), startTime.getTime(), stopTime.getTime());
 	}
 
 	@Test
@@ -65,9 +67,8 @@ public class LabEventContainerTest {
 			NullPointerException, IllegalArgumentException, TimeSetException,
 			ElementAlreadyAddedException, SQLException {
 		
-		//TODO
-		//cont.addLabEvent(l1);
-		//cont.addLabEvent(l2);
+		cont.addLabEvent(l1);
+		cont.addLabEvent(l2);
 		
 		try {
 			cont.addLabEvent(l1);
@@ -83,9 +84,8 @@ public class LabEventContainerTest {
 			NullPointerException, IllegalArgumentException, TimeSetException,
 			ElementAlreadyAddedException, ElementNotFoundException {
 
-		//TODO
-		//cont.removeLabEvent(l1);
-		//cont.removeLabEvent(l2);
+		cont.addLabEvent(l1);
+		cont.removeLabEvent(l1,true);
 
 		try {
 			cont.removeLabEvent(l1, true);
@@ -101,20 +101,22 @@ public class LabEventContainerTest {
 			NullPointerException, IllegalArgumentException, TimeSetException,
 			ElementAlreadyAddedException, ElementNotFoundException {
 
-		//TODO
-		/*
-		assertEquals(l1.getName(), cont.getLabEvent(l1.getName(), l1.getCourseName(), l1.getCourseYear()).getName());
-		assertEquals(l2.getName(), cont.getLabEvent(l2.getName(), l2.getCourseName(), l2.getCourseYear()).getName());
+		cont.addLabEvent(l1);
+		cont.addLabEvent(l2);
+		
+		assertEquals(l1.getName(), cont.getLabEvent(l1.getName()).getName());
+		assertEquals(l2.getName(), cont.getLabEvent(l2.getName()).getName());
 
-		cont.removeLabEvent(l2);
-
+		cont.removeLabEvent(l2,true);
+		
+		cont.getLabEvent(l1.getName());
+		
 		try {
-			cont.getLabEvent(l2.getName(), l2.getCourseName(), l2.getCourseYear());
+			cont.getLabEvent(l2.getName());
 		} catch (ElementNotFoundException e) {
 			return;
 		}
 
 		fail("ElementNotFoundException not thrown.");
-		*/
 	}
 }

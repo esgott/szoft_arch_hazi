@@ -12,10 +12,10 @@ public class StudentTest
 	@Test
 	public void basicAttributesTest()
 	{
-		s1 = new Student("abcdef");
-		s2 = new Student("a123bcd");
+		s1 = new Student("abcdef".toUpperCase());
+		s2 = new Student("a123bcd".toLowerCase());
 		
-		assertEquals("abcdef",s1.getNeptunCode());
-		assertEquals("a123bcd",s2.getNeptunCode());
+		assertEquals("abcdef".toUpperCase(),s1.getNeptunCode());
+		assertEquals("a123bcd".toUpperCase(),s2.getNeptunCode());
 	}
 }
