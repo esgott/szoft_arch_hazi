@@ -2,6 +2,7 @@ package hu.laborreg.server.gui;
 
 import hu.laborreg.server.course.CourseContainer;
 import hu.laborreg.server.exception.ElementNotFoundException;
+import hu.laborreg.server.handlers.DataExporter;
 import hu.laborreg.server.labEvent.LabEventContainer;
 
 import java.awt.BorderLayout;
@@ -22,6 +23,9 @@ import javax.swing.JToolBar;
 import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.xml.crypto.Data;
+
+import java.io.File;
 
 public class MainWindow {
 
@@ -40,12 +44,13 @@ public class MainWindow {
 	private LabEventTable labEventTable;
 	private TableInterface activetab;
 	private final Logger logger = Logger.getLogger(this.getClass().getName());
+	private DataExporter dataExporter;
 
-	public MainWindow(CourseContainer courses, LabEventContainer labEventContainer) {
-		initialize(courses, labEventContainer);
+	public MainWindow(CourseContainer courses, LabEventContainer labEventContainer, DataExporter dataExporter) {
+		initialize(courses, labEventContainer, dataExporter);
 	}
 
-	private void initialize(CourseContainer courses, LabEventContainer labEventContainer) {
+	private void initialize(CourseContainer courses, LabEventContainer labEventContainer, DataExporter dataExporter) {
 		frame.setBounds(100, 100, MINIMUM_WIDTH, MINIMUM_HEIGHT + 200);
 		frame.setMinimumSize(new Dimension(MINIMUM_WIDTH, MINIMUM_HEIGHT));
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -66,6 +71,8 @@ public class MainWindow {
 
 		createTabs(courses, labEventContainer);
 		frame.getContentPane().add(tabbedPane, BorderLayout.CENTER);
+		
+		this.dataExporter = dataExporter;
 	}
 
 	private void createToolbarButtons() {
@@ -130,6 +137,10 @@ public class MainWindow {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				fileChooser.showDialog(frame, "Exportálás");
+				
+				//TODO is export button pressed?
+				File file = fileChooser.getSelectedFile();
+				dataExporter.exportData(file);
 			}
 		});
 	}

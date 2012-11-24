@@ -30,7 +30,7 @@ public class Main {
 	private static Configuration configuration = new Configuration();
 	private static Logger logger;
 
-	private DataExporter dataExporter = new DataExporter(dbConnHandler);
+	private static DataExporter dataExporter;
 	private ClientConnectionHandler clientConnectionHandler = new ClientConnectionHandler();
 	private static CourseContainer courseContainer;
 	private static LabEventContainer labEventContainer;
@@ -76,6 +76,7 @@ public class Main {
 		studentContainer = new StudentContainer(dbConnHandler);
 		courseContainer = new CourseContainer(dbConnHandler, studentContainer);
 		labEventContainer = new LabEventContainer(dbConnHandler);
+		dataExporter = new DataExporter(dbConnHandler);
 	}
 
 	private static void initializeHttpServer() {
@@ -100,7 +101,7 @@ public class Main {
 			SwingUtilities.invokeAndWait(new Runnable() {
 				@Override
 				public void run() {
-					MainWindow window = new MainWindow(courseContainer, labEventContainer);
+					MainWindow window = new MainWindow(courseContainer, labEventContainer, dataExporter);
 					window.display();
 				}
 			});
