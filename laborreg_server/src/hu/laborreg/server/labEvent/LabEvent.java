@@ -186,7 +186,8 @@ public class LabEvent {
 			throw new TimeSetException("Start time: " + newStartTime.get(Calendar.HOUR_OF_DAY) + ":" + newStartTime.get(Calendar.MINUTE) + 
 					" is later then stop time: " + newStopTime.get(Calendar.HOUR_OF_DAY) + ":" + newStopTime.get(Calendar.MINUTE));
 		}
-
+		
+		/*
 		if(currentTime.after(startTime) && currentTime.before(stopTime)) {
 			throw new TimeSetException("Set time is not enabled, because the Lab event is currently ongoing or the start time of of the lab event is in the past.");
 		}
@@ -205,6 +206,7 @@ public class LabEvent {
 				throw new TimeSetException("Set time is not enabled, because the Lab event is finished.");
 			}
 		}
+		*/
 		return 999;
 	}
 }

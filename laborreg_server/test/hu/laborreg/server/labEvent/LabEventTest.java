@@ -112,7 +112,7 @@ public class LabEventTest
 			startTime.set(Calendar.MINUTE,currentTime.get(Calendar.MINUTE)-1);
 			stopTime.set(Calendar.MINUTE,currentTime.get(Calendar.MINUTE)+1);
 			
-			l1 = new LabEvent("lab_event_1",c1.getName(),c1.getYear(),startTime.getTime(),stopTime.getTime()); //NOK
+			l1 = new LabEvent("lab_event_1",c1.getName(),c1.getYear(),startTime.getTime(),stopTime.getTime()); //OK
 		}
 		catch(TimeSetException e)
 		{
@@ -124,14 +124,14 @@ public class LabEventTest
 			startTime.set(Calendar.MINUTE,currentTime.get(Calendar.MINUTE)-2);
 			stopTime.set(Calendar.MINUTE,currentTime.get(Calendar.MINUTE)-1);
 			
-			l1 = new LabEvent("lab_event_1",c1.getName(),c1.getYear(),startTime.getTime(), stopTime.getTime()); //NOK	
+			l1 = new LabEvent("lab_event_1",c1.getName(),c1.getYear(),startTime.getTime(), stopTime.getTime()); //OK	
 		}
 		catch(TimeSetException e)
 		{
 			numberOfThrownExceptions++;
 		}
 		
-		if(numberOfThrownExceptions == 3)
+		if(numberOfThrownExceptions == 1)
 		{
 			return;
 		}
