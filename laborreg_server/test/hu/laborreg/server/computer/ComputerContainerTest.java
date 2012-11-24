@@ -7,7 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import hu.laborreg.server.Constants;
+import hu.laborreg.server.Configuration;
 import hu.laborreg.server.db.DBConnectionHandler;
 import hu.laborreg.server.exception.ElementAlreadyAddedException;
 import hu.laborreg.server.exception.ElementNotFoundException;
@@ -31,6 +31,8 @@ public class ComputerContainerTest {
 	private Computer c1;
 	private Computer c2;
 	
+	private static Configuration configuration = new Configuration();
+	
 	@Before
 	public void init() throws WrongIpAddressException, SQLException
 	{
@@ -44,8 +46,8 @@ public class ComputerContainerTest {
 		
 		verify(mockPreparedStatement).executeQuery();
 		
-		c1 = new Computer(Constants.BIGGEST_VALID_IP_ADDRESS);
-		c2 = new Computer(Constants.SMALLEST_VALID_IP_ADDRESS);
+		c1 = new Computer(configuration.getProperty(Configuration.biggestIpAddress));
+		c2 = new Computer(configuration.getProperty(Configuration.smallestIpAddress));
 	}
 	
 	@Test

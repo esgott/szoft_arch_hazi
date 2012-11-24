@@ -1,5 +1,6 @@
 package hu.laborreg.server.labEvent;
 
+import hu.laborreg.server.course.Course;
 import hu.laborreg.server.db.DBConnectionHandler;
 import hu.laborreg.server.exception.ElementAlreadyAddedException;
 import hu.laborreg.server.exception.ElementNotFoundException;

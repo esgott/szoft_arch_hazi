@@ -1,7 +1,7 @@
 package hu.laborreg.server.labEvent;
 
 import static org.junit.Assert.*;
-import hu.laborreg.server.Constants;
+import hu.laborreg.server.Configuration;
 import hu.laborreg.server.computer.Computer;
 import hu.laborreg.server.course.Course;
 import hu.laborreg.server.exception.ElementAlreadyAddedException;
@@ -17,7 +17,6 @@ import org.junit.Test;
 public class LabEventTest
 {
 	private Course c1;
-	private Course c2;
 	private Computer comp1;
 	private Computer comp2;
 	private Student s1;
@@ -25,14 +24,15 @@ public class LabEventTest
 	private LabEvent l1;
 	private LabEvent l2;
 	
+	private Configuration configuration = new Configuration();
+	
 	@Before
 	public void init() throws TimeSetException, WrongIpAddressException
 	{
 		c1 = new Course("course1",1999);
-		c2 = new Course("course2",2001);
 		
-		comp1 = new Computer(Constants.SMALLEST_VALID_IP_ADDRESS);
-		comp2 = new Computer(Constants.BIGGEST_VALID_IP_ADDRESS);
+		comp1 = new Computer(configuration.getProperty(Configuration.smallestIpAddress));
+		comp2 = new Computer(configuration.getProperty(Configuration.biggestIpAddress));
 		
 		s1 = new Student("abcdef");
 		s2 = new Student("xyz");

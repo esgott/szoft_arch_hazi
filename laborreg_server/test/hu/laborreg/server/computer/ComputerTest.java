@@ -2,8 +2,10 @@ package hu.laborreg.server.computer;
 
 import static org.junit.Assert.*;
 
+
 import org.junit.Test;
 
+import hu.laborreg.server.Configuration;
 import hu.laborreg.server.Constants;
 import hu.laborreg.server.exception.WrongIpAddressException;
 
@@ -12,6 +14,9 @@ public class ComputerTest {
 	private Computer c1;
 	private Computer c2;
 	
+	private static Configuration configuration = new Configuration();
+	
+	
 	@Test
 	public void invalidFormatOfIpAddress()
 	{
@@ -19,7 +24,7 @@ public class ComputerTest {
 		
 		try
 		{
-			c1 = new Computer(Constants.BIGGEST_VALID_IP_ADDRESS);
+			c1 = new Computer(configuration.getProperty(Configuration.biggestIpAddress));
 		}
 		catch(WrongIpAddressException e)
 		{
@@ -67,8 +72,8 @@ public class ComputerTest {
 	@Test
 	public void invalidValueOfIpAddress()
 	{
-		String[] smallestValidIpAddress = Constants.SMALLEST_VALID_IP_ADDRESS.split(Constants.IP_ADDRESS_DELIMITER);
-		String[] biggestValidIpAddress = Constants.BIGGEST_VALID_IP_ADDRESS.split(Constants.IP_ADDRESS_DELIMITER);
+		String[] smallestValidIpAddress = configuration.getProperty(Configuration.smallestIpAddress).split(Constants.IP_ADDRESS_DELIMITER);
+		String[] biggestValidIpAddress = configuration.getProperty(Configuration.biggestIpAddress).split(Constants.IP_ADDRESS_DELIMITER);
 		String IpAddress;
 		
 		int numberOfThrownExceptions = 0;
