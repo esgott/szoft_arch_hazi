@@ -58,7 +58,7 @@ public class LabEvent {
 	 * 
 	 * @return The name of the LabEvent.
 	 */
-	public String getName() {
+	public synchronized String getName() {
 		return this.name;
 	}
 
@@ -67,7 +67,7 @@ public class LabEvent {
 	 * 
 	 * @return The name of the Course which this LabEvent is allocated to.
 	 */
-	public String getCourseName() {
+	public synchronized String getCourseName() {
 		return this.courseName;
 	}
 
@@ -76,7 +76,7 @@ public class LabEvent {
 	 * 
 	 * @return The year of the Course which this LabEvent is allocated to.
 	 */
-	public int getCourseYear() {
+	public synchronized int getCourseYear() {
 		return this.courseYear;
 	}
 
@@ -85,7 +85,7 @@ public class LabEvent {
 	 * 
 	 * @return The start time of the LabEvent in "HH:MM" format.
 	 */
-	public Date getStartTime() {
+	public synchronized Date getStartTime() {
 		return this.startTime;
 	}
 
@@ -94,7 +94,7 @@ public class LabEvent {
 	 * 
 	 * @return The stop time of the LabEvent in "HH:MM" format.
 	 */
-	public Date getStopTime() {
+	public synchronized Date getStopTime() {
 		return this.stopTime;
 	}
 
@@ -103,11 +103,11 @@ public class LabEvent {
 	 * 
 	 * @return The list of already signed in students to this LabEvent.
 	 */
-	public Set<Student> getSignedInStudents() {
+	public synchronized Set<Student> getSignedInStudents() {
 		return this.signedInStudents;
 	}
 	
-	public String getSignedInStudentsAsString() {
+	public synchronized String getSignedInStudentsAsString() {
 		StringBuilder result = new StringBuilder();
 		for (Student student : signedInStudents) {
 			result.append(student.getNeptunCode());
@@ -122,11 +122,11 @@ public class LabEvent {
 	 * 
 	 * @return The list of the registered computers to this LabEvent.
 	 */
-	public Set<Computer> getRegisteredComputers() {
+	public synchronized Set<Computer> getRegisteredComputers() {
 		return this.registeredComputers;
 	}
 	
-	public String getRegisteredComputersAsString() {
+	public synchronized String getRegisteredComputersAsString() {
 		StringBuilder result = new StringBuilder();
 		for (Computer computer : registeredComputers) {
 			result.append(computer.getIpAddress());
@@ -141,7 +141,7 @@ public class LabEvent {
 	 * @param student
 	 *            The Students who wants to sign in.
 	 */
-	public void signInStudent(Student student) throws ElementAlreadyAddedException {
+	public synchronized void signInStudent(Student student) throws ElementAlreadyAddedException {
 		if (this.signedInStudents.add(student) == false) {
 			throw new ElementAlreadyAddedException("Student: " + student.getNeptunCode()
 					+ " already signed in to this Lab event.");
@@ -157,7 +157,7 @@ public class LabEvent {
 	 * @return If computer added to the list: COMPUTER_ADDED(0) if computer
 	 *         already added to the list: COMPUTER_ALREADY_ADDED(1)
 	 */
-	public void allowMultipleRegistration(Computer computer) throws ElementAlreadyAddedException {
+	public synchronized void allowMultipleRegistration(Computer computer) throws ElementAlreadyAddedException {
 		if (this.registeredComputers.add(computer) == false) {
 			throw new ElementAlreadyAddedException("Computer: " + computer.getIpAddress() + " already added to list.");
 		}
@@ -175,7 +175,7 @@ public class LabEvent {
 	 *         is currently ongoing: LABEVENT_IS_ONGOING(2) If LabEvent is
 	 *         already finished: LABEVENT_FINISHED(3)
 	 */
-	public void setStartAndStopTime(Date startTime, Date stopTime, boolean isCalledFromConstructor) throws TimeSetException {
+	public synchronized void setStartAndStopTime(Date startTime, Date stopTime, boolean isCalledFromConstructor) throws TimeSetException {
 		if (checkTime(startTime, stopTime, isCalledFromConstructor) == 999) {
 			this.startTime = startTime;
 			this.stopTime = stopTime;
@@ -190,7 +190,7 @@ public class LabEvent {
 	 * @param stopTime
 	 *            The given stop time.
 	 */
-	private int checkTime(Date startTime, Date stopTime, boolean isCalledFromConstructor) throws TimeSetException {
+	private synchronized int checkTime(Date startTime, Date stopTime, boolean isCalledFromConstructor) throws TimeSetException {
 
 		Date currentTime = Calendar.getInstance().getTime();
 
@@ -228,10 +228,10 @@ public class LabEvent {
 	}
 	
 	@Override
-	public boolean equals(Object other) {
+	public synchronized boolean equals(Object other) {
 		if (this == other) {
 			return true;
-		} else if (!(other instanceof Course)) {
+		} else if (!(other instanceof LabEvent)) {
 			return false;
 		}
 		LabEvent labEvent = (LabEvent) other;

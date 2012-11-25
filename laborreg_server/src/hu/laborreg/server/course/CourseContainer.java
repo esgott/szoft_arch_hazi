@@ -3,6 +3,8 @@ package hu.laborreg.server.course;
 import hu.laborreg.server.db.DBConnectionHandler;
 import hu.laborreg.server.exception.ElementAlreadyAddedException;
 import hu.laborreg.server.exception.ElementNotFoundException;
+import hu.laborreg.server.labEvent.LabEvent;
+import hu.laborreg.server.labEvent.LabEventContainer;
 import hu.laborreg.server.student.Student;
 import hu.laborreg.server.student.StudentContainer;
 
@@ -19,6 +21,7 @@ public class CourseContainer {
 	private List<Course> courses;
 	private DBConnectionHandler dbConnection;
 	private StudentContainer studentContainer;
+	private LabEventContainer labEventContainer;
 	private final Logger logger = Logger.getLogger(this.getClass().getName());
 
 	/**
@@ -75,7 +78,7 @@ public class CourseContainer {
 	 * @param course
 	 *            The needed course
 	 */
-	public void addCourse(Course course) throws ElementAlreadyAddedException {
+	public synchronized void addCourse(Course course) throws ElementAlreadyAddedException {
 		if (!courses.contains(course)) {
 			courses.add(course);
 		} else {
@@ -104,12 +107,23 @@ public class CourseContainer {
 	 * @param course
 	 *            The needed course
 	 */
-	public void removeCourse(Course course) throws ElementNotFoundException {
+	public synchronized void removeCourse(Course course) throws ElementNotFoundException {
+		removeLabEvents(course);
 		if (this.courses.remove(course) == false) {
 			throw new ElementNotFoundException("Course" + course.getName() + "(" + course.getYear()
 					+ ") does not found in the Courses list.");
 		}
-		removeFromDB(course);
+		removeFromDB(course);	
+	}
+
+	private void removeLabEvents(Course course) {
+		for(LabEvent labEvent : course.getLabEvents()){
+			try {
+				labEventContainer.removeLabEventWithoutDeleteFromCourse(labEvent);
+			} catch (ElementNotFoundException e) {
+				logger.warning("Failed to delete LabEvent from container: " + e.getMessage());	
+			}
+		}
 	}
 
 	private void removeFromDB(Course course) {
@@ -133,6 +147,10 @@ public class CourseContainer {
 		deleteStatement.executeUpdate();
 	}
 
+	public synchronized void setLabEventContainer(LabEventContainer cont) {
+			labEventContainer = cont;
+	}
+
 	/**
 	 * Get the specified course from courses.
 	 * 
@@ -142,7 +160,7 @@ public class CourseContainer {
 	 *            The year of the course.
 	 * @return The needed course
 	 */
-	public Course getCourse(String name, int year) throws ElementNotFoundException {
+	public synchronized Course getCourse(String name, int year) throws ElementNotFoundException {
 		for (Course course : courses) {
 			if (course.getName().equals(name) && course.getYear() == year) {
 				return course;
@@ -156,7 +174,7 @@ public class CourseContainer {
 	 * 
 	 * @return Number of elements
 	 */
-	public int getNumberOfCourses() {
+	public synchronized int getNumberOfCourses() {
 		return courses.size();
 	}
 
@@ -167,7 +185,7 @@ public class CourseContainer {
 	 *            position in list
 	 * @return course
 	 */
-	public Course getCourse(int index) {
+	public synchronized Course getCourse(int index) {
 		return courses.get(index);
 	}
 
@@ -181,7 +199,7 @@ public class CourseContainer {
 	 * @throws ElementAlreadyAddedException
 	 *             if the student is already registered on the course
 	 */
-	public void registerStudentToCourse(Course course, Student student) throws ElementAlreadyAddedException {
+	public synchronized void registerStudentToCourse(Course course, Student student) throws ElementAlreadyAddedException {
 		course.registerStudent(student);
 		registerInDb(course, student);
 	}
@@ -214,7 +232,7 @@ public class CourseContainer {
 	 * @throws ElementNotFoundException
 	 *             if the student was not registered to this course
 	 */
-	public void unregisterStudentFromCourse(Course course, Student student) throws ElementNotFoundException {
+	public synchronized void unregisterStudentFromCourse(Course course, Student student) throws ElementNotFoundException {
 		course.unregisterStudent(student);
 		unregisterInDb(course, student);
 	}
@@ -232,7 +250,7 @@ public class CourseContainer {
 		}
 	}
 
-	public boolean setData(String name, String oldName, int year, int oldYear, String[] neptuns) {
+	public synchronized boolean setData(String name, String oldName, int year, int oldYear, String[] neptuns) {
 		Course course = new Course(name, year);
 		Course oldCourse = new Course(oldName, oldYear);
 		boolean success = true;
@@ -257,7 +275,8 @@ public class CourseContainer {
 		return success;
 	}
 
-	private void updateStudents(Course course, Course oldCourse, String[] neptuns) throws SQLException, ElementNotFoundException {
+	private void updateStudents(Course course, Course oldCourse, String[] neptuns) throws SQLException,
+			ElementNotFoundException {
 		course = getCourse(course.getName(), course.getYear());
 		String command = "DELETE FROM registered WHERE course_name = ? AND course_year = ?";
 		PreparedStatement deleteStatement = dbConnection.createPreparedStatement(command);

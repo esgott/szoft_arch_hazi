@@ -75,8 +75,10 @@ public class Main {
 		computercontainer = new ComputerContainer(dbConnHandler, configuration);
 		studentContainer = new StudentContainer(dbConnHandler);
 		courseContainer = new CourseContainer(dbConnHandler, studentContainer);
-		labEventContainer = new LabEventContainer(dbConnHandler, studentContainer, computercontainer, configuration);
+		labEventContainer = new LabEventContainer(dbConnHandler, studentContainer, computercontainer, courseContainer,
+				configuration);
 		dataExporter = new DataExporter(dbConnHandler);
+		courseContainer.setLabEventContainer(labEventContainer);
 	}
 
 	private static void initializeHttpServer() {

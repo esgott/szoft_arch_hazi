@@ -28,24 +28,28 @@ public class CourseManipulatorPanel extends ManipulatorPanel {
 
 		setLayout(new GridLayout(4, 2, 10, 10));
 
-		JLabel yearLabel = new JLabel("Év:");
-		add(yearLabel);
-		yearTextField = new JTextField();
-		add(yearTextField);
-		yearTextField.setColumns(10);
-
 		JLabel nameLabel = new JLabel("Név:");
 		add(nameLabel);
 		nameTextField = new JTextField();
 		add(nameTextField);
 		nameTextField.setColumns(10);
+		nameTextField.setToolTipText("A kurzus neve");
+		
+		JLabel yearLabel = new JLabel("Év:");
+		add(yearLabel);
+		yearTextField = new JTextField();
+		add(yearTextField);
+		yearTextField.setColumns(10);
+		yearTextField.setToolTipText("A kurzus éve");
 
 		neptunLabel = new JLabel("Regisztrált NEPTUN\n kódok:");
 		add(neptunLabel);
+		
 
 		neptunTextField = new JTextField();
 		add(neptunTextField);
 		neptunTextField.setColumns(10);
+		neptunTextField.setToolTipText("Neptun-kódok vesszővel elválasztott listája");
 
 	}
 
@@ -53,6 +57,8 @@ public class CourseManipulatorPanel extends ManipulatorPanel {
 	public void clear() {
 		yearTextField.setText("");
 		nameTextField.setText("");
+		nameTextField.setEnabled(true);
+		yearTextField.setEnabled(true);
 		neptunTextField.setText("");
 		oldCourse = new Course(" ", 0);
 	}
@@ -89,6 +95,8 @@ public class CourseManipulatorPanel extends ManipulatorPanel {
 		oldCourse = course;
 		nameTextField.setText(course.getName());
 		yearTextField.setText(Integer.toString(course.getYear()));
+		nameTextField.setEnabled(false);
+		yearTextField.setEnabled(false);
 		neptunTextField.setText(course.getRegisteredStudentsAsString());
 	}
 

@@ -43,7 +43,7 @@ public class Course {
 	 * 
 	 * @return The name of the course.
 	 */
-	public String getName() {
+	public synchronized String getName() {
 		return this.name;
 	}
 
@@ -52,11 +52,11 @@ public class Course {
 	 * 
 	 * @return The year of the course.
 	 */
-	public int getYear() {
+	public synchronized int getYear() {
 		return this.year;
 	}
 
-	public String getRegisteredStudentsAsString() {
+	public synchronized String getRegisteredStudentsAsString() {
 		StringBuilder message = new StringBuilder();
 		for (Student student : registeredStudents) {
 			message.append(student.getNeptunCode());
@@ -65,7 +65,7 @@ public class Course {
 		return message.toString();
 	}
 
-	public String getLabEventsAsString() {
+	public synchronized String getLabEventsAsString() {
 		StringBuilder message = new StringBuilder();
 		for (LabEvent labEvent : labEvents) {
 			message.append(labEvent.getName());
@@ -79,7 +79,7 @@ public class Course {
 	 * 
 	 * @return The registered students.
 	 */
-	public Set<Student> getRegisteredStudents() {
+	public synchronized Set<Student> getRegisteredStudents() {
 		return this.registeredStudents;
 	}
 
@@ -88,7 +88,7 @@ public class Course {
 	 * 
 	 * @return The existing lab events.
 	 */
-	public Set<LabEvent> getLabEvents() {
+	public synchronized Set<LabEvent> getLabEvents() {
 		return this.labEvents;
 	}
 
@@ -98,7 +98,7 @@ public class Course {
 	 * @param student
 	 *            The Student who wants to be registered to this Course.
 	 */
-	public void registerStudent(Student student) throws ElementAlreadyAddedException {
+	public synchronized void registerStudent(Student student) throws ElementAlreadyAddedException {
 		if (registeredStudents.add(student) == false) {
 			throw new ElementAlreadyAddedException("Student " + student.getNeptunCode()
 					+ " already registered to this course.");
@@ -111,7 +111,7 @@ public class Course {
 	 * @param student
 	 *            The Student who wants to be deleted from this Course.
 	 */
-	public void unregisterStudent(Student student) throws ElementNotFoundException {
+	public synchronized void unregisterStudent(Student student) throws ElementNotFoundException {
 		if (registeredStudents.remove(student) == false) {
 			throw new ElementNotFoundException("Student " + student.getNeptunCode()
 					+ " not found in Course's Student list.");
@@ -124,7 +124,7 @@ public class Course {
 	 * @param labEvent
 	 *            The lab event which want to be added to this Course.
 	 */
-	public void addLabEvent(LabEvent labEvent) throws ElementAlreadyAddedException {
+	public synchronized void addLabEvent(LabEvent labEvent) throws ElementAlreadyAddedException {
 		if (labEvents.add(labEvent) == false) {
 			throw new ElementAlreadyAddedException("Lab event " + labEvent.getName() + " already added to this Course.");
 		}
@@ -137,7 +137,7 @@ public class Course {
 	 * @param labEvent
 	 *            The lab event which want to be removed from this Course.
 	 */
-	public void removeLabEvent(LabEvent labEvent) throws ElementNotFoundException {
+	public synchronized void removeLabEvent(LabEvent labEvent) throws ElementNotFoundException {
 		if (labEvents.remove(labEvent) == false) {
 			throw new ElementNotFoundException("Lab event" + labEvent.getName()
 					+ " not found in Course's Lab Event list.");
@@ -145,7 +145,7 @@ public class Course {
 	}
 
 	@Override
-	public boolean equals(Object other) {
+	public synchronized boolean equals(Object other) {
 		if (this == other) {
 			return true;
 		} else if (!(other instanceof Course)) {

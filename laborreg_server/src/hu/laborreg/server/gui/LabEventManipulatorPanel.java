@@ -36,6 +36,7 @@ public class LabEventManipulatorPanel extends ManipulatorPanel {
 		nameTextField = new JTextField();
 		add(nameTextField);
 		nameTextField.setColumns(10);
+		nameTextField.setToolTipText("A laboresemény neve");;
 
 		JLabel courseNameLabel = new JLabel("Kurzus név:");
 		add(courseNameLabel);
@@ -43,6 +44,7 @@ public class LabEventManipulatorPanel extends ManipulatorPanel {
 		courseNameTextField = new JTextField();
 		add(courseNameTextField);
 		courseNameTextField.setColumns(10);
+		courseNameTextField.setToolTipText("A kurzus neve");
 
 		JLabel courseYearLabel = new JLabel("Kurzus év:");
 		add(courseYearLabel);
@@ -50,6 +52,7 @@ public class LabEventManipulatorPanel extends ManipulatorPanel {
 		courseYearTextField = new JTextField();
 		add(courseYearTextField);
 		courseYearTextField.setColumns(10);
+		courseYearTextField.setToolTipText("A kurzus éve");
 
 		JLabel startLabel = new JLabel("Kezdés:");
 		add(startLabel);
@@ -57,6 +60,7 @@ public class LabEventManipulatorPanel extends ManipulatorPanel {
 		startTextField = new JTextField();
 		add(startTextField);
 		startTextField.setColumns(10);
+		startTextField.setToolTipText("Érvényes dátumformátum: 2012-01-15 12:00:00");
 
 		JLabel endlabel = new JLabel("Befejezés:");
 		add(endlabel);
@@ -64,6 +68,7 @@ public class LabEventManipulatorPanel extends ManipulatorPanel {
 		endTextField = new JTextField();
 		add(endTextField);
 		endTextField.setColumns(10);
+		endTextField.setToolTipText("Érvényes dátumformátum: 2012-01-15 12:00:00");
 
 		multiplaRegLabel = new JLabel("Többszörös jelentkezés");
 		add(multiplaRegLabel);
@@ -71,6 +76,7 @@ public class LabEventManipulatorPanel extends ManipulatorPanel {
 		multipleRegTextField = new JTextField();
 		add(multipleRegTextField);
 		multipleRegTextField.setColumns(10);
+		multipleRegTextField.setToolTipText("IP-címek vesszővel elválasztott listája");
 
 		labEvents = labEventContainer;
 		mainWindow = parent;
@@ -121,12 +127,12 @@ public class LabEventManipulatorPanel extends ManipulatorPanel {
 			boolean success = labEvents.setLabEvent(name, oldLabEventName, courseName, courseYear, ipAddresses,
 					startTime, endTime);
 			if (!success) {
-				throw new Exception("Módosítás nem sikerült");
+				throw new Exception("Módosítás vagy hozzáadás nem sikerült");
 			}
 			mainWindow.dataOfTableChanged();
 			return success;
 		} catch (Exception e) {
-			String message = "Hozzáadás sikertelen - " + e.getMessage();
+			String message = "Módosítás vagy hozzáadás sikertelen - " + e.getMessage();
 			JOptionPane.showMessageDialog(this, message, "Hiba", JOptionPane.ERROR_MESSAGE);
 			return false;
 		}

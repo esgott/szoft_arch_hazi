@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 import hu.laborreg.server.Configuration;
 import hu.laborreg.server.computer.ComputerContainer;
 import hu.laborreg.server.course.Course;
+import hu.laborreg.server.course.CourseContainer;
 import hu.laborreg.server.db.DBConnectionHandler;
 import hu.laborreg.server.exception.ElementAlreadyAddedException;
 import hu.laborreg.server.exception.ElementNotFoundException;
@@ -33,6 +34,8 @@ public class LabEventContainerTest {
 	@Mock
 	ComputerContainer computerContainer;
 	@Mock
+	CourseContainer mockCourseContainer;
+	@Mock
 	ResultSet mockResultset;
 	@Mock
 	Configuration mockConfiguration;
@@ -50,7 +53,7 @@ public class LabEventContainerTest {
 		when(mockPreparedStatement.executeQuery()).thenReturn(mockResultset);
 		when(mockResultset.next()).thenReturn(false);
 		
-		cont = new LabEventContainer(mockDbConnectionHandler, mockStudentContainer, computerContainer, mockConfiguration);
+		cont = new LabEventContainer(mockDbConnectionHandler, mockStudentContainer, computerContainer, mockCourseContainer, mockConfiguration);
 		c1 = new Course("course1", 1999);
 
 		Calendar startTime = Calendar.getInstance();
@@ -65,7 +68,7 @@ public class LabEventContainerTest {
 	@Test
 	public void addLabEventToContainerTest() throws UnsupportedOperationException, ClassCastException,
 			NullPointerException, IllegalArgumentException, TimeSetException,
-			ElementAlreadyAddedException, SQLException {
+			ElementAlreadyAddedException, SQLException, ElementNotFoundException {
 		
 		cont.addLabEvent(l1);
 		cont.addLabEvent(l2);

@@ -44,15 +44,16 @@ public class MainWindow {
 	private TableInterface activetab;
 	private final Logger logger = Logger.getLogger(this.getClass().getName());
 	private DataExporter dataExporter;
-
+		
 	public MainWindow(CourseContainer courses, LabEventContainer labEventContainer, DataExporter dataExporter) {
 		initialize(courses, labEventContainer, dataExporter);
 	}
 
 	private void initialize(CourseContainer courses, LabEventContainer labEvents, DataExporter dataExporter) {
 		frame.setMinimumSize(new Dimension(MINIMUM_WIDTH, MINIMUM_HEIGHT));
+		frame.setSize(new Dimension(MINIMUM_WIDTH, MINIMUM_HEIGHT + 200));
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
+		
 		translateJFileChooser();
 		fileChooser = new JFileChooser();
 		fileChooser.setFileFilter(new FileNameExtensionFilter("Comma Separated Values (.csv)","csv"));
@@ -174,6 +175,7 @@ public class MainWindow {
 				int index = sourceTabbedPane.getSelectedIndex();
 				if (index == 0) {
 					activetab = courseTable;
+					
 				} else {
 					activetab = labEventTable;
 				}

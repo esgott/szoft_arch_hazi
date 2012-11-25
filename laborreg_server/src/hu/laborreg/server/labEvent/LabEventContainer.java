@@ -3,6 +3,8 @@ package hu.laborreg.server.labEvent;
 import hu.laborreg.server.Configuration;
 import hu.laborreg.server.computer.Computer;
 import hu.laborreg.server.computer.ComputerContainer;
+import hu.laborreg.server.course.Course;
+import hu.laborreg.server.course.CourseContainer;
 import hu.laborreg.server.db.DBConnectionHandler;
 import hu.laborreg.server.exception.ElementAlreadyAddedException;
 import hu.laborreg.server.exception.ElementNotFoundException;
@@ -30,6 +32,7 @@ public class LabEventContainer {
 	private final DBConnectionHandler dbConnection;
 	private final StudentContainer students;
 	private final ComputerContainer computers;
+	private final CourseContainer courses;
 	private final DateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
 	private final Configuration configuration;
 	private final Logger logger = Logger.getLogger(this.getClass().getName());
@@ -38,11 +41,12 @@ public class LabEventContainer {
 	 * A container class which contains the labEvents.
 	 */
 	public LabEventContainer(DBConnectionHandler dbConnectionHandler, StudentContainer studentContainer,
-			ComputerContainer computerContainer, Configuration config) {
+			ComputerContainer computerContainer, CourseContainer courseContainer, Configuration config) {
 		labEvents = new ArrayList<LabEvent>();
 		dbConnection = dbConnectionHandler;
 		students = studentContainer;
 		computers = computerContainer;
+		courses = courseContainer;
 		configuration = config;
 		initFromDB();
 	}
@@ -69,6 +73,9 @@ public class LabEventContainer {
 				}
 				fillSignedInStudents(labEvent);
 				fillMultipleRegistrations(labEvent);
+
+				Course c = courses.getCourse(courseName, courseYear);
+				c.addLabEvent(labEvent);
 			}
 		} catch (SQLException e) {
 			logger.severe("Failed to init LabEvents from DB: " + e.getMessage());
@@ -76,6 +83,8 @@ public class LabEventContainer {
 			logger.warning("Error during date setting: " + e.getMessage());
 		} catch (ParseException e) {
 			logger.severe("Failed to parse date in DB: " + e.getMessage());
+		} catch (ElementAlreadyAddedException | ElementNotFoundException e) {
+			logger.warning("Failed to add LabEvent to Course: " + e.getMessage());
 		}
 	}
 
@@ -122,7 +131,8 @@ public class LabEventContainer {
 	 * @param labEvent
 	 *            The needed labEvent
 	 */
-	public void addLabEvent(LabEvent labEvent) throws ElementAlreadyAddedException {
+	public synchronized void addLabEvent(LabEvent labEvent) throws ElementNotFoundException, ElementAlreadyAddedException {
+		Course c = courses.getCourse(labEvent.getCourseName(), labEvent.getCourseYear());
 		if (!labEvents.contains(labEvent)) {
 			labEvents.add(labEvent);
 		} else {
@@ -130,6 +140,7 @@ public class LabEventContainer {
 					+ " already added to Lab events list.");
 		}
 		addToDB(labEvent);
+		c.addLabEvent(labEvent);
 	}
 
 	private void addToDB(LabEvent labEvent) {
@@ -155,13 +166,24 @@ public class LabEventContainer {
 	 * @param labEvent
 	 *            The needed labEvent
 	 */
-	public void removeLabEvent(LabEvent labEvent, boolean removeSignInAndMultipleRegistration)
+	public synchronized void removeLabEvent(LabEvent labEvent, boolean removeSignInAndMultipleRegistration)
 			throws ElementNotFoundException {
+		Course c = courses.getCourse(labEvent.getCourseName(), labEvent.getCourseYear());
+		c.removeLabEvent(labEvent);
 		if (this.labEvents.remove(labEvent) == false) {
 			throw new ElementNotFoundException("Lab Event " + labEvent.getName()
 					+ " does not found in Lab events list.");
 		}
 		removeFromDB(labEvent, removeSignInAndMultipleRegistration);
+	}
+	
+	public synchronized void removeLabEventWithoutDeleteFromCourse(LabEvent labEvent)
+			throws ElementNotFoundException {
+		if (this.labEvents.remove(labEvent) == false) {
+			throw new ElementNotFoundException("Lab Event " + labEvent.getName()
+					+ " does not found in Lab events list.");
+		}
+		removeFromDB(labEvent, true);
 	}
 
 	private void removeFromDB(LabEvent labEvent, boolean removeSignInAndMultipleRegistration) {
@@ -203,7 +225,7 @@ public class LabEventContainer {
 	 * @return The needed labEvent
 	 * @throws ElementNotFoundException
 	 */
-	public LabEvent getLabEvent(String name) throws ElementNotFoundException {
+	public synchronized LabEvent getLabEvent(String name) throws ElementNotFoundException {
 		for (LabEvent labEvent : labEvents) {
 			if (name.equals(labEvent.getName())) {
 				return labEvent;
@@ -213,25 +235,43 @@ public class LabEventContainer {
 		throw new ElementNotFoundException("Lab event: " + name + ") does not found in the Lab events list.");
 	}
 
-	public boolean setLabEvent(String name, String oldName, String courseName, int courseYear,
+	public synchronized boolean setLabEvent(String name, String oldName, String courseName, int courseYear,
 			String[] multipleRegistrations, Date startTime, Date endTime) throws TimeSetException,
 			WrongIpAddressException {
 		boolean success = true;
+		checkIpAddresses(multipleRegistrations);
 		LabEvent labEvent = new LabEvent(name, courseName, courseYear, startTime, endTime);
+		LabEvent oldLabEvent = null;
+		try {
+			oldLabEvent = getLabEvent(oldName);
+		} catch (ElementNotFoundException e) {
+			logger.fine("Failed to delete old element");
+		}
+		try {
+			courses.getCourse(courseName, courseYear);
+		} catch (ElementNotFoundException e2) {
+			logger.warning("Wrong course given: " + e2.getMessage());
+			return false;
+		}
 
-		if (!name.equals(oldName)) {
-			LabEvent oldLabEvent = null;
+		if (!name.equals(oldName) || !courseName.equals(oldLabEvent.getCourseName())
+				|| courseYear != oldLabEvent.getCourseYear() || !startTime.equals(oldLabEvent.getStartTime())
+				|| !endTime.equals(oldLabEvent.getStopTime())) {
 			try {
-				oldLabEvent = getLabEvent(oldName);
-				removeLabEvent(oldLabEvent, false);
-			} catch (ElementNotFoundException e) {
-				logger.fine("Failed to delete old element");
+				if (oldLabEvent != null) {
+					removeLabEvent(oldLabEvent, false);
+				}
+			} catch (ElementNotFoundException e1) {
+				logger.fine("Failed to delete old labEvent: " + e1.getMessage());
 			}
 			try {
 				addLabEvent(labEvent);
-				updateSignInfo(oldLabEvent, labEvent);
-			} catch (ElementAlreadyAddedException e) {
+				if (oldLabEvent != null) {
+					updateSignInfo(oldLabEvent, labEvent);
+				}
+			} catch (ElementAlreadyAddedException | ElementNotFoundException e) {
 				logger.warning("Failed to add new element: " + e.getMessage());
+				return false;
 			}
 		}
 		try {
@@ -241,6 +281,13 @@ public class LabEventContainer {
 			success = false;
 		}
 		return success;
+	}
+
+	private void checkIpAddresses(String[] multipleRegistrations) throws WrongIpAddressException {
+		for(String ipAddress: multipleRegistrations) {
+			new Computer(ipAddress, configuration);
+		}
+		
 	}
 
 	private void updateSignInfo(LabEvent oldLabEvent, LabEvent labEvent) {
@@ -299,8 +346,8 @@ public class LabEventContainer {
 		statement.setString(2, computer.getIpAddress());
 		statement.executeUpdate();
 	}
-	
-	public void signInForLabEvent(String labEventName, String neptun) throws ElementNotFoundException,
+
+	public synchronized void signInForLabEvent(String labEventName, String neptun) throws ElementNotFoundException,
 			ElementAlreadyAddedException {
 		LabEvent labEvent = getLabEvent(labEventName);
 		Student student = students.getStudent(neptun);
@@ -317,11 +364,11 @@ public class LabEventContainer {
 		}
 	}
 
-	public int getNumberOfLabevents() {
+	public synchronized  int getNumberOfLabevents() {
 		return labEvents.size();
 	}
 
-	public LabEvent getLabEvent(int index) {
+	public synchronized LabEvent getLabEvent(int index) {
 		return labEvents.get(index);
 	}
 }
