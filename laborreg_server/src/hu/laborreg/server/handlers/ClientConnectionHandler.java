@@ -51,7 +51,7 @@ public class ClientConnectionHandler {
 			return "Nem lehetséges regisztrálni a " + labEventName + " laboreseményre, mert jelenleg nem aktív.";
 		} catch (WrongIpAddressException e) {
 			logger.severe("Wrong IP address" + e.getMessage());
-			return "Belső hiba történt.";
+			return "A IP-címed kívül esik a szerver által elfogadott IP-címek tartományán.";
 		} catch (SignInProhibitedException e) {
 			return "Erről a géprők már regisztrált valaki más.";
 		}
