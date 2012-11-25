@@ -39,8 +39,9 @@ public class DBInitiator {
 				+ "FOREIGN KEY(course_year) REFERENCES course(year), "
 				+ "FOREIGN KEY(student_neptun) REFERENCES student(neptun))");
 		commands.put("signed", "CREATE TABLE signed (lab_event_name TEXT NOT NULL, student_neptun TEXT NOT NULL, "
-				+ "FOREIGN KEY(lab_event_name) REFERENCES lab_event(name), "
-				+ "FOREIGN KEY(student_neptun) REFERENCES student(neptun))");
+				+ "computer_ip_address TEXT NOT NULL, FOREIGN KEY(lab_event_name) REFERENCES lab_event(name), "
+				+ "FOREIGN KEY(student_neptun) REFERENCES student(neptun), FOREIGN KEY(computer_ip_address) "
+				+ "REFERENCES computer(ip_address))");
 		commands.put("multiple_registration_allowed", "CREATE TABLE multiple_registration_allowed ("
 				+ "lab_event_name TEXT NOT NULL, computer_ip_address TEXT NOT NULL, "
 				+ "FOREIGN KEY(lab_event_name) REFERENCES lab_event(name), "

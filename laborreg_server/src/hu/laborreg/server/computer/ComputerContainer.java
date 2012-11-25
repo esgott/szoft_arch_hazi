@@ -117,4 +117,16 @@ public class ComputerContainer {
 		}
 		throw new ElementNotFoundException("Computer " + ipAddress + " is not found in Computers list.");
 	}
+	
+	public Computer getComputerAndAddIfNotFound(String ipAddress) throws WrongIpAddressException{
+		for (Computer computer : computers) {
+			if (computer.getIpAddress().equals(ipAddress)) {
+				return computer;
+			}
+		}
+		Computer computer = new Computer(ipAddress, configuration);
+		computers.add(computer);
+		addToDB(computer);
+		return computer;
+	}
 }

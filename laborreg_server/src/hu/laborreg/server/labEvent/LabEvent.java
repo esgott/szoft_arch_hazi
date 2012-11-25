@@ -3,6 +3,7 @@ package hu.laborreg.server.labEvent;
 import hu.laborreg.server.computer.Computer;
 import hu.laborreg.server.exception.ElementAlreadyAddedException;
 import hu.laborreg.server.exception.TimeSetException;
+import hu.laborreg.server.student.SignedInStudent;
 import hu.laborreg.server.student.Student;
 
 import java.text.ParseException;
@@ -18,7 +19,7 @@ public class LabEvent {
 	private int courseYear;
 	private Date startTime;
 	private Date stopTime;
-	private Set<Student> signedInStudents;
+	private Set<SignedInStudent> signedInStudents;
 	private Set<Computer> registeredComputers;
 
 	/**
@@ -48,7 +49,7 @@ public class LabEvent {
 
 		setStartAndStopTime(startTime, stopTime, true);
 
-		signedInStudents = new HashSet<Student>();
+		signedInStudents = new HashSet<SignedInStudent>();
 		registeredComputers = new HashSet<Computer>();
 	}
 
@@ -102,14 +103,14 @@ public class LabEvent {
 	 * 
 	 * @return The list of already signed in students to this LabEvent.
 	 */
-	public synchronized Set<Student> getSignedInStudents() {
+	public synchronized Set<SignedInStudent> getSignedInStudents() {
 		return this.signedInStudents;
 	}
-	
+
 	public synchronized String getSignedInStudentsAsString() {
 		StringBuilder result = new StringBuilder();
-		for (Student student : signedInStudents) {
-			result.append(student.getNeptunCode());
+		for (SignedInStudent signedInStudent : signedInStudents) {
+			result.append(signedInStudent.student.getNeptunCode());
 			result.append(", ");
 		}
 		return result.toString();
@@ -124,7 +125,7 @@ public class LabEvent {
 	public synchronized Set<Computer> getRegisteredComputers() {
 		return this.registeredComputers;
 	}
-	
+
 	public synchronized String getRegisteredComputersAsString() {
 		StringBuilder result = new StringBuilder();
 		for (Computer computer : registeredComputers) {
@@ -140,8 +141,11 @@ public class LabEvent {
 	 * @param student
 	 *            The Students who wants to sign in.
 	 */
-	public synchronized void signInStudent(Student student) throws ElementAlreadyAddedException {
-		if (this.signedInStudents.add(student) == false) {
+	public synchronized void signInStudent(Student student, Computer computer) throws ElementAlreadyAddedException {
+		SignedInStudent signedInStudent = new SignedInStudent();
+		signedInStudent.student = student;
+		signedInStudent.computer = computer;
+		if (this.signedInStudents.add(signedInStudent) == false) {
 			throw new ElementAlreadyAddedException("Student: " + student.getNeptunCode()
 					+ " already signed in to this Lab event.");
 		}
@@ -174,7 +178,8 @@ public class LabEvent {
 	 *         is currently ongoing: LABEVENT_IS_ONGOING(2) If LabEvent is
 	 *         already finished: LABEVENT_FINISHED(3)
 	 */
-	public synchronized void setStartAndStopTime(Date startTime, Date stopTime, boolean isCalledFromConstructor) throws TimeSetException {
+	public synchronized void setStartAndStopTime(Date startTime, Date stopTime, boolean isCalledFromConstructor)
+			throws TimeSetException {
 		if (checkTime(startTime, stopTime, isCalledFromConstructor) == 999) {
 			this.startTime = startTime;
 			this.stopTime = stopTime;
@@ -189,28 +194,29 @@ public class LabEvent {
 	 * @param stopTime
 	 *            The given stop time.
 	 */
-	private synchronized int checkTime(Date startTime, Date stopTime, boolean isCalledFromConstructor) throws TimeSetException {
+	private synchronized int checkTime(Date startTime, Date stopTime, boolean isCalledFromConstructor)
+			throws TimeSetException {
 		Calendar newStartTime = Calendar.getInstance();
 		newStartTime.setTime(startTime);
 		Calendar newStopTime = Calendar.getInstance();
 		newStopTime.setTime(stopTime);
 
-		if(stopTime.before(startTime)) {
-			throw new TimeSetException("Start time: " + newStartTime.get(Calendar.HOUR_OF_DAY) + ":" + newStartTime.get(Calendar.MINUTE) + 
-					" is later then stop time: " + newStopTime.get(Calendar.HOUR_OF_DAY) + ":" + newStopTime.get(Calendar.MINUTE));
+		if (stopTime.before(startTime)) {
+			throw new TimeSetException("Start time: " + newStartTime.get(Calendar.HOUR_OF_DAY) + ":"
+					+ newStartTime.get(Calendar.MINUTE) + " is later then stop time: "
+					+ newStopTime.get(Calendar.HOUR_OF_DAY) + ":" + newStopTime.get(Calendar.MINUTE));
 		}
 		return 999;
 	}
-	
-	public boolean isSignInAcceptable()
-	{
+
+	public boolean isSignInAcceptable() {
 		Date currentTime = new Date();
-		if(currentTime.after(startTime) && currentTime.before(stopTime)) {
+		if (currentTime.after(startTime) && currentTime.before(stopTime)) {
 			return true;
 		}
 		return false;
 	}
-	
+
 	@Override
 	public synchronized boolean equals(Object other) {
 		if (this == other) {
