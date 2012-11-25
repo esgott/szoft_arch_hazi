@@ -348,8 +348,13 @@ public class LabEventContainer {
 	}
 
 	public synchronized void signInForLabEvent(String labEventName, String neptun) throws ElementNotFoundException,
-			ElementAlreadyAddedException {
+			ElementAlreadyAddedException, TimeSetException {	
 		LabEvent labEvent = getLabEvent(labEventName);
+		if(labEvent.isSignInAcceptable() == false){
+			logger.warning("Time window is closed now for LabEvent: " + labEventName);
+			throw new TimeSetException("Time window is closed to LabEvent: " + labEventName);
+		}
+		
 		Student student;
 		
 		try {

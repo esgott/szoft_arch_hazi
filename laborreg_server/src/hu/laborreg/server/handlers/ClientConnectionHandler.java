@@ -2,6 +2,7 @@ package hu.laborreg.server.handlers;
 
 import hu.laborreg.server.exception.ElementAlreadyAddedException;
 import hu.laborreg.server.exception.ElementNotFoundException;
+import hu.laborreg.server.exception.TimeSetException;
 import hu.laborreg.server.labEvent.LabEventContainer;
 
 import java.util.logging.Logger;
@@ -38,10 +39,14 @@ public class ClientConnectionHandler {
 			labEvents.signInForLabEvent(labEventName, neptun);
 		} catch (ElementNotFoundException e) {
 			logger.info("Requested thing not found: " + e.getMessage());
-			return "Jelentkezés sikertelen";
+			return "Jelentkezés sikertelen: " + labEventName + " névvel nem létezik laboresemény.";
 		} catch (ElementAlreadyAddedException e) {
 			logger.info("Sign in already happened: " + e.getMessage());
-			return "Jelentkezés már korábban megtörtént";
+			return "Jelentkezés már korábban megtörtént erre a laboreseményre: " + labEventName;
+		} catch (TimeSetException e) {
+			logger.info("Sign in rejected: " + e.getMessage());
+			return "Nem lehetséges regisztrálni a " + labEventName + " laboreseményre, mert jelenleg nem aktív.";
+			
 		}
 		return "Sikeres jelentkezés";
 	}

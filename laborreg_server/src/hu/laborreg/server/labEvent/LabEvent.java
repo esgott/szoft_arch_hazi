@@ -1,16 +1,15 @@
 package hu.laborreg.server.labEvent;
 
 import hu.laborreg.server.computer.Computer;
-import hu.laborreg.server.course.Course;
 import hu.laborreg.server.exception.ElementAlreadyAddedException;
 import hu.laborreg.server.exception.TimeSetException;
 import hu.laborreg.server.student.Student;
 
+import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
-import java.text.ParseException;
 
 public class LabEvent {
 
@@ -191,9 +190,6 @@ public class LabEvent {
 	 *            The given stop time.
 	 */
 	private synchronized int checkTime(Date startTime, Date stopTime, boolean isCalledFromConstructor) throws TimeSetException {
-
-		Date currentTime = Calendar.getInstance().getTime();
-
 		Calendar newStartTime = Calendar.getInstance();
 		newStartTime.setTime(startTime);
 		Calendar newStopTime = Calendar.getInstance();
@@ -203,28 +199,16 @@ public class LabEvent {
 			throw new TimeSetException("Start time: " + newStartTime.get(Calendar.HOUR_OF_DAY) + ":" + newStartTime.get(Calendar.MINUTE) + 
 					" is later then stop time: " + newStopTime.get(Calendar.HOUR_OF_DAY) + ":" + newStopTime.get(Calendar.MINUTE));
 		}
-		
-		/*
-		if(currentTime.after(startTime) && currentTime.before(stopTime)) {
-			throw new TimeSetException("Set time is not enabled, because the Lab event is currently ongoing or the start time of of the lab event is in the past.");
-		}
-		
-		if(currentTime.after(stopTime)) {
-			throw new TimeSetException("Set time is not enabled, because the Lab event is finished or the stop time of the lab event is in the past.");
-		}
-		
-		if(isCalledFromConstructor == false)
-		{
-			if(currentTime.after(this.startTime)) {
-				throw new TimeSetException("Set time is not enabled, because the Lab event is currently ongoing.");
-			}
-			
-			if(currentTime.after(this.stopTime)){
-				throw new TimeSetException("Set time is not enabled, because the Lab event is finished.");
-			}
-		}
-		*/
 		return 999;
+	}
+	
+	public boolean isSignInAcceptable()
+	{
+		Date currentTime = new Date();
+		if(currentTime.after(startTime) && currentTime.before(stopTime)) {
+			return true;
+		}
+		return false;
 	}
 	
 	@Override
