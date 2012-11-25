@@ -61,7 +61,7 @@ public class StudentContainer {
 
 	private void addToDB(Student student) {
 		try {
-			String command = "INSERT INTO student(neptun, name) VALUES(?, NULL)";
+			String command = "INSERT INTO student(neptun) VALUES(?)";
 			PreparedStatement statement = dbConnection.createPreparedStatement(command);
 			statement.setString(1, student.getNeptunCode());
 			statement.executeUpdate();

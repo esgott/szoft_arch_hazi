@@ -350,7 +350,19 @@ public class LabEventContainer {
 	public synchronized void signInForLabEvent(String labEventName, String neptun) throws ElementNotFoundException,
 			ElementAlreadyAddedException {
 		LabEvent labEvent = getLabEvent(labEventName);
-		Student student = students.getStudent(neptun);
+		Student student;
+		
+		try {
+			student = students.getStudent(neptun);
+			if(labEvent.getSignedInStudents().contains(student)) {
+				throw new ElementAlreadyAddedException("Student is already signed in to this LabEvent");
+			}
+		}
+		catch(ElementNotFoundException e) {
+			logger.warning("Failed to get student from StudentsList. Create a new one.");
+			student = new Student(neptun);
+			students.addStudent(student);
+		}
 		labEvent.signInStudent(student);
 		try {
 			String command = "INSERT INTO signed (lab_event_name, student_neptun) VALUES (?, ?)";
