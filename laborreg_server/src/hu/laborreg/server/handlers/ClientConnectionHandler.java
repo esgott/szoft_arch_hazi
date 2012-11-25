@@ -50,7 +50,7 @@ public class ClientConnectionHandler {
 			logger.info("Sign in rejected: " + e.getMessage());
 			return "Nem lehetséges regisztrálni a " + labEventName + " laboreseményre, mert jelenleg nem aktív.";
 		} catch (WrongIpAddressException e) {
-			logger.severe("Maybe wrong IP address format in DB: " + e.getMessage());
+			logger.severe("Wrong IP address" + e.getMessage());
 			return "Belső hiba történt.";
 		} catch (SignInProhibitedException e) {
 			return "Erről a géprők már regisztrált valaki más.";
