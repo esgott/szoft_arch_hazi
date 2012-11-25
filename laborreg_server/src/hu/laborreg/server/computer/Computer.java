@@ -75,4 +75,15 @@ public class Computer {
 		}
 		return retVal;
 	}
+	
+	@Override
+	public synchronized boolean equals(Object other) {
+		if (this == other) {
+			return true;
+		} else if (!(other instanceof Computer)) {
+			return false;
+		}
+		Computer computer = (Computer) other;
+		return computer.IpAddress.equals(IpAddress);
+	}
 }

@@ -3,6 +3,7 @@ package hu.laborreg.server.handlers;
 import hu.laborreg.server.exception.ElementAlreadyAddedException;
 import hu.laborreg.server.exception.ElementNotFoundException;
 import hu.laborreg.server.exception.TimeSetException;
+import hu.laborreg.server.exception.WrongIpAddressException;
 import hu.laborreg.server.labEvent.LabEventContainer;
 
 import java.util.logging.Logger;
@@ -38,7 +39,7 @@ public class ClientConnectionHandler {
 				+ labEventName + " labEvent.");
 		boolean registered;
 		try {
-			registered = labEvents.signInForLabEvent(labEventName, neptun, forced);
+			registered = labEvents.signInForLabEvent(labEventName, neptun, ipAddress, forced);
 		} catch (ElementNotFoundException e) {
 			logger.info("Labevent not found: " + e.getMessage());
 			return "Jelentkezés sikertelen: " + labEventName + " névvel nem létezik laboresemény.";
@@ -48,6 +49,11 @@ public class ClientConnectionHandler {
 		} catch (TimeSetException e) {
 			logger.info("Sign in rejected: " + e.getMessage());
 			return "Nem lehetséges regisztrálni a " + labEventName + " laboreseményre, mert jelenleg nem aktív.";
+		} catch (WrongIpAddressException e) {
+			logger.severe("Wrong IP address" + e.getMessage());
+			return "Belső hiba történt.";
+		} catch (SignInProhibitedException e) {
+			return "Erről a géprők már regisztrált valaki más.";
 		}
 
 		if (registered) {

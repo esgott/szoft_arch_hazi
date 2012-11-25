@@ -10,6 +10,8 @@ import hu.laborreg.server.exception.ElementAlreadyAddedException;
 import hu.laborreg.server.exception.ElementNotFoundException;
 import hu.laborreg.server.exception.TimeSetException;
 import hu.laborreg.server.exception.WrongIpAddressException;
+import hu.laborreg.server.handlers.SignInProhibitedException;
+import hu.laborreg.server.student.SignedInStudent;
 import hu.laborreg.server.student.Student;
 import hu.laborreg.server.student.StudentContainer;
 
@@ -22,6 +24,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Logger;
 
 public class LabEventContainer {
@@ -95,11 +98,13 @@ public class LabEventContainer {
 		ResultSet result = statement.executeQuery();
 		while (result.next()) {
 			String neptun = result.getString("student_neptun");
+			String ipAddress = result.getString("computer_ip_address");
 			try {
 				Student student = students.getStudent(neptun);
-				labEvent.signInStudent(student);
+				Computer computer = computers.getComputer(ipAddress);
+				labEvent.signInStudent(student, computer);
 			} catch (ElementNotFoundException e) {
-				logger.warning("Student found in signed, but not in students: " + e.getMessage());
+				logger.warning("Not found: " + e.getMessage());
 			} catch (ElementAlreadyAddedException e) {
 				logger.warning("Studnet signed in multiple times: " + e.getMessage());
 			}
@@ -347,8 +352,9 @@ public class LabEventContainer {
 		statement.executeUpdate();
 	}
 
-	public synchronized boolean signInForLabEvent(String labEventName, String neptun, boolean forced)
-			throws ElementNotFoundException, ElementAlreadyAddedException, TimeSetException {
+	public synchronized boolean signInForLabEvent(String labEventName, String neptun, String ipAddress, boolean forced)
+			throws ElementNotFoundException, ElementAlreadyAddedException, TimeSetException, WrongIpAddressException,
+			SignInProhibitedException {
 		LabEvent labEvent = getLabEvent(labEventName);
 		if (labEvent.isSignInAcceptable() == false) {
 			logger.warning("Time window is closed now for LabEvent: " + labEventName);
@@ -367,16 +373,37 @@ public class LabEventContainer {
 				return false;
 			}
 		}
-		labEvent.signInStudent(student);
+		Computer computer = computers.getComputerAndAddIfNotFound(ipAddress);
+		boolean allowed = registrationAllowed(labEvent, computer);
+		if (!allowed) {
+			logger.info("Sign in for " + labEventName + " with neptun " + neptun
+					+ " prohibitet, someone already registered from computer: " + ipAddress);
+			throw new SignInProhibitedException();
+		}
+		labEvent.signInStudent(student, computer);
 		try {
-			String command = "INSERT INTO signed (lab_event_name, student_neptun) VALUES (?, ?)";
+			String command = "INSERT INTO signed (lab_event_name, student_neptun, computer_ip_address) VALUES (?, ?, ?)";
 			PreparedStatement statement = dbConnection.createPreparedStatement(command);
 			statement.setString(1, labEvent.getName());
 			statement.setString(2, student.getNeptunCode());
+			statement.setString(3, ipAddress);
 			statement.executeUpdate();
 		} catch (SQLException e) {
 			logger.warning("Failed to record sign in in DB: " + e.getMessage());
 			throw new ElementNotFoundException("Failed to record sign in in DB");
+		}
+		return true;
+	}
+
+	private boolean registrationAllowed(LabEvent labEvent, Computer computer) {
+		Set<SignedInStudent> signIns = labEvent.getSignedInStudents();
+		Set<Computer> multipleAllowed = labEvent.getRegisteredComputers();
+		for (SignedInStudent signIn : signIns) {
+			if (computer.equals(signIn.computer)) {
+				if (!multipleAllowed.contains(computer)) {
+					return false;
+				}
+			}
 		}
 		return true;
 	}
