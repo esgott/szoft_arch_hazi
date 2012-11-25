@@ -2,9 +2,11 @@ package hu.laborreg.server.http;
 
 import hu.laborreg.server.file.FileProvider;
 import hu.laborreg.server.handlers.ClientConnectionHandler;
+import hu.laborreg.server.handlers.NotRegisteredException;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.URLDecoder;
@@ -12,6 +14,22 @@ import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Locale;
 import java.util.logging.Logger;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Result;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.TransformerFactoryConfigurationError;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
@@ -25,6 +43,9 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.DefaultHttpServerConnection;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpRequestHandler;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
 
 public class HttpFileHandler implements HttpRequestHandler {
 
@@ -80,12 +101,22 @@ public class HttpFileHandler implements HttpRequestHandler {
 			final HttpContext httpContext) {
 		String properFileName = "index.html";
 		File file = fileProvider.requestFile(docRoot, fileName);
-		if ((!fileName.contentEquals(properFileName) && !fileName.contentEquals("/")) || parameters.size() != 2) {
+		if ((!fileName.contentEquals(properFileName) && !fileName.contentEquals("/"))
+				|| (parameters.size() != 2 && parameters.size() != 3)) {
 			replyFileNotFound(file);
 			return;
 		}
 		NameValuePair neptunParameter = parameters.get(0);
 		NameValuePair labEventParameter = parameters.get(1);
+		boolean force = false;
+		try {
+			NameValuePair forceParameter = parameters.get(2);
+			if (forceParameter.getName().equals("force") && forceParameter.getValue().equals("true")) {
+				force = true;
+			}
+		} catch (IndexOutOfBoundsException e) {
+			force = false;
+		}
 		if (!neptunParameter.getName().equals("neptun") || !labEventParameter.getName().equals("labevent")) {
 			replyAccessDenied(file);
 			return;
@@ -93,9 +124,42 @@ public class HttpFileHandler implements HttpRequestHandler {
 		String ipAddress = getIpAddress(httpContext);
 		String neptun = neptunParameter.getValue();
 		String labEventName = labEventParameter.getValue();
-		String message = clientConnHandler.signInForLabEvent(neptun, labEventName, ipAddress);
-		replyWithMessage(message, HttpStatus.SC_OK);
-		logger.info("Message for sign in sent back: " + message);
+		try {
+			String message = clientConnHandler.signInForLabEvent(neptun, labEventName, ipAddress, force);
+			replyWithMessage(message, HttpStatus.SC_OK);
+			logger.info("Message for sign in sent back: " + message);
+		} catch (NotRegisteredException e) {
+			try {
+				replyWithForce(neptun, labEventName);
+				logger.info("Please acknowledge message sent back");
+			} catch (ParserConfigurationException | SAXException | IOException | TransformerFactoryConfigurationError
+					| TransformerException | XPathExpressionException e1) {
+				replyFileNotFound(file);
+				logger.warning("Failed to make answer: " + e.getMessage());
+			}
+		}
+	}
+
+	private void replyWithForce(String neptun, String labEventName) throws ParserConfigurationException, SAXException,
+			IOException, TransformerFactoryConfigurationError, TransformerException, XPathExpressionException {
+		File htmlFile = new File(docRoot, "force.html");
+		DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+		Document document = builder.parse(htmlFile);
+		XPath xpath = XPathFactory.newInstance().newXPath();
+		Element neptunInput = (Element) xpath.evaluate("//*[@id = 'neptuninput']", document, XPathConstants.NODE);
+		neptunInput.setAttribute("value", neptun);
+		Element labEventInput = (Element) xpath.evaluate("//*[@id = 'labeventinput']", document, XPathConstants.NODE);
+		labEventInput.setAttribute("value", labEventName);
+		Transformer transformer = TransformerFactory.newInstance().newTransformer();
+		StringWriter stringWriter = new StringWriter();
+		Source source = new DOMSource(document);
+		Result result = new StreamResult(stringWriter);
+		transformer.transform(source, result);
+		String transformedXml = stringWriter.getBuffer().toString();
+		response.setStatusCode(HttpStatus.SC_OK);
+		ContentType utf8ContentType = ContentType.create("text/html", "UTF-8");
+		StringEntity entity = new StringEntity(transformedXml, utf8ContentType);
+		response.setEntity(entity);
 	}
 
 	private String getIpAddress(HttpContext httpContext) {

@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import hu.laborreg.server.file.FileProvider;
 import hu.laborreg.server.handlers.ClientConnectionHandler;
+import hu.laborreg.server.handlers.NotRegisteredException;
 
 import java.io.File;
 import java.io.IOException;
@@ -81,7 +82,7 @@ public class HttpFileHandlerTest {
 	}
 	
 	@Test
-	public void properResponseGivenForNeptunParameter() throws HttpException, IOException {
+	public void properResponseGivenForNeptunParameter() throws HttpException, IOException, NotRegisteredException {
 		String fileName = "index.html";
 		String neptun = "jqumgw";
 		String labEvent = "example";
@@ -96,11 +97,11 @@ public class HttpFileHandlerTest {
 		when(mockHttpContext.getAttribute("http.connection")).thenReturn(mockHttpServerConnection);
 		when(mockHttpServerConnection.getRemoteAddress()).thenReturn(mockInetAddress);
 		when(mockInetAddress.getHostAddress()).thenReturn(ipAddress);
-		when(mockClientConnHandler.signInForLabEvent(neptun, labEvent, ipAddress)).thenReturn(message);
+		when(mockClientConnHandler.signInForLabEvent(neptun, labEvent, ipAddress, false)).thenReturn(message);
 
 		httpFileHandler.handle(mockHttpRequest, mockHttpResponse, mockHttpContext);
 
-		verify(mockClientConnHandler).signInForLabEvent(neptun, labEvent, ipAddress);
+		verify(mockClientConnHandler).signInForLabEvent(neptun, labEvent, ipAddress, false);
 		verify(mockHttpResponse).setStatusCode(HttpStatus.SC_OK);
 		verify(mockHttpResponse).setEntity(any(StringEntity.class));
 	}
@@ -152,7 +153,7 @@ public class HttpFileHandlerTest {
 
 		httpFileHandler.handle(mockHttpRequest, mockHttpResponse, mockHttpContext);
 
-		verify(mockHttpResponse).setStatusCode(HttpStatus.SC_NOT_FOUND);
+		verify(mockHttpResponse).setStatusCode(HttpStatus.SC_FORBIDDEN);
 		verify(mockHttpResponse).setEntity(any(StringEntity.class));
 	}
 	

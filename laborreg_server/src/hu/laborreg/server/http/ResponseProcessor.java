@@ -2,7 +2,7 @@ package hu.laborreg.server.http;
 
 public class ResponseProcessor {
 	
-	private final static String HEAD = "<head><title>JelenlÈt regisztr·lÛ rendszer</title><meta http-equiv=\"Content-Type\" content=\"text/html;charset=UTF-8\"></head>\n";
+	private final static String HEAD = "<head><meta http-equiv=\"Content-Type\" content=\"text/html;charset=UTF-8\"/><title>Jelenl√©t regisztr√°l√≥ rendszer</title></head>\n";
 	private final static String BEGIN = "<body><p>";
 	private final static String END = "</p></body>";
 	

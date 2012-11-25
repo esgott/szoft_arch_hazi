@@ -131,7 +131,8 @@ public class LabEventContainer {
 	 * @param labEvent
 	 *            The needed labEvent
 	 */
-	public synchronized void addLabEvent(LabEvent labEvent) throws ElementNotFoundException, ElementAlreadyAddedException {
+	public synchronized void addLabEvent(LabEvent labEvent) throws ElementNotFoundException,
+			ElementAlreadyAddedException {
 		Course c = courses.getCourse(labEvent.getCourseName(), labEvent.getCourseYear());
 		if (!labEvents.contains(labEvent)) {
 			labEvents.add(labEvent);
@@ -176,9 +177,8 @@ public class LabEventContainer {
 		}
 		removeFromDB(labEvent, removeSignInAndMultipleRegistration);
 	}
-	
-	public synchronized void removeLabEventWithoutDeleteFromCourse(LabEvent labEvent)
-			throws ElementNotFoundException {
+
+	public synchronized void removeLabEventWithoutDeleteFromCourse(LabEvent labEvent) throws ElementNotFoundException {
 		if (this.labEvents.remove(labEvent) == false) {
 			throw new ElementNotFoundException("Lab Event " + labEvent.getName()
 					+ " does not found in Lab events list.");
@@ -284,10 +284,10 @@ public class LabEventContainer {
 	}
 
 	private void checkIpAddresses(String[] multipleRegistrations) throws WrongIpAddressException {
-		for(String ipAddress: multipleRegistrations) {
+		for (String ipAddress : multipleRegistrations) {
 			new Computer(ipAddress, configuration);
 		}
-		
+
 	}
 
 	private void updateSignInfo(LabEvent oldLabEvent, LabEvent labEvent) {
@@ -347,26 +347,25 @@ public class LabEventContainer {
 		statement.executeUpdate();
 	}
 
-	public synchronized void signInForLabEvent(String labEventName, String neptun) throws ElementNotFoundException,
-			ElementAlreadyAddedException, TimeSetException {	
+	public synchronized boolean signInForLabEvent(String labEventName, String neptun, boolean forced)
+			throws ElementNotFoundException, ElementAlreadyAddedException, TimeSetException {
 		LabEvent labEvent = getLabEvent(labEventName);
-		if(labEvent.isSignInAcceptable() == false){
+		if (labEvent.isSignInAcceptable() == false) {
 			logger.warning("Time window is closed now for LabEvent: " + labEventName);
 			throw new TimeSetException("Time window is closed to LabEvent: " + labEventName);
 		}
-		
+
 		Student student;
-		
 		try {
 			student = students.getStudent(neptun);
-			if(labEvent.getSignedInStudents().contains(student)) {
-				throw new ElementAlreadyAddedException("Student is already signed in to this LabEvent");
+		} catch (ElementNotFoundException e) {
+			if (forced) {
+				logger.info("Failed to get student from StudentsList. Create a new one.");
+				student = new Student(neptun);
+				students.addStudent(student);
+			} else {
+				return false;
 			}
-		}
-		catch(ElementNotFoundException e) {
-			logger.warning("Failed to get student from StudentsList. Create a new one.");
-			student = new Student(neptun);
-			students.addStudent(student);
 		}
 		labEvent.signInStudent(student);
 		try {
@@ -379,9 +378,10 @@ public class LabEventContainer {
 			logger.warning("Failed to record sign in in DB: " + e.getMessage());
 			throw new ElementNotFoundException("Failed to record sign in in DB");
 		}
+		return true;
 	}
 
-	public synchronized  int getNumberOfLabevents() {
+	public synchronized int getNumberOfLabevents() {
 		return labEvents.size();
 	}
 
